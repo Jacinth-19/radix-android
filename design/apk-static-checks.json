@@ -1,0 +1,78 @@
+{
+  "status": "pass",
+  "applicationId": "com.radix.app",
+  "versionName": "6.0.0",
+  "versionCode": 6,
+  "minSdk": 26,
+  "targetSdk": 36,
+  "debuggable": false,
+  "internetPermission": false,
+  "dangerousPermissions": false,
+  "nativeUnitTests": {
+    "debug": {
+      "tests": 93,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "release": {
+      "tests": 93,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "apkBytes": 1804384,
+  "apkSha256": "1fe980e67cddfe4d3b888b6c1a9ea89c2f45e1d5171159160218b3c012056f03",
+  "certificateSha256": "785b9e3334078ed72a2a106e5dad849d80597d1dac929ce40f840671ca639020",
+  "signatureV2": true,
+  "signatureV3": true,
+  "legacyV1VerifiedWithApi21Override": true,
+  "nativeLibraries": [
+    {
+      "entry": "lib/arm64-v8a/libandroidx.graphics.path.so",
+      "uncompressed": true,
+      "zipDataOffset": 1327104,
+      "zipAligned16KiB": true,
+      "elfLoadAlignments": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    {
+      "entry": "lib/armeabi-v7a/libandroidx.graphics.path.so",
+      "uncompressed": true,
+      "zipDataOffset": 1343488,
+      "zipAligned16KiB": true,
+      "elfLoadAlignments": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    {
+      "entry": "lib/x86/libandroidx.graphics.path.so",
+      "uncompressed": true,
+      "zipDataOffset": 1359872,
+      "zipAligned16KiB": true,
+      "elfLoadAlignments": [
+        16384,
+        16384,
+        16384
+      ]
+    },
+    {
+      "entry": "lib/x86_64/libandroidx.graphics.path.so",
+      "uncompressed": true,
+      "zipDataOffset": 1376256,
+      "zipAligned16KiB": true,
+      "elfLoadAlignments": [
+        16384,
+        16384,
+        16384
+      ]
+    }
+  ],
+  "installedAndroidRuntimeQA": false
+}

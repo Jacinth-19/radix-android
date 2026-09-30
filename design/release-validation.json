@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "versionName": "4.0.0",
+  "versionCode": 4,
+  "nativeUnitMethodsPerVariant": 74,
+  "nativeUnitExecutions": 148,
+  "debugAssembly": "pass",
+  "releaseAssemblyAndR8": "pass",
+  "fullLint": {
+    "debug": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 6
+    },
+    "release": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 6
+    }
+  },
+  "nativeValidationMode": "separate no-daemon assembly and debug/release lint; 512 MiB lint worker; earlier combined run failed from host memory pressure",
+  "browserUxChecks": 125,
+  "browserUxSuites": {
+    "browser-test-results.json": 14,
+    "student-ui-results.json": 33,
+    "logic-ui-results.json": 31,
+    "study-ux-checks.json": 47
+  },
+  "javascriptAssertions": 11213956,
+  "newStudyAssertions": 418002,
+  "nativeBrowserBackupInterchange": "pass",
+  "signatureAndStaticApkAudit": "pass",
+  "installedNativeRuntimeQA": false,
+  "upgradeDataRetentionRuntimeQA": false,
+  "apkSha256": "e1387de98aee29ed91bb1c01752b58fc0e12096490456fed4e6c694fdf354621",
+  "previewSha256": "dad48c55343cd1fdec33686862fb3e82d74624d1d44dc5e956d901b0b5e621cd"
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_desc">Daily Radix practice challenge with your streak and progress.</string>
+    <string name="widget_brand">rₓ  radix · daily challenge</string>
+    <string name="widget_title_default">Today</string>
+    <string name="widget_prompt_default">Open Radix</string>
+    <string name="widget_meta_default">Practice</string>
+</resources>

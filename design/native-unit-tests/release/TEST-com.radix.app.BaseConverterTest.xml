@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.radix.app.BaseConverterTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:45.590Z" hostname="e2b.local" time="0.188">
+  <properties/>
+  <testcase name="normalizesMixedRepeatingInputs" classname="com.radix.app.BaseConverterTest" time="0.007"/>
+  <testcase name="detectsRepeatingFractions" classname="com.radix.app.BaseConverterTest" time="0.001"/>
+  <testcase name="arbitraryPrecisionRoundTripEveryBase" classname="com.radix.app.BaseConverterTest" time="0.147"/>
+  <testcase name="rationalRoundTripsAcrossBases" classname="com.radix.app.BaseConverterTest" time="0.003"/>
+  <testcase name="handlesEmptyAndIncompleteInputs" classname="com.radix.app.BaseConverterTest" time="0.002"/>
+  <testcase name="familiarIntegerConversions" classname="com.radix.app.BaseConverterTest" time="0.0"/>
+  <testcase name="enforcesResourceLimits" classname="com.radix.app.BaseConverterTest" time="0.001"/>
+  <testcase name="validatesBaseRange" classname="com.radix.app.BaseConverterTest" time="0.006"/>
+  <testcase name="groupingDoesNotAlterCopyValue" classname="com.radix.app.BaseConverterTest" time="0.002"/>
+  <testcase name="stripsMatchingPrefixesAndGrouping" classname="com.radix.app.BaseConverterTest" time="0.001"/>
+  <testcase name="permitsExactFractionAtPrecisionBoundary" classname="com.radix.app.BaseConverterTest" time="0.001"/>
+  <testcase name="detectsRepeatAtPrecisionBoundary" classname="com.radix.app.BaseConverterTest" time="0.001"/>
+  <testcase name="handlesTerminatingFractionsExactly" classname="com.radix.app.BaseConverterTest" time="0.001"/>
+  <testcase name="handlesSignsAndZero" classname="com.radix.app.BaseConverterTest" time="0.0"/>
+  <testcase name="flagsLongFractionsWithoutFloatRounding" classname="com.radix.app.BaseConverterTest" time="0.001"/>
+  <testcase name="rejectsInvalidDigitsAndSyntax" classname="com.radix.app.BaseConverterTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

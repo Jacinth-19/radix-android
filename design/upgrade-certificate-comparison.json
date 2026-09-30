@@ -1,0 +1,9 @@
+{
+  "status": "pass",
+  "previousCode": 5,
+  "newCode": 6,
+  "samePackage": "com.radix.app",
+  "sameCertificate": true,
+  "certificateSha256": "785b9e3334078ed72a2a106e5dad849d80597d1dac929ce40f840671ca639020",
+  "note": "Static update prerequisites verified; installed Android upgrade/data-retention runtime test not performed."
+}

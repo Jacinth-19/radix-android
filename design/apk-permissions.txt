@@ -1,0 +1,5 @@
+package: com.radix.app
+uses-permission: name='android.permission.POST_NOTIFICATIONS'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+permission: com.radix.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission: name='com.radix.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'

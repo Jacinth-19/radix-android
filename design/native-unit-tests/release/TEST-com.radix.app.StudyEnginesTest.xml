@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.radix.app.StudyEnginesTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:51.473Z" hostname="e2b.local" time="0.789">
+  <properties/>
+  <testcase name="backupRejectsBadDimensionsModelsAndDuplicates" classname="com.radix.app.StudyEnginesTest" time="0.012"/>
+  <testcase name="jsonStringsBoundsAndMaliciousInput" classname="com.radix.app.StudyEnginesTest" time="0.006"/>
+  <testcase name="practiceCatalogIsUniqueAndComplete" classname="com.radix.app.StudyEnginesTest" time="0.001"/>
+  <testcase name="sessionValidationCoversEveryModelAndUnaryWidth" classname="com.radix.app.StudyEnginesTest" time="0.003"/>
+  <testcase name="backupRoundTripAndCrossPlatformFields" classname="com.radix.app.StudyEnginesTest" time="0.003"/>
+  <testcase name="expressionPrecedenceAdjacencyAndParentheses" classname="com.radix.app.StudyEnginesTest" time="0.0"/>
+  <testcase name="representationsCoverEverySmallWidthWord" classname="com.radix.app.StudyEnginesTest" time="0.545"/>
+  <testcase name="expressionInvalidAndBoundedInputs" classname="com.radix.app.StudyEnginesTest" time="0.006"/>
+  <testcase name="seededExpressionTreesUseIndependentBooleanOracle" classname="com.radix.app.StudyEnginesTest" time="0.028"/>
+  <testcase name="representationInvalidInputs" classname="com.radix.app.StudyEnginesTest" time="0.014"/>
+  <testcase name="expressionEquivalenceAndCounterexamples" classname="com.radix.app.StudyEnginesTest" time="0.001"/>
+  <testcase name="signedEndpointsAndNoSilentWrapping" classname="com.radix.app.StudyEnginesTest" time="0.002"/>
+  <testcase name="expressionOperatorsAndAliases" classname="com.radix.app.StudyEnginesTest" time="0.004"/>
+  <testcase name="atomicHistoryBranchingAndBounds" classname="com.radix.app.StudyEnginesTest" time="0.005"/>
+  <testcase name="browserBackupFixtureDecodesAndNativeExportMatches" classname="com.radix.app.StudyEnginesTest" time="0.011"/>
+  <testcase name="allCatalogSessionsValidateAndUnknownMemorySurvives" classname="com.radix.app.StudyEnginesTest" time="0.001"/>
+  <testcase name="bcdAndShortBinaryWordsAreNotConfused" classname="com.radix.app.StudyEnginesTest" time="0.0"/>
+  <testcase name="bcdDigitPackingCoversTenThousandDecimalValues" classname="com.radix.app.StudyEnginesTest" time="0.03"/>
+  <testcase name="grayRoundTripAndNeighbors" classname="com.radix.app.StudyEnginesTest" time="0.112"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

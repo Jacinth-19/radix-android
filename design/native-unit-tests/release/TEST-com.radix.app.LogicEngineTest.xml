@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.radix.app.LogicEngineTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:51.332Z" hostname="e2b.local" time="0.072">
+  <properties/>
+  <testcase name="allSequentialTransitionsAndFourClockCombinations" classname="com.radix.app.LogicEngineTest" time="0.015"/>
+  <testcase name="everyGateTruthTableAndArity" classname="com.radix.app.LogicEngineTest" time="0.001"/>
+  <testcase name="nextStateTablesAndUnknownRecovery" classname="com.radix.app.LogicEngineTest" time="0.002"/>
+  <testcase name="decoderComparatorEncoderProperties" classname="com.radix.app.LogicEngineTest" time="0.003"/>
+  <testcase name="forbiddenNorAndNandOutputsDoNotPretendComplementarity" classname="com.radix.app.LogicEngineTest" time="0.001"/>
+  <testcase name="counterWrapEnableAndSynchronousReset" classname="com.radix.app.LogicEngineTest" time="0.002"/>
+  <testcase name="allCombinationalTablesUseIndependentArithmeticOracle" classname="com.radix.app.LogicEngineTest" time="0.038"/>
+  <testcase name="latchIsTransparentButFlipFlopIsEdgeTriggered" classname="com.radix.app.LogicEngineTest" time="0.001"/>
+  <testcase name="invalidDimensionsAndNetlistsFail" classname="com.radix.app.LogicEngineTest" time="0.001"/>
+  <testcase name="shiftRingAndJohnsonSequences" classname="com.radix.app.LogicEngineTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

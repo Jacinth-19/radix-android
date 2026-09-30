@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "checks": 14,
+  "tests": [
+    "Default example is immediately useful",
+    "Results update while typing",
+    "Invalid input cannot produce stale results",
+    "Negative, fractional and recurring numbers work",
+    "Every source base and a custom output can be selected",
+    "Save, restore, reload persistence and delete work",
+    "Copy is ungrouped and paste is functional",
+    "Bit switches, bulk actions and conversion handoff work",
+    "Theme preference survives reload",
+    "Keyboard shortcut and clear work",
+    "390px and 320px layouts have no page overflow",
+    "Compact phone mode keeps live results visible with a short keyboard-height viewport",
+    "Offline sandboxed file preview renders and degrades honestly",
+    "No browser JavaScript errors"
+  ]
+}

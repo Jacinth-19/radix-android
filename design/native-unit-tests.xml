@@ -1,0 +1,277 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites name="Radix 5 native JVM unit tests; debug and release variants" tests="168">
+  <testsuite name="com.radix.app.BaseArithmeticTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:06.935Z" hostname="e2b.local" time="0.091">
+    <properties />
+    <testcase name="randomizedCrossCheckAgainstBigInteger" classname="com.radix.app.BaseArithmeticTest" time="0.073" />
+    <testcase name="knownMultiplyDivide" classname="com.radix.app.BaseArithmeticTest" time="0.005" />
+    <testcase name="knownAdditions" classname="com.radix.app.BaseArithmeticTest" time="0.001" />
+    <testcase name="referenceTableIsCorrect" classname="com.radix.app.BaseArithmeticTest" time="0.0" />
+    <testcase name="rejectsBadInput" classname="com.radix.app.BaseArithmeticTest" time="0.004" />
+    <testcase name="knownSubtractions" classname="com.radix.app.BaseArithmeticTest" time="0.001" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.BaseConverterTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:07.037Z" hostname="e2b.local" time="0.16">
+    <properties />
+    <testcase name="normalizesMixedRepeatingInputs" classname="com.radix.app.BaseConverterTest" time="0.004" />
+    <testcase name="detectsRepeatingFractions" classname="com.radix.app.BaseConverterTest" time="0.0" />
+    <testcase name="arbitraryPrecisionRoundTripEveryBase" classname="com.radix.app.BaseConverterTest" time="0.128" />
+    <testcase name="rationalRoundTripsAcrossBases" classname="com.radix.app.BaseConverterTest" time="0.005" />
+    <testcase name="handlesEmptyAndIncompleteInputs" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="familiarIntegerConversions" classname="com.radix.app.BaseConverterTest" time="0.0" />
+    <testcase name="enforcesResourceLimits" classname="com.radix.app.BaseConverterTest" time="0.0" />
+    <testcase name="validatesBaseRange" classname="com.radix.app.BaseConverterTest" time="0.0" />
+    <testcase name="groupingDoesNotAlterCopyValue" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="stripsMatchingPrefixesAndGrouping" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="permitsExactFractionAtPrecisionBoundary" classname="com.radix.app.BaseConverterTest" time="0.0" />
+    <testcase name="detectsRepeatAtPrecisionBoundary" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="handlesTerminatingFractionsExactly" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="handlesSignsAndZero" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="flagsLongFractionsWithoutFloatRounding" classname="com.radix.app.BaseConverterTest" time="0.0" />
+    <testcase name="rejectsInvalidDigitsAndSyntax" classname="com.radix.app.BaseConverterTest" time="0.002" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.BaseWorkingTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:07.203Z" hostname="e2b.local" time="0.107">
+    <properties />
+    <testcase name="invalidInputCannotGeneratePlausibleWorking" classname="com.radix.app.BaseWorkingTest" time="0.006" />
+    <testcase name="everyBaseSupportsAlphabetAndPlacePowers" classname="com.radix.app.BaseWorkingTest" time="0.015" />
+    <testcase name="signedPrefixesAndSpaces" classname="com.radix.app.BaseWorkingTest" time="0.002" />
+    <testcase name="repeatedRemainderIsExactNotApproximate" classname="com.radix.app.BaseWorkingTest" time="0.011" />
+    <testcase name="fractionalDigitsReadTopToBottom" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="decimalIntegerReadBottomToTop" classname="com.radix.app.BaseWorkingTest" time="0.002" />
+    <testcase name="octalGroupsUseThreeBitsNotFour" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="binaryIntegerPadsLeftAndFractionPadsRight" classname="com.radix.app.BaseWorkingTest" time="0.0" />
+    <testcase name="hexadecimalDigitValues" classname="com.radix.app.BaseWorkingTest" time="0.0" />
+    <testcase name="zeroAndLeadingZeroes" classname="com.radix.app.BaseWorkingTest" time="0.0" />
+    <testcase name="negativeSignsAreRestoredNotTwosComplement" classname="com.radix.app.BaseWorkingTest" time="0.022" />
+    <testcase name="sourceRecurringContributionUsesGeometricSeries" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="exactPrecisionBoundary" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="beginnerConversionsAcrossEveryBase" classname="com.radix.app.BaseWorkingTest" time="0.042" />
+    <testcase name="truncationIsExplainedWithoutRounding" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.KMapEngineTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:07.314Z" hostname="e2b.local" time="5.948">
+    <properties />
+    <testcase name="fourCornersMakeOneWrappedGroup" classname="com.radix.app.KMapEngineTest" time="0.015" />
+    <testcase name="exhaustiveThreeVariableTernaryMaps" classname="com.radix.app.KMapEngineTest" time="0.869" />
+    <testcase name="seededFourVariableDontCareMaps" classname="com.radix.app.KMapEngineTest" time="0.557" />
+    <testcase name="constantsAndUnspecifiedFunctions" classname="com.radix.app.KMapEngineTest" time="0.001" />
+    <testcase name="overlapsAreAllowedAndEssential" classname="com.radix.app.KMapEngineTest" time="0.001" />
+    <testcase name="inputListsValidateBoundsAndConflicts" classname="com.radix.app.KMapEngineTest" time="0.002" />
+    <testcase name="rejectsOppositeOutputsAndAllXGroups" classname="com.radix.app.KMapEngineTest" time="0.002" />
+    <testcase name="exhaustiveFourVariableBooleanMaps" classname="com.radix.app.KMapEngineTest" time="4.453" />
+    <testcase name="complementRulesDifferBetweenForms" classname="com.radix.app.KMapEngineTest" time="0.0" />
+    <testcase name="exhaustiveTwoVariableTernaryMaps" classname="com.radix.app.KMapEngineTest" time="0.003" />
+    <testcase name="beginnerExerciseCatalog" classname="com.radix.app.KMapEngineTest" time="0.033" />
+    <testcase name="independentPublicExpressionEvaluator" classname="com.radix.app.KMapEngineTest" time="0.003" />
+    <testcase name="rejectsDiagonalAndWrongSizedGroups" classname="com.radix.app.KMapEngineTest" time="0.0" />
+    <testcase name="grayCodeOrderAndAxisWrapping" classname="com.radix.app.KMapEngineTest" time="0.001" />
+    <system-out>3-variable ternary truth tables verified: 6561, SOP and POS, with independent minimum-cover oracle.
+Additional seeded 4-variable ternary tables verified: 2000; first 200 checked against the independent optimum oracle.
+4-variable Boolean truth tables verified: 65536, SOP and POS, via an independent visible-expression parser.
+2-variable ternary truth tables verified: 81, SOP and POS, with independent minimum-cover oracle.
+</system-out>
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.LogicEngineTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:13.267Z" hostname="e2b.local" time="0.068">
+    <properties />
+    <testcase name="allSequentialTransitionsAndFourClockCombinations" classname="com.radix.app.LogicEngineTest" time="0.01" />
+    <testcase name="everyGateTruthTableAndArity" classname="com.radix.app.LogicEngineTest" time="0.002" />
+    <testcase name="nextStateTablesAndUnknownRecovery" classname="com.radix.app.LogicEngineTest" time="0.002" />
+    <testcase name="decoderComparatorEncoderProperties" classname="com.radix.app.LogicEngineTest" time="0.001" />
+    <testcase name="forbiddenNorAndNandOutputsDoNotPretendComplementarity" classname="com.radix.app.LogicEngineTest" time="0.0" />
+    <testcase name="counterWrapEnableAndSynchronousReset" classname="com.radix.app.LogicEngineTest" time="0.001" />
+    <testcase name="allCombinationalTablesUseIndependentArithmeticOracle" classname="com.radix.app.LogicEngineTest" time="0.038" />
+    <testcase name="latchIsTransparentButFlipFlopIsEdgeTriggered" classname="com.radix.app.LogicEngineTest" time="0.0" />
+    <testcase name="invalidDimensionsAndNetlistsFail" classname="com.radix.app.LogicEngineTest" time="0.002" />
+    <testcase name="shiftRingAndJohnsonSequences" classname="com.radix.app.LogicEngineTest" time="0.0" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.Radix5EnginesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:06.720Z" hostname="e2b.local" time="0.148">
+    <properties />
+    <testcase name="booleanLawsHoldOnEveryRow" classname="com.radix.app.Radix5EnginesTest" time="0.05" />
+    <testcase name="practiceCatalogHasTiersAndBreadth" classname="com.radix.app.Radix5EnginesTest" time="0.07" />
+    <testcase name="onesComplementIsCorrect" classname="com.radix.app.Radix5EnginesTest" time="0.017" />
+    <testcase name="appStringsCoverBothLanguages" classname="com.radix.app.Radix5EnginesTest" time="0.009" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.Radix6EnginesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:06.872Z" hostname="e2b.local" time="0.059">
+    <properties />
+    <testcase name="floatParsersAreStrict" classname="com.radix.app.Radix6EnginesTest" time="0.001" />
+    <testcase name="liveSimClockRunsEdgesAndHolds" classname="com.radix.app.Radix6EnginesTest" time="0.005" />
+    <testcase name="liveSimCleanTransitionsDoNotGlitch" classname="com.radix.app.Radix6EnginesTest" time="0.007" />
+    <testcase name="builderPresetsAreValidAndCorrect" classname="com.radix.app.Radix6EnginesTest" time="0.007" />
+    <testcase name="floatEncodeDecimalsAndSpecials" classname="com.radix.app.Radix6EnginesTest" time="0.019" />
+    <testcase name="liveSimFindsTheClassicGlitch" classname="com.radix.app.Radix6EnginesTest" time="0.001" />
+    <testcase name="builderValidationCatchesWiringMistakes" classname="com.radix.app.Radix6EnginesTest" time="0.005" />
+    <testcase name="gameXpLevelsAndRanks" classname="com.radix.app.Radix6EnginesTest" time="0.01" />
+    <testcase name="floatDecodeKnownWords" classname="com.radix.app.Radix6EnginesTest" time="0.002" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.StudyEnginesTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:13.345Z" hostname="e2b.local" time="0.84">
+    <properties />
+    <testcase name="backupRejectsBadDimensionsModelsAndDuplicates" classname="com.radix.app.StudyEnginesTest" time="0.01" />
+    <testcase name="jsonStringsBoundsAndMaliciousInput" classname="com.radix.app.StudyEnginesTest" time="0.006" />
+    <testcase name="practiceCatalogIsUniqueAndComplete" classname="com.radix.app.StudyEnginesTest" time="0.002" />
+    <testcase name="sessionValidationCoversEveryModelAndUnaryWidth" classname="com.radix.app.StudyEnginesTest" time="0.004" />
+    <testcase name="backupRoundTripAndCrossPlatformFields" classname="com.radix.app.StudyEnginesTest" time="0.004" />
+    <testcase name="expressionPrecedenceAdjacencyAndParentheses" classname="com.radix.app.StudyEnginesTest" time="0.001" />
+    <testcase name="representationsCoverEverySmallWidthWord" classname="com.radix.app.StudyEnginesTest" time="0.61" />
+    <testcase name="expressionInvalidAndBoundedInputs" classname="com.radix.app.StudyEnginesTest" time="0.006" />
+    <testcase name="seededExpressionTreesUseIndependentBooleanOracle" classname="com.radix.app.StudyEnginesTest" time="0.027" />
+    <testcase name="representationInvalidInputs" classname="com.radix.app.StudyEnginesTest" time="0.01" />
+    <testcase name="expressionEquivalenceAndCounterexamples" classname="com.radix.app.StudyEnginesTest" time="0.0" />
+    <testcase name="signedEndpointsAndNoSilentWrapping" classname="com.radix.app.StudyEnginesTest" time="0.003" />
+    <testcase name="expressionOperatorsAndAliases" classname="com.radix.app.StudyEnginesTest" time="0.0" />
+    <testcase name="atomicHistoryBranchingAndBounds" classname="com.radix.app.StudyEnginesTest" time="0.007" />
+    <testcase name="browserBackupFixtureDecodesAndNativeExportMatches" classname="com.radix.app.StudyEnginesTest" time="0.011" />
+    <testcase name="allCatalogSessionsValidateAndUnknownMemorySurvives" classname="com.radix.app.StudyEnginesTest" time="0.001" />
+    <testcase name="bcdAndShortBinaryWordsAreNotConfused" classname="com.radix.app.StudyEnginesTest" time="0.0" />
+    <testcase name="bcdDigitPackingCoversTenThousandDecimalValues" classname="com.radix.app.StudyEnginesTest" time="0.032" />
+    <testcase name="grayRoundTripAndNeighbors" classname="com.radix.app.StudyEnginesTest" time="0.1" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.BaseArithmeticTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:45.385Z" hostname="e2b.local" time="0.195">
+    <properties />
+    <testcase name="randomizedCrossCheckAgainstBigInteger" classname="com.radix.app.BaseArithmeticTest" time="0.186" />
+    <testcase name="knownMultiplyDivide" classname="com.radix.app.BaseArithmeticTest" time="0.0" />
+    <testcase name="knownAdditions" classname="com.radix.app.BaseArithmeticTest" time="0.0" />
+    <testcase name="referenceTableIsCorrect" classname="com.radix.app.BaseArithmeticTest" time="0.0" />
+    <testcase name="rejectsBadInput" classname="com.radix.app.BaseArithmeticTest" time="0.007" />
+    <testcase name="knownSubtractions" classname="com.radix.app.BaseArithmeticTest" time="0.0" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.BaseConverterTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:45.590Z" hostname="e2b.local" time="0.188">
+    <properties />
+    <testcase name="normalizesMixedRepeatingInputs" classname="com.radix.app.BaseConverterTest" time="0.007" />
+    <testcase name="detectsRepeatingFractions" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="arbitraryPrecisionRoundTripEveryBase" classname="com.radix.app.BaseConverterTest" time="0.147" />
+    <testcase name="rationalRoundTripsAcrossBases" classname="com.radix.app.BaseConverterTest" time="0.003" />
+    <testcase name="handlesEmptyAndIncompleteInputs" classname="com.radix.app.BaseConverterTest" time="0.002" />
+    <testcase name="familiarIntegerConversions" classname="com.radix.app.BaseConverterTest" time="0.0" />
+    <testcase name="enforcesResourceLimits" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="validatesBaseRange" classname="com.radix.app.BaseConverterTest" time="0.006" />
+    <testcase name="groupingDoesNotAlterCopyValue" classname="com.radix.app.BaseConverterTest" time="0.002" />
+    <testcase name="stripsMatchingPrefixesAndGrouping" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="permitsExactFractionAtPrecisionBoundary" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="detectsRepeatAtPrecisionBoundary" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="handlesTerminatingFractionsExactly" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="handlesSignsAndZero" classname="com.radix.app.BaseConverterTest" time="0.0" />
+    <testcase name="flagsLongFractionsWithoutFloatRounding" classname="com.radix.app.BaseConverterTest" time="0.001" />
+    <testcase name="rejectsInvalidDigitsAndSyntax" classname="com.radix.app.BaseConverterTest" time="0.005" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.BaseWorkingTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:45.782Z" hostname="e2b.local" time="0.104">
+    <properties />
+    <testcase name="invalidInputCannotGeneratePlausibleWorking" classname="com.radix.app.BaseWorkingTest" time="0.006" />
+    <testcase name="everyBaseSupportsAlphabetAndPlacePowers" classname="com.radix.app.BaseWorkingTest" time="0.014" />
+    <testcase name="signedPrefixesAndSpaces" classname="com.radix.app.BaseWorkingTest" time="0.003" />
+    <testcase name="repeatedRemainderIsExactNotApproximate" classname="com.radix.app.BaseWorkingTest" time="0.007" />
+    <testcase name="fractionalDigitsReadTopToBottom" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="decimalIntegerReadBottomToTop" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="octalGroupsUseThreeBitsNotFour" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="binaryIntegerPadsLeftAndFractionPadsRight" classname="com.radix.app.BaseWorkingTest" time="0.0" />
+    <testcase name="hexadecimalDigitValues" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="zeroAndLeadingZeroes" classname="com.radix.app.BaseWorkingTest" time="0.0" />
+    <testcase name="negativeSignsAreRestoredNotTwosComplement" classname="com.radix.app.BaseWorkingTest" time="0.02" />
+    <testcase name="sourceRecurringContributionUsesGeometricSeries" classname="com.radix.app.BaseWorkingTest" time="0.001" />
+    <testcase name="exactPrecisionBoundary" classname="com.radix.app.BaseWorkingTest" time="0.003" />
+    <testcase name="beginnerConversionsAcrossEveryBase" classname="com.radix.app.BaseWorkingTest" time="0.036" />
+    <testcase name="truncationIsExplainedWithoutRounding" classname="com.radix.app.BaseWorkingTest" time="0.002" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.KMapEngineTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:45.889Z" hostname="e2b.local" time="5.436">
+    <properties />
+    <testcase name="fourCornersMakeOneWrappedGroup" classname="com.radix.app.KMapEngineTest" time="0.027" />
+    <testcase name="exhaustiveThreeVariableTernaryMaps" classname="com.radix.app.KMapEngineTest" time="0.768" />
+    <testcase name="seededFourVariableDontCareMaps" classname="com.radix.app.KMapEngineTest" time="0.478" />
+    <testcase name="constantsAndUnspecifiedFunctions" classname="com.radix.app.KMapEngineTest" time="0.001" />
+    <testcase name="overlapsAreAllowedAndEssential" classname="com.radix.app.KMapEngineTest" time="0.001" />
+    <testcase name="inputListsValidateBoundsAndConflicts" classname="com.radix.app.KMapEngineTest" time="0.002" />
+    <testcase name="rejectsOppositeOutputsAndAllXGroups" classname="com.radix.app.KMapEngineTest" time="0.001" />
+    <testcase name="exhaustiveFourVariableBooleanMaps" classname="com.radix.app.KMapEngineTest" time="4.117" />
+    <testcase name="complementRulesDifferBetweenForms" classname="com.radix.app.KMapEngineTest" time="0.0" />
+    <testcase name="exhaustiveTwoVariableTernaryMaps" classname="com.radix.app.KMapEngineTest" time="0.006" />
+    <testcase name="beginnerExerciseCatalog" classname="com.radix.app.KMapEngineTest" time="0.027" />
+    <testcase name="independentPublicExpressionEvaluator" classname="com.radix.app.KMapEngineTest" time="0.002" />
+    <testcase name="rejectsDiagonalAndWrongSizedGroups" classname="com.radix.app.KMapEngineTest" time="0.001" />
+    <testcase name="grayCodeOrderAndAxisWrapping" classname="com.radix.app.KMapEngineTest" time="0.0" />
+    <system-out>3-variable ternary truth tables verified: 6561, SOP and POS, with independent minimum-cover oracle.
+Additional seeded 4-variable ternary tables verified: 2000; first 200 checked against the independent optimum oracle.
+4-variable Boolean truth tables verified: 65536, SOP and POS, via an independent visible-expression parser.
+2-variable ternary truth tables verified: 81, SOP and POS, with independent minimum-cover oracle.
+</system-out>
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.LogicEngineTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:51.332Z" hostname="e2b.local" time="0.072">
+    <properties />
+    <testcase name="allSequentialTransitionsAndFourClockCombinations" classname="com.radix.app.LogicEngineTest" time="0.015" />
+    <testcase name="everyGateTruthTableAndArity" classname="com.radix.app.LogicEngineTest" time="0.001" />
+    <testcase name="nextStateTablesAndUnknownRecovery" classname="com.radix.app.LogicEngineTest" time="0.002" />
+    <testcase name="decoderComparatorEncoderProperties" classname="com.radix.app.LogicEngineTest" time="0.003" />
+    <testcase name="forbiddenNorAndNandOutputsDoNotPretendComplementarity" classname="com.radix.app.LogicEngineTest" time="0.001" />
+    <testcase name="counterWrapEnableAndSynchronousReset" classname="com.radix.app.LogicEngineTest" time="0.002" />
+    <testcase name="allCombinationalTablesUseIndependentArithmeticOracle" classname="com.radix.app.LogicEngineTest" time="0.038" />
+    <testcase name="latchIsTransparentButFlipFlopIsEdgeTriggered" classname="com.radix.app.LogicEngineTest" time="0.001" />
+    <testcase name="invalidDimensionsAndNetlistsFail" classname="com.radix.app.LogicEngineTest" time="0.001" />
+    <testcase name="shiftRingAndJohnsonSequences" classname="com.radix.app.LogicEngineTest" time="0.002" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.Radix5EnginesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:51.406Z" hostname="e2b.local" time="0.026">
+    <properties />
+    <testcase name="booleanLawsHoldOnEveryRow" classname="com.radix.app.Radix5EnginesTest" time="0.006" />
+    <testcase name="practiceCatalogHasTiersAndBreadth" classname="com.radix.app.Radix5EnginesTest" time="0.005" />
+    <testcase name="onesComplementIsCorrect" classname="com.radix.app.Radix5EnginesTest" time="0.005" />
+    <testcase name="appStringsCoverBothLanguages" classname="com.radix.app.Radix5EnginesTest" time="0.009" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.Radix6EnginesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:51.436Z" hostname="e2b.local" time="0.031">
+    <properties />
+    <testcase name="floatParsersAreStrict" classname="com.radix.app.Radix6EnginesTest" time="0.001" />
+    <testcase name="liveSimClockRunsEdgesAndHolds" classname="com.radix.app.Radix6EnginesTest" time="0.002" />
+    <testcase name="liveSimCleanTransitionsDoNotGlitch" classname="com.radix.app.Radix6EnginesTest" time="0.005" />
+    <testcase name="builderPresetsAreValidAndCorrect" classname="com.radix.app.Radix6EnginesTest" time="0.003" />
+    <testcase name="floatEncodeDecimalsAndSpecials" classname="com.radix.app.Radix6EnginesTest" time="0.006" />
+    <testcase name="liveSimFindsTheClassicGlitch" classname="com.radix.app.Radix6EnginesTest" time="0.001" />
+    <testcase name="builderValidationCatchesWiringMistakes" classname="com.radix.app.Radix6EnginesTest" time="0.003" />
+    <testcase name="gameXpLevelsAndRanks" classname="com.radix.app.Radix6EnginesTest" time="0.005" />
+    <testcase name="floatDecodeKnownWords" classname="com.radix.app.Radix6EnginesTest" time="0.002" />
+    <system-out />
+    <system-err />
+  </testsuite>
+  <testsuite name="com.radix.app.StudyEnginesTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:51.473Z" hostname="e2b.local" time="0.789">
+    <properties />
+    <testcase name="backupRejectsBadDimensionsModelsAndDuplicates" classname="com.radix.app.StudyEnginesTest" time="0.012" />
+    <testcase name="jsonStringsBoundsAndMaliciousInput" classname="com.radix.app.StudyEnginesTest" time="0.006" />
+    <testcase name="practiceCatalogIsUniqueAndComplete" classname="com.radix.app.StudyEnginesTest" time="0.001" />
+    <testcase name="sessionValidationCoversEveryModelAndUnaryWidth" classname="com.radix.app.StudyEnginesTest" time="0.003" />
+    <testcase name="backupRoundTripAndCrossPlatformFields" classname="com.radix.app.StudyEnginesTest" time="0.003" />
+    <testcase name="expressionPrecedenceAdjacencyAndParentheses" classname="com.radix.app.StudyEnginesTest" time="0.0" />
+    <testcase name="representationsCoverEverySmallWidthWord" classname="com.radix.app.StudyEnginesTest" time="0.545" />
+    <testcase name="expressionInvalidAndBoundedInputs" classname="com.radix.app.StudyEnginesTest" time="0.006" />
+    <testcase name="seededExpressionTreesUseIndependentBooleanOracle" classname="com.radix.app.StudyEnginesTest" time="0.028" />
+    <testcase name="representationInvalidInputs" classname="com.radix.app.StudyEnginesTest" time="0.014" />
+    <testcase name="expressionEquivalenceAndCounterexamples" classname="com.radix.app.StudyEnginesTest" time="0.001" />
+    <testcase name="signedEndpointsAndNoSilentWrapping" classname="com.radix.app.StudyEnginesTest" time="0.002" />
+    <testcase name="expressionOperatorsAndAliases" classname="com.radix.app.StudyEnginesTest" time="0.004" />
+    <testcase name="atomicHistoryBranchingAndBounds" classname="com.radix.app.StudyEnginesTest" time="0.005" />
+    <testcase name="browserBackupFixtureDecodesAndNativeExportMatches" classname="com.radix.app.StudyEnginesTest" time="0.011" />
+    <testcase name="allCatalogSessionsValidateAndUnknownMemorySurvives" classname="com.radix.app.StudyEnginesTest" time="0.001" />
+    <testcase name="bcdAndShortBinaryWordsAreNotConfused" classname="com.radix.app.StudyEnginesTest" time="0.0" />
+    <testcase name="bcdDigitPackingCoversTenThousandDecimalValues" classname="com.radix.app.StudyEnginesTest" time="0.03" />
+    <testcase name="grayRoundTripAndNeighbors" classname="com.radix.app.StudyEnginesTest" time="0.112" />
+    <system-out />
+    <system-err />
+  </testsuite>
+</testsuites>

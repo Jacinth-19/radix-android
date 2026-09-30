@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.radix.app.BaseWorkingTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:07.203Z" hostname="e2b.local" time="0.107">
+  <properties/>
+  <testcase name="invalidInputCannotGeneratePlausibleWorking" classname="com.radix.app.BaseWorkingTest" time="0.006"/>
+  <testcase name="everyBaseSupportsAlphabetAndPlacePowers" classname="com.radix.app.BaseWorkingTest" time="0.015"/>
+  <testcase name="signedPrefixesAndSpaces" classname="com.radix.app.BaseWorkingTest" time="0.002"/>
+  <testcase name="repeatedRemainderIsExactNotApproximate" classname="com.radix.app.BaseWorkingTest" time="0.011"/>
+  <testcase name="fractionalDigitsReadTopToBottom" classname="com.radix.app.BaseWorkingTest" time="0.001"/>
+  <testcase name="decimalIntegerReadBottomToTop" classname="com.radix.app.BaseWorkingTest" time="0.002"/>
+  <testcase name="octalGroupsUseThreeBitsNotFour" classname="com.radix.app.BaseWorkingTest" time="0.001"/>
+  <testcase name="binaryIntegerPadsLeftAndFractionPadsRight" classname="com.radix.app.BaseWorkingTest" time="0.0"/>
+  <testcase name="hexadecimalDigitValues" classname="com.radix.app.BaseWorkingTest" time="0.0"/>
+  <testcase name="zeroAndLeadingZeroes" classname="com.radix.app.BaseWorkingTest" time="0.0"/>
+  <testcase name="negativeSignsAreRestoredNotTwosComplement" classname="com.radix.app.BaseWorkingTest" time="0.022"/>
+  <testcase name="sourceRecurringContributionUsesGeometricSeries" classname="com.radix.app.BaseWorkingTest" time="0.001"/>
+  <testcase name="exactPrecisionBoundary" classname="com.radix.app.BaseWorkingTest" time="0.001"/>
+  <testcase name="beginnerConversionsAcrossEveryBase" classname="com.radix.app.BaseWorkingTest" time="0.042"/>
+  <testcase name="truncationIsExplainedWithoutRounding" classname="com.radix.app.BaseWorkingTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

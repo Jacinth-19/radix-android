@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.radix.app.Radix6EnginesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:54:51.436Z" hostname="e2b.local" time="0.031">
+  <properties/>
+  <testcase name="floatParsersAreStrict" classname="com.radix.app.Radix6EnginesTest" time="0.001"/>
+  <testcase name="liveSimClockRunsEdgesAndHolds" classname="com.radix.app.Radix6EnginesTest" time="0.002"/>
+  <testcase name="liveSimCleanTransitionsDoNotGlitch" classname="com.radix.app.Radix6EnginesTest" time="0.005"/>
+  <testcase name="builderPresetsAreValidAndCorrect" classname="com.radix.app.Radix6EnginesTest" time="0.003"/>
+  <testcase name="floatEncodeDecimalsAndSpecials" classname="com.radix.app.Radix6EnginesTest" time="0.006"/>
+  <testcase name="liveSimFindsTheClassicGlitch" classname="com.radix.app.Radix6EnginesTest" time="0.001"/>
+  <testcase name="builderValidationCatchesWiringMistakes" classname="com.radix.app.Radix6EnginesTest" time="0.003"/>
+  <testcase name="gameXpLevelsAndRanks" classname="com.radix.app.Radix6EnginesTest" time="0.005"/>
+  <testcase name="floatDecodeKnownWords" classname="com.radix.app.Radix6EnginesTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

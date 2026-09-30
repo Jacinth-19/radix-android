@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "assertions": 418395,
+  "independentExpressionRows": 3360,
+  "exhaustiveRepresentationWords": 65808,
+  "grayRoundTrips": 65536,
+  "bcdWords": 10000,
+  "sessionModels": 31,
+  "practiceQuestions": 108,
+  "nativeBackupInterop": "pass",
+  "note": "Pure browser engines/data validation; not Android runtime QA."
+}

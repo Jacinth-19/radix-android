@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "assertions": 10787997,
+  "truthTables": 74220,
+  "sopPosSolutions": 148440,
+  "independentMinimumChecks": 13768,
+  "workedConversionReports": 299,
+  "durationSeconds": 22.08,
+  "baseExhaustiveCounts": {
+    "twoVariableTernary": 81,
+    "threeVariableTernary": 6561,
+    "fourVariableBoolean": 65536,
+    "fourVariableSeededTernary": 2000
+  },
+  "note": "Additional catalog and constant tables are included in total counts. Browser tests do not imply Android device runtime verification."
+}

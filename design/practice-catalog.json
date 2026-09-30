@@ -1,0 +1,1706 @@
+[
+  {
+    "id": "gate-and",
+    "category": "Gates",
+    "tier": 0,
+    "title": "Every input matters",
+    "prompt": "AND: A=1, B=0. What is Y?",
+    "choices": [
+      "0",
+      "1"
+    ],
+    "answer": 0,
+    "hint": "AND needs all inputs high.",
+    "explanation": "One input is 0, so A·B is 0."
+  },
+  {
+    "id": "gate-or",
+    "category": "Gates",
+    "tier": 0,
+    "title": "At least one",
+    "prompt": "OR: A=0, B=0. What is Y?",
+    "choices": [
+      "1",
+      "0"
+    ],
+    "answer": 1,
+    "hint": "OR needs at least one 1.",
+    "explanation": "Neither input is 1, so Y=0."
+  },
+  {
+    "id": "gate-not",
+    "category": "Gates",
+    "tier": 0,
+    "title": "Flip the value",
+    "prompt": "NOT: A=1. What is Y?",
+    "choices": [
+      "0",
+      "1"
+    ],
+    "answer": 0,
+    "hint": "An output bubble means inversion.",
+    "explanation": "NOT reverses 1 to 0."
+  },
+  {
+    "id": "gate-nand",
+    "category": "Gates",
+    "tier": 0,
+    "title": "AND, then invert",
+    "prompt": "NAND: A=1, B=1. What is Y?",
+    "choices": [
+      "1",
+      "0"
+    ],
+    "answer": 1,
+    "hint": "First evaluate AND.",
+    "explanation": "AND produces 1; NAND inverts it to 0."
+  },
+  {
+    "id": "gate-nor",
+    "category": "Gates",
+    "tier": 0,
+    "title": "OR, then invert",
+    "prompt": "NOR: A=0, B=0. What is Y?",
+    "choices": [
+      "0",
+      "1"
+    ],
+    "answer": 1,
+    "hint": "First evaluate OR.",
+    "explanation": "OR produces 0; NOR inverts it to 1."
+  },
+  {
+    "id": "gate-xor",
+    "category": "Gates",
+    "tier": 1,
+    "title": "Odd means one",
+    "prompt": "Three-input XOR: A=B=C=1. What is Y?",
+    "choices": [
+      "0",
+      "1"
+    ],
+    "answer": 1,
+    "hint": "Count the number of 1s, not whether exactly one is high.",
+    "explanation": "Three 1s is odd parity, so Y=1. Multi-input XOR is not an exactly-one detector."
+  },
+  {
+    "id": "gate-xnor",
+    "category": "Gates",
+    "tier": 1,
+    "title": "Even means one",
+    "prompt": "Four-input XNOR: all four inputs are 1. What is Y?",
+    "choices": [
+      "1",
+      "0"
+    ],
+    "answer": 0,
+    "hint": "XNOR is the complement of XOR.",
+    "explanation": "Four 1s is even parity, so XNOR produces 1."
+  },
+  {
+    "id": "gate-buffer",
+    "category": "Gates",
+    "tier": 0,
+    "title": "Pass it through",
+    "prompt": "BUFFER: A=0. What is Y?",
+    "choices": [
+      "1",
+      "0"
+    ],
+    "answer": 1,
+    "hint": "A buffer does not invert.",
+    "explanation": "The output follows its one input: Y=0."
+  },
+  {
+    "id": "comb-half-add",
+    "category": "Circuits",
+    "tier": 0,
+    "title": "Two ones make two",
+    "prompt": "Half adder: A=1, B=1. Give Sum, Carry.",
+    "choices": [
+      "1, 0",
+      "0, 1",
+      "1, 1",
+      "0, 0"
+    ],
+    "answer": 1,
+    "hint": "Write decimal 2 as a two-bit result.",
+    "explanation": "1+1=2=10₂. Sum is the low bit 0; Carry is the high bit 1."
+  },
+  {
+    "id": "comb-full-add",
+    "category": "Circuits",
+    "tier": 1,
+    "title": "Remember carry-in",
+    "prompt": "Full adder: A=B=Cin=1. Give Sum, Cout.",
+    "choices": [
+      "0, 1",
+      "1, 0",
+      "1, 1",
+      "0, 0"
+    ],
+    "answer": 2,
+    "hint": "The total is 3, not 2.",
+    "explanation": "1+1+1=3=11₂: Sum=1 and Cout=1."
+  },
+  {
+    "id": "comb-half-sub",
+    "category": "Circuits",
+    "tier": 1,
+    "title": "Borrow one",
+    "prompt": "Half subtractor: A=0, B=1. Give Difference, Borrow.",
+    "choices": [
+      "1, 1",
+      "1, 0",
+      "0, 1",
+      "0, 0"
+    ],
+    "answer": 0,
+    "hint": "0−1 needs a borrow from the next position.",
+    "explanation": "After borrowing 2, 2−1=1; Difference=1 and Borrow=1."
+  },
+  {
+    "id": "comb-full-sub",
+    "category": "Circuits",
+    "tier": 2,
+    "title": "Borrow-in counts too",
+    "prompt": "Full subtractor: A=0, B=1, Bin=1. Give Difference, Bout.",
+    "choices": [
+      "1, 1",
+      "0, 0",
+      "1, 0",
+      "0, 1"
+    ],
+    "answer": 3,
+    "hint": "Compute A−B−Bin.",
+    "explanation": "0−1−1=−2. At one bit, Difference=0 and Borrow=1."
+  },
+  {
+    "id": "comb-mux",
+    "category": "Circuits",
+    "tier": 1,
+    "title": "Read the selector",
+    "prompt": "4:1 MUX: D0=0, D1=0, D2=1, D3=0; S1S0=10. Y?",
+    "choices": [
+      "0",
+      "1"
+    ],
+    "answer": 1,
+    "hint": "10₂ selects input number 2.",
+    "explanation": "The MUX routes D2, which is 1. It does not OR all data inputs."
+  },
+  {
+    "id": "comb-encoder",
+    "category": "Circuits",
+    "tier": 2,
+    "title": "The highest input wins",
+    "prompt": "Priority encoder: D3=D2=D1=D0=1. Give Y1Y0 and Valid.",
+    "choices": [
+      "00 / 1",
+      "11 / 1",
+      "11 / 0",
+      "00 / 0"
+    ],
+    "answer": 1,
+    "hint": "Priority is D3 > D2 > D1 > D0.",
+    "explanation": "D3 wins, so its index is 11₂; at least one input is high, so Valid=1."
+  },
+  {
+    "id": "comb-ripple",
+    "category": "Circuits",
+    "tier": 1,
+    "title": "Keep the fifth bit",
+    "prompt": "4-bit adder: 1111 + 0001, Cin=0. Give S3S2S1S0 and Cout.",
+    "choices": [
+      "1111 / 0",
+      "0001 / 1",
+      "0000 / 1",
+      "0000 / 0"
+    ],
+    "answer": 2,
+    "hint": "15+1=16 needs five bits.",
+    "explanation": "The result is 10000₂. The low four sum bits are 0000 and Cout=1."
+  },
+  {
+    "id": "comb-compare",
+    "category": "Circuits",
+    "tier": 1,
+    "title": "Start at the MSB",
+    "prompt": "2-bit comparator: A=10, B=01. Which relation is true?",
+    "choices": [
+      "A < B",
+      "A = B",
+      "A > B"
+    ],
+    "answer": 2,
+    "hint": "10₂ is decimal 2, not decimal ten.",
+    "explanation": "A=2 and B=1, so only A>B is high."
+  },
+  {
+    "id": "memory-d-hold",
+    "category": "Memory",
+    "tier": 1,
+    "title": "High is not an edge",
+    "prompt": "D flip-flop: Q=1, CLK stays high, D changes to 0. Q next?",
+    "choices": [
+      "0",
+      "1",
+      "X"
+    ],
+    "answer": 1,
+    "hint": "Capture needs a 0→1 transition.",
+    "explanation": "No new rising edge occurs. Q holds 1 even though D is now 0."
+  },
+  {
+    "id": "memory-latch",
+    "category": "Memory",
+    "tier": 0,
+    "title": "A latch follows a level",
+    "prompt": "D latch: Q=0, EN=1, D becomes 1. Q next?",
+    "choices": [
+      "0",
+      "1",
+      "X"
+    ],
+    "answer": 1,
+    "hint": "An enabled D latch is transparent.",
+    "explanation": "EN=1 lets Q follow D immediately. No clock edge is required."
+  },
+  {
+    "id": "memory-jk",
+    "category": "Memory",
+    "tier": 1,
+    "title": "Toggle, do not set",
+    "prompt": "JK flip-flop: Q=1, J=K=1 at a rising edge. Q next?",
+    "choices": [
+      "1",
+      "0",
+      "X"
+    ],
+    "answer": 1,
+    "hint": "Both high means toggle.",
+    "explanation": "JK=11 toggles Q from 1 to 0. It is valid in this ideal edge model."
+  },
+  {
+    "id": "memory-t",
+    "category": "Memory",
+    "tier": 1,
+    "title": "No second capture",
+    "prompt": "T flip-flop: Q=1, T=1, CLK stays high. Q next?",
+    "choices": [
+      "0",
+      "X",
+      "1"
+    ],
+    "answer": 2,
+    "hint": "A high level is not another rising edge.",
+    "explanation": "Q remains 1. T toggles only at each new rising edge."
+  },
+  {
+    "id": "memory-sr-nor",
+    "category": "Memory",
+    "tier": 1,
+    "title": "Forbidden does not mean complementary",
+    "prompt": "NOR SR latch: S=R=1. What happens?",
+    "choices": [
+      "Q=1, Q′=0",
+      "Q=0, Q′=1",
+      "Q=0, Q′=0; memory X",
+      "Q=1, Q′=1; memory X"
+    ],
+    "answer": 2,
+    "hint": "NOR outputs are forced low by a high reset/set input.",
+    "explanation": "Both physical outputs are 0; stored memory is indeterminate. Simultaneous release to hold keeps X until valid recovery."
+  },
+  {
+    "id": "memory-sr-nand",
+    "category": "Memory",
+    "tier": 2,
+    "title": "Active-low changes the rule",
+    "prompt": "NAND SR latch: nS=nR=0. What happens?",
+    "choices": [
+      "Q=0, Q′=0; memory X",
+      "Q=1, Q′=1; memory X",
+      "Q=1, Q′=0",
+      "Q=0, Q′=1"
+    ],
+    "answer": 1,
+    "hint": "A 0 on either NAND input forces its output to 1.",
+    "explanation": "Both physical outputs are 1 and stored memory is indeterminate. The active-low hold combination is 11."
+  },
+  {
+    "id": "memory-counter",
+    "category": "Memory",
+    "tier": 1,
+    "title": "Wrap at the width",
+    "prompt": "3-bit counter: Q=111, EN=1, RESET=0. After one rising edge?",
+    "choices": [
+      "000",
+      "111",
+      "100",
+      "X"
+    ],
+    "answer": 0,
+    "hint": "There are eight states, 0 through 7.",
+    "explanation": "The next count is (7+1) mod 8 = 0, so Q=000."
+  },
+  {
+    "id": "memory-shift",
+    "category": "Memory",
+    "tier": 1,
+    "title": "Insert at Q0",
+    "prompt": "Shift register: Q3Q2Q1Q0=0110, D=1, EN=1, RESET=0. Next edge?",
+    "choices": [
+      "1011",
+      "1101",
+      "0011",
+      "0111"
+    ],
+    "answer": 1,
+    "hint": "Move each bit toward Q3; D enters Q0.",
+    "explanation": "Q3←Q2, Q2←Q1, Q1←Q0, Q0←D produces 1101."
+  },
+  {
+    "id": "memory-sr-ff",
+    "category": "Memory",
+    "tier": 2,
+    "title": "Clocked forbidden state",
+    "prompt": "SR flip-flop: Q=1, S=R=1 at a rising edge. Q next?",
+    "choices": [
+      "1",
+      "0",
+      "X"
+    ],
+    "answer": 2,
+    "hint": "The forbidden combination is captured on the edge.",
+    "explanation": "This ideal SR flip-flop stores unknown X after capturing 11. A valid set/reset edge recovers a known state."
+  },
+  {
+    "id": "memory-ring",
+    "category": "Memory",
+    "tier": 1,
+    "title": "Circulate the one",
+    "prompt": "Ring counter: Q=1000, EN=1, RESET=0. Next rising edge?",
+    "choices": [
+      "0000",
+      "0001",
+      "0010",
+      "1111"
+    ],
+    "answer": 1,
+    "hint": "The old Q3 bit wraps around to Q0.",
+    "explanation": "Rotate 1000 left: the high bit re-enters at Q0, giving 0001."
+  },
+  {
+    "id": "memory-johnson",
+    "category": "Memory",
+    "tier": 2,
+    "title": "Invert the feedback",
+    "prompt": "Johnson counter: Q=1111, EN=1, RESET=0. Next rising edge?",
+    "choices": [
+      "1110",
+      "0000",
+      "0111",
+      "0001"
+    ],
+    "answer": 0,
+    "hint": "The complemented old Q3 enters Q0.",
+    "explanation": "Shift left and insert NOT old Q3 = 0: the next state is 1110."
+  },
+  {
+    "id": "memory-reset",
+    "category": "Memory",
+    "tier": 1,
+    "title": "Reset wins over enable",
+    "prompt": "3-bit counter: Q=101, EN=0, RESET=1. After a rising edge?",
+    "choices": [
+      "101",
+      "110",
+      "000",
+      "X"
+    ],
+    "answer": 2,
+    "hint": "RESET is synchronous and takes priority over EN.",
+    "explanation": "At the edge, RESET=1 clears Q to 000 even though EN=0. Before the edge it would still hold 101."
+  },
+  {
+    "id": "rep-negative",
+    "category": "Representations",
+    "tier": 1,
+    "title": "Not signed magnitude",
+    "prompt": "Encode −13 in 8-bit two’s complement.",
+    "choices": [
+      "10001101",
+      "11110010",
+      "11110011",
+      "00001101"
+    ],
+    "answer": 2,
+    "hint": "Encode +13, invert every bit, then add 1.",
+    "explanation": "+13=00001101; invert→11110010; add 1→11110011. Signed magnitude 10001101 is a different representation."
+  },
+  {
+    "id": "rep-range",
+    "category": "Representations",
+    "tier": 0,
+    "title": "The upper endpoint",
+    "prompt": "Largest unsigned 8-bit integer?",
+    "choices": [
+      "127",
+      "128",
+      "255",
+      "256"
+    ],
+    "answer": 2,
+    "hint": "There are 2^8 possible words, starting at zero.",
+    "explanation": "The range is 0 through 2^8−1 = 255. Signed two’s complement instead ends at 127."
+  },
+  {
+    "id": "rep-gray",
+    "category": "Representations",
+    "tier": 1,
+    "title": "Neighboring codes",
+    "prompt": "Gray code for the 4-bit binary word 0100?",
+    "choices": [
+      "0100",
+      "0110",
+      "1100",
+      "0010"
+    ],
+    "answer": 1,
+    "hint": "XOR binary with itself shifted right one bit.",
+    "explanation": "0100 XOR 0010 = 0110. Gray code is not positional binary."
+  },
+  {
+    "id": "rep-bcd",
+    "category": "Representations",
+    "tier": 0,
+    "title": "One nibble per digit",
+    "prompt": "BCD encoding of decimal 12?",
+    "choices": [
+      "0001 0010",
+      "0000 1100",
+      "1100 0000",
+      "0010 0001"
+    ],
+    "answer": 0,
+    "hint": "Encode the decimal digits 1 and 2 separately.",
+    "explanation": "BCD is 0001 0010. Ordinary binary for decimal 12 is 1100; these are different encodings."
+  },
+  {
+    "id": "expr-demorgan",
+    "category": "Expressions",
+    "tier": 1,
+    "title": "Invert the whole product",
+    "prompt": "Which expression equals NOT (A AND B)?",
+    "choices": [
+      "A′ AND B′",
+      "A′ OR B′",
+      "A OR B",
+      "A AND B"
+    ],
+    "answer": 1,
+    "hint": "De Morgan changes AND to OR when distributing NOT.",
+    "explanation": "NOT (A·B)=A′+B′. Inverting only the variables but keeping AND is incorrect."
+  },
+  {
+    "id": "expr-precedence",
+    "category": "Expressions",
+    "tier": 1,
+    "title": "Multiplication first",
+    "prompt": "In A + BC, which operation happens first?",
+    "choices": [
+      "A OR B",
+      "B AND C",
+      "A AND B",
+      "All are left-to-right"
+    ],
+    "answer": 1,
+    "hint": "Adjacency is AND and binds more tightly than OR.",
+    "explanation": "A + BC means A OR (B AND C), not (A OR B) AND C."
+  },
+  {
+    "id": "expr-xor",
+    "category": "Expressions",
+    "tier": 1,
+    "title": "Different inputs",
+    "prompt": "Which equals A XOR B?",
+    "choices": [
+      "AB + A′B′",
+      "A′B + AB′",
+      "A+B",
+      "AB"
+    ],
+    "answer": 1,
+    "hint": "XOR is true when the two inputs differ.",
+    "explanation": "A′B + AB′ covers 01 and 10 only. AB + A′B′ is XNOR instead."
+  },
+  {
+    "id": "expr-constant",
+    "category": "Expressions",
+    "tier": 0,
+    "title": "One dominates OR",
+    "prompt": "Simplify 1 OR (A AND B).",
+    "choices": [
+      "AB",
+      "0",
+      "1",
+      "A+B"
+    ],
+    "answer": 2,
+    "hint": "OR with 1 is always high.",
+    "explanation": "Every truth-table row is 1. Both SOP and POS reduce to constant 1."
+  },
+  {
+    "id": "base-place",
+    "category": "Number bases",
+    "tier": 0,
+    "title": "Weights, not digits",
+    "prompt": "Binary 1011 equals which decimal?",
+    "choices": [
+      "11",
+      "13",
+      "10",
+      "7"
+    ],
+    "answer": 0,
+    "hint": "Add the weights 8, 4, 2, 1 where bits are 1.",
+    "explanation": "1×8 + 0×4 + 1×2 + 1×1 = 11."
+  },
+  {
+    "id": "base-hex-digit",
+    "category": "Number bases",
+    "tier": 0,
+    "title": "Letters are digits too",
+    "prompt": "Hex digit C equals which decimal?",
+    "choices": [
+      "12",
+      "13",
+      "11",
+      "14"
+    ],
+    "answer": 0,
+    "hint": "A=10, B=11, C=12.",
+    "explanation": "C is the third letter-digit: 12."
+  },
+  {
+    "id": "base-oct-group",
+    "category": "Number bases",
+    "tier": 1,
+    "title": "Three bits at a time",
+    "prompt": "Binary 101110 equals which octal?",
+    "choices": [
+      "56",
+      "46",
+      "35",
+      "72"
+    ],
+    "answer": 0,
+    "hint": "Group from the right: 101 110.",
+    "explanation": "101₂=5 and 110₂=6, so the answer is 56₈."
+  },
+  {
+    "id": "base-hex-group",
+    "category": "Number bases",
+    "tier": 1,
+    "title": "Four bits at a time",
+    "prompt": "Binary 1111011 equals which hex?",
+    "choices": [
+      "7B",
+      "FB",
+      "3D",
+      "E7"
+    ],
+    "answer": 0,
+    "hint": "Pad left to full nibbles: 0111 1011.",
+    "explanation": "0111₂=7 and 1011₂=B, so the answer is 7B₁₆."
+  },
+  {
+    "id": "base-frac",
+    "category": "Number bases",
+    "tier": 2,
+    "title": "Halves, quarters, eighths",
+    "prompt": "Binary 0.101 equals which decimal?",
+    "choices": [
+      "0.625",
+      "0.5",
+      "0.101",
+      "0.75"
+    ],
+    "answer": 0,
+    "hint": "Fraction weights are 1/2, 1/4, 1/8.",
+    "explanation": "0.5 + 0 + 0.125 = 0.625."
+  },
+  {
+    "id": "gh-market",
+    "category": "Number bases",
+    "tier": 0,
+    "title": "Oranges at Makola",
+    "prompt": "Adwoa sells 12 oranges at 2 cedis each. The total in binary is?",
+    "choices": [
+      "11000",
+      "10100",
+      "11100",
+      "10010"
+    ],
+    "answer": 0,
+    "hint": "First multiply in decimal: 12 × 2.",
+    "explanation": "24₁₀ = 16 + 8 = 11000₂."
+  },
+  {
+    "id": "gh-trotro",
+    "category": "Number bases",
+    "tier": 1,
+    "title": "Free seats",
+    "prompt": "A trotro has 18 seats and 9 are taken. Free seats in octal?",
+    "choices": [
+      "11",
+      "9",
+      "21",
+      "10"
+    ],
+    "answer": 0,
+    "hint": "18 − 9 free seats, then convert.",
+    "explanation": "9₁₀ = 1×8 + 1 = 11₈."
+  },
+  {
+    "id": "base-den-hex",
+    "category": "Number bases",
+    "tier": 1,
+    "title": "The byte boundary",
+    "prompt": "Decimal 255 in hexadecimal?",
+    "choices": [
+      "FF",
+      "FE",
+      "100",
+      "EE"
+    ],
+    "answer": 0,
+    "hint": "Divide by 16: quotient and remainder.",
+    "explanation": "255 = 15×16 + 15, so FF₁₆."
+  },
+  {
+    "id": "base-why-hex",
+    "category": "Number bases",
+    "tier": 0,
+    "title": "Why hex exists",
+    "prompt": "Why do programmers write FF instead of 11111111?",
+    "choices": [
+      "Shorter, same bits",
+      "Different value",
+      "It is decimal",
+      "It is text"
+    ],
+    "answer": 0,
+    "hint": "Count the bits each form carries.",
+    "explanation": "One hex digit packs exactly 4 bits, so FF is 11111111 written compactly."
+  },
+  {
+    "id": "exam-base-table",
+    "category": "Number bases",
+    "tier": 2,
+    "title": "Spot the wrong row",
+    "prompt": "Which DEC/OCT/HEX row is wrong?",
+    "choices": [
+      "15 / 17 / F",
+      "16 / 20 / 10",
+      "9 / 11 / 9",
+      "12 / 14 / D"
+    ],
+    "answer": 3,
+    "hint": "Check each row: 12 decimal is C, not D, in hex.",
+    "explanation": "12₁₀ = 14₈ but C₁₆. D₁₆ is 13₁₀, so the last row is wrong."
+  },
+  {
+    "id": "arith-add-bin",
+    "category": "Arithmetic",
+    "tier": 0,
+    "title": "Carry the one",
+    "prompt": "1011₂ + 0111₂ = ?",
+    "choices": [
+      "10010",
+      "10001",
+      "10100",
+      "10000"
+    ],
+    "answer": 0,
+    "hint": "11 + 7 in decimal, then convert.",
+    "explanation": "18₁₀ = 10010₂. The leftmost 1 is the final carry."
+  },
+  {
+    "id": "arith-sub-bin",
+    "category": "Arithmetic",
+    "tier": 1,
+    "title": "Borrow with care",
+    "prompt": "1011₂ − 0111₂ = ?",
+    "choices": [
+      "0100",
+      "0011",
+      "0101",
+      "1000"
+    ],
+    "answer": 0,
+    "hint": "11 − 7 in decimal, then convert.",
+    "explanation": "4₁₀ = 0100₂."
+  },
+  {
+    "id": "arith-add-hex",
+    "category": "Arithmetic",
+    "tier": 1,
+    "title": "Letters add too",
+    "prompt": "2A₁₆ + 15₁₆ = ?",
+    "choices": [
+      "3F",
+      "3E",
+      "45",
+      "40"
+    ],
+    "answer": 0,
+    "hint": "A=10: 2A is 42, 15 is 21.",
+    "explanation": "42 + 21 = 63 = 3F₁₆."
+  },
+  {
+    "id": "arith-sub-oct",
+    "category": "Arithmetic",
+    "tier": 1,
+    "title": "Borrow an eight",
+    "prompt": "52₈ − 27₈ = ?",
+    "choices": [
+      "23",
+      "25",
+      "31",
+      "20"
+    ],
+    "answer": 0,
+    "hint": "Convert: 42 − 23 in decimal.",
+    "explanation": "19₁₀ = 23₈."
+  },
+  {
+    "id": "arith-mul-bin",
+    "category": "Arithmetic",
+    "tier": 2,
+    "title": "Shift and add",
+    "prompt": "101₂ × 11₂ = ?",
+    "choices": [
+      "1111",
+      "1011",
+      "1101",
+      "1110"
+    ],
+    "answer": 0,
+    "hint": "5 × 3 in decimal, then convert.",
+    "explanation": "15₁₀ = 1111₂."
+  },
+  {
+    "id": "arith-div-bin",
+    "category": "Arithmetic",
+    "tier": 2,
+    "title": "Divide the magnitudes",
+    "prompt": "1100₂ ÷ 100₂ = ?",
+    "choices": [
+      "11 rem 0",
+      "10 rem 0",
+      "11 rem 1",
+      "100 rem 0"
+    ],
+    "answer": 0,
+    "hint": "12 ÷ 4 in decimal.",
+    "explanation": "3₁₀ = 11₂ with remainder 0."
+  },
+  {
+    "id": "gh-money-arith",
+    "category": "Arithmetic",
+    "tier": 1,
+    "title": "Change in binary",
+    "prompt": "Kwame pays 45 cedis with 18 cedis spent. Change in binary?",
+    "choices": [
+      "11011",
+      "11001",
+      "11101",
+      "10111"
+    ],
+    "answer": 0,
+    "hint": "45 − 18 in decimal first.",
+    "explanation": "27₁₀ = 16+8+2+1 = 11011₂."
+  },
+  {
+    "id": "arith-carry",
+    "category": "Arithmetic",
+    "tier": 0,
+    "title": "One plus one",
+    "prompt": "1 + 1 in binary = ?",
+    "choices": [
+      "10",
+      "1",
+      "11",
+      "0"
+    ],
+    "answer": 0,
+    "hint": "Binary has no digit 2.",
+    "explanation": "1 + 1 = 10₂: write 0, carry 1."
+  },
+  {
+    "id": "exam-arith-hex",
+    "category": "Arithmetic",
+    "tier": 2,
+    "title": "The famous overflow",
+    "prompt": "FF₁₆ + 1 = ?",
+    "choices": [
+      "100",
+      "FF0",
+      "FE",
+      "1000"
+    ],
+    "answer": 0,
+    "hint": "255 + 1 needs one more digit.",
+    "explanation": "256₁₀ = 100₁₆."
+  },
+  {
+    "id": "arith-borrow",
+    "category": "Arithmetic",
+    "tier": 1,
+    "title": "Borrow across zeros",
+    "prompt": "1000₂ − 0001₂ = ?",
+    "choices": [
+      "0111",
+      "0110",
+      "1001",
+      "1111"
+    ],
+    "answer": 0,
+    "hint": "8 − 1 in decimal.",
+    "explanation": "7₁₀ = 0111₂."
+  },
+  {
+    "id": "law-identity",
+    "category": "Laws",
+    "tier": 0,
+    "title": "Add nothing",
+    "prompt": "A + 0 = ?",
+    "choices": [
+      "A",
+      "0",
+      "1",
+      "A′"
+    ],
+    "answer": 0,
+    "hint": "OR with 0 never forces a 1.",
+    "explanation": "Identity: A + 0 = A."
+  },
+  {
+    "id": "law-null",
+    "category": "Laws",
+    "tier": 0,
+    "title": "Multiply by nothing",
+    "prompt": "A · 0 = ?",
+    "choices": [
+      "0",
+      "A",
+      "1",
+      "A′"
+    ],
+    "answer": 0,
+    "hint": "AND with 0 never allows a 1.",
+    "explanation": "Null law: A · 0 = 0."
+  },
+  {
+    "id": "law-idem",
+    "category": "Laws",
+    "tier": 0,
+    "title": "Same twice",
+    "prompt": "A + A = ?",
+    "choices": [
+      "A",
+      "1",
+      "0",
+      "2A"
+    ],
+    "answer": 0,
+    "hint": "Repeating an OR term adds no new 1s.",
+    "explanation": "Idempotent: A + A = A."
+  },
+  {
+    "id": "law-complement",
+    "category": "Laws",
+    "tier": 1,
+    "title": "Cover everything",
+    "prompt": "A + A′ = ?",
+    "choices": [
+      "1",
+      "A",
+      "0",
+      "A′"
+    ],
+    "answer": 0,
+    "hint": "One of A, A′ is always 1.",
+    "explanation": "Complement: A + A′ = 1."
+  },
+  {
+    "id": "law-absorption",
+    "category": "Laws",
+    "tier": 1,
+    "title": "The vanishing term",
+    "prompt": "A + AB = ?",
+    "choices": [
+      "A",
+      "B",
+      "A+B",
+      "1"
+    ],
+    "answer": 0,
+    "hint": "Factor: A(1 + B).",
+    "explanation": "Absorption: A + AB = A."
+  },
+  {
+    "id": "law-absorption2",
+    "category": "Laws",
+    "tier": 2,
+    "title": "Absorb the other way",
+    "prompt": "A(A + B) = ?",
+    "choices": [
+      "A",
+      "AB",
+      "A+B",
+      "B"
+    ],
+    "answer": 0,
+    "hint": "Distribute, then absorb.",
+    "explanation": "AA + AB = A + AB = A."
+  },
+  {
+    "id": "law-demorgan-or",
+    "category": "Laws",
+    "tier": 1,
+    "title": "Break the bar",
+    "prompt": "(A + B)′ = ?",
+    "choices": [
+      "A′B′",
+      "A′+B′",
+      "AB",
+      "A+B"
+    ],
+    "answer": 0,
+    "hint": "De Morgan flips OR to AND.",
+    "explanation": "(A + B)′ = A′ · B′."
+  },
+  {
+    "id": "law-demorgan-and",
+    "category": "Laws",
+    "tier": 1,
+    "title": "Break the other bar",
+    "prompt": "(AB)′ = ?",
+    "choices": [
+      "A′+B′",
+      "A′B′",
+      "A+B",
+      "AB"
+    ],
+    "answer": 0,
+    "hint": "De Morgan flips AND to OR.",
+    "explanation": "(AB)′ = A′ + B′."
+  },
+  {
+    "id": "law-distributive",
+    "category": "Laws",
+    "tier": 2,
+    "title": "Factor like algebra",
+    "prompt": "A(B + C) = ?",
+    "choices": [
+      "AB+AC",
+      "(A+B)(A+C)",
+      "A+BC",
+      "ABC"
+    ],
+    "answer": 0,
+    "hint": "AND distributes over OR.",
+    "explanation": "A(B + C) = AB + AC."
+  },
+  {
+    "id": "exam-law-simplify",
+    "category": "Laws",
+    "tier": 2,
+    "title": "Factor, then collapse",
+    "prompt": "Simplify A′B + AB.",
+    "choices": [
+      "B",
+      "A",
+      "A′",
+      "1"
+    ],
+    "answer": 0,
+    "hint": "Factor out B first.",
+    "explanation": "B(A′ + A) = B · 1 = B."
+  },
+  {
+    "id": "kmap-gray",
+    "category": "K-maps",
+    "tier": 0,
+    "title": "Neighbors differ once",
+    "prompt": "Correct 2-bit Gray order?",
+    "choices": [
+      "00, 01, 11, 10",
+      "00, 01, 10, 11",
+      "00, 11, 01, 10",
+      "00, 10, 01, 11"
+    ],
+    "answer": 0,
+    "hint": "Only one bit may change per step.",
+    "explanation": "00→01→11→10 changes one bit each step."
+  },
+  {
+    "id": "kmap-group-size",
+    "category": "K-maps",
+    "tier": 0,
+    "title": "Powers of two",
+    "prompt": "Legal K-map group sizes?",
+    "choices": [
+      "1, 2, 4, 8, 16",
+      "Any even count",
+      "Multiples of 3",
+      "Any count"
+    ],
+    "answer": 0,
+    "hint": "Groups must be powers of two.",
+    "explanation": "Only 1, 2, 4, 8 or 16 cells form a valid group."
+  },
+  {
+    "id": "kmap-edges",
+    "category": "K-maps",
+    "tier": 1,
+    "title": "The map is a torus",
+    "prompt": "Left and right edges of a K-map…",
+    "choices": [
+      "touch (wrap around)",
+      "never touch",
+      "touch only in POS",
+      "touch only in 4-var"
+    ],
+    "answer": 0,
+    "hint": "Gray code makes the edges adjacent.",
+    "explanation": "Opposite edges are neighbors, so groups may wrap around."
+  },
+  {
+    "id": "kmap-sop-term",
+    "category": "K-maps",
+    "tier": 1,
+    "title": "Keep the fixed literal",
+    "prompt": "SOP group of four with B=1 fixed, rest varying. Term?",
+    "choices": [
+      "B",
+      "B′",
+      "1",
+      "A"
+    ],
+    "answer": 0,
+    "hint": "Fixed 1 becomes the plain literal.",
+    "explanation": "Only B stays 1 everywhere in the group: term = B."
+  },
+  {
+    "id": "kmap-pos-term",
+    "category": "K-maps",
+    "tier": 2,
+    "title": "POS flips the rule",
+    "prompt": "POS group of two zeroes with A=0 fixed. Clause?",
+    "choices": [
+      "A",
+      "A′",
+      "0",
+      "A+B"
+    ],
+    "answer": 0,
+    "hint": "In POS, fixed 0 becomes the plain literal.",
+    "explanation": "Only A stays 0 on the zeroes: clause = (A)."
+  },
+  {
+    "id": "kmap-xor2",
+    "category": "K-maps",
+    "tier": 1,
+    "title": "The checkerboard",
+    "prompt": "2-var map with 1s at m1, m2 simplifies to?",
+    "choices": [
+      "A⊕B",
+      "A⊙B",
+      "A+B",
+      "AB"
+    ],
+    "answer": 0,
+    "hint": "The 1s sit on 01 and 10.",
+    "explanation": "A′B + AB′ = A ⊕ B."
+  },
+  {
+    "id": "kmap-dontcare",
+    "category": "K-maps",
+    "tier": 1,
+    "title": "Xs are helpers",
+    "prompt": "Don’t-care cells…",
+    "choices": [
+      "may join groups but need no cover",
+      "must all be covered",
+      "always mean 0",
+      "are forbidden"
+    ],
+    "answer": 0,
+    "hint": "Xs impose no output requirement.",
+    "explanation": "Use Xs to enlarge groups; uncovered Xs are fine."
+  },
+  {
+    "id": "exam-kmap-essential",
+    "category": "K-maps",
+    "tier": 2,
+    "title": "Why this group stays",
+    "prompt": "A group is essential when…",
+    "choices": [
+      "it alone covers some required cell",
+      "it is the largest",
+      "it wraps an edge",
+      "it contains no Xs"
+    ],
+    "answer": 0,
+    "hint": "Remove it: does some 1 lose cover?",
+    "explanation": "Essential groups cover a required cell no other maximal group covers."
+  },
+  {
+    "id": "rep-ones",
+    "category": "Representations",
+    "tier": 1,
+    "title": "Flip, do not add",
+    "prompt": "One’s complement of 00001101 (8-bit)?",
+    "choices": [
+      "11110010",
+      "11110011",
+      "00001101",
+      "10001101"
+    ],
+    "answer": 0,
+    "hint": "Invert every bit; no +1 step.",
+    "explanation": "Flipping all bits gives 11110010. Adding 1 would make two’s complement."
+  },
+  {
+    "id": "rep-ones-zero",
+    "category": "Representations",
+    "tier": 2,
+    "title": "Two zeroes",
+    "prompt": "8-bit one’s complement: what is 11111111 worth?",
+    "choices": [
+      "-0",
+      "-1",
+      "-255",
+      "+255"
+    ],
+    "answer": 0,
+    "hint": "Invert it back to read the magnitude.",
+    "explanation": "Inverting gives 00000000 with the sign bit set: negative zero, −0."
+  },
+  {
+    "id": "rep-ones-vs-twos",
+    "category": "Representations",
+    "tier": 1,
+    "title": "Spot the +1",
+    "prompt": "One’s vs two’s complement of +5 (4-bit)?",
+    "choices": [
+      "1010 vs 1011",
+      "1011 vs 1010",
+      "0101 vs 1010",
+      "They match"
+    ],
+    "answer": 0,
+    "hint": "+5 is 0101; flip for one’s, then +1 for two’s.",
+    "explanation": "One’s: 1010. Two’s: 1010 + 1 = 1011."
+  },
+  {
+    "id": "gh-phone-bits",
+    "category": "Representations",
+    "tier": 0,
+    "title": "Bars on a phone",
+    "prompt": "Signal bars 0–3 stored in 2 bits. How many patterns?",
+    "choices": [
+      "4",
+      "3",
+      "2",
+      "8"
+    ],
+    "answer": 0,
+    "hint": "Two bits count 00 to 11.",
+    "explanation": "2 bits hold 2² = 4 patterns: 00, 01, 10, 11."
+  },
+  {
+    "id": "exam-rep-range",
+    "category": "Representations",
+    "tier": 2,
+    "title": "Signed limits",
+    "prompt": "8-bit two’s complement range?",
+    "choices": [
+      "−128…+127",
+      "−127…+128",
+      "0…255",
+      "−255…+255"
+    ],
+    "answer": 0,
+    "hint": "Half the 256 words go negative.",
+    "explanation": "−2⁷ … +(2⁷−1) = −128 … +127."
+  },
+  {
+    "id": "gh-traffic-nand",
+    "category": "Gates",
+    "tier": 1,
+    "title": "Sensors at the junction",
+    "prompt": "NAND with A=1, B=0 (traffic sensors). Y?",
+    "choices": [
+      "1",
+      "0",
+      "X",
+      "Z"
+    ],
+    "answer": 0,
+    "hint": "AND first, then invert.",
+    "explanation": "AND gives 0; NAND inverts to 1."
+  },
+  {
+    "id": "exam-mux-enable",
+    "category": "Circuits",
+    "tier": 2,
+    "title": "Build XOR from a MUX",
+    "prompt": "2:1 MUX for F=A′B+AB′. Choose S, D0, D1.",
+    "choices": [
+      "S=A, D0=B, D1=B′",
+      "S=B, D0=A, D1=A′",
+      "S=A, D0=A, D1=B",
+      "Impossible"
+    ],
+    "answer": 0,
+    "hint": "F = S′D0 + SD1 must match A′B + AB′.",
+    "explanation": "With S=A: A′B + AB′ needs D0=B and D1=B′."
+  },
+  {
+    "id": "exam-counter-states",
+    "category": "Memory",
+    "tier": 1,
+    "title": "Count the states",
+    "prompt": "How many states in a 3-bit binary counter?",
+    "choices": [
+      "8",
+      "6",
+      "7",
+      "3"
+    ],
+    "answer": 0,
+    "hint": "Three bits count 000 to 111.",
+    "explanation": "2³ = 8 states."
+  },
+  {
+    "id": "exam-jk-toggle",
+    "category": "Memory",
+    "tier": 2,
+    "title": "Set, not toggle",
+    "prompt": "JK: Q=0, J=1, K=0 at a rising edge. Q next?",
+    "choices": [
+      "1",
+      "0",
+      "X",
+      "Toggles"
+    ],
+    "answer": 0,
+    "hint": "J=1, K=0 is the set combination.",
+    "explanation": "JK=10 sets Q to 1."
+  },
+  {
+    "id": "exam-expr-nor",
+    "category": "Expressions",
+    "tier": 2,
+    "title": "Count the ones",
+    "prompt": "F=(A+B)′ has how many 1s in its 2-var table?",
+    "choices": [
+      "1",
+      "3",
+      "2",
+      "0"
+    ],
+    "answer": 0,
+    "hint": "NOR is 1 only when both inputs are 0.",
+    "explanation": "Only row 00 gives 1: a single one."
+  },
+  {
+    "id": "float-parts",
+    "category": "Floats",
+    "tier": 0,
+    "title": "Three fields",
+    "prompt": "A 32-bit float splits into sign, exponent and fraction. How many bits each?",
+    "choices": [
+      "1, 8, 23",
+      "1, 11, 52",
+      "8, 8, 16",
+      "1, 7, 24"
+    ],
+    "answer": 0,
+    "hint": "They must add to 32; the exponent takes 8.",
+    "explanation": "Sign 1 + exponent 8 + fraction 23 = 32 bits. (1, 11, 52) is the 64-bit double."
+  },
+  {
+    "id": "float-zero",
+    "category": "Floats",
+    "tier": 0,
+    "title": "All quiet",
+    "prompt": "All 32 bits of a float are 0. The value is?",
+    "choices": [
+      "+0",
+      "1.0",
+      "NaN",
+      "−1.0"
+    ],
+    "answer": 0,
+    "hint": "Zero exponent plus zero fraction is the zero pattern.",
+    "explanation": "All-zero bits mean +0.0."
+  },
+  {
+    "id": "float-sign-bit",
+    "category": "Floats",
+    "tier": 0,
+    "title": "The first bit",
+    "prompt": "A float whose sign bit is 1 is…?",
+    "choices": [
+      "negative",
+      "positive",
+      "always NaN",
+      "always zero"
+    ],
+    "answer": 0,
+    "hint": "Bit 31 is the sign, not the magnitude.",
+    "explanation": "Sign 1 means negative (or −0)."
+  },
+  {
+    "id": "sim-delay",
+    "category": "Builder",
+    "tier": 0,
+    "title": "Nothing is instant",
+    "prompt": "Propagation delay means…?",
+    "choices": [
+      "outputs change a little after inputs",
+      "outputs change before inputs",
+      "clocks run backwards",
+      "wires store charge"
+    ],
+    "answer": 0,
+    "hint": "Gates need nanoseconds to switch.",
+    "explanation": "Every gate output follows its inputs after a small delay."
+  },
+  {
+    "id": "builder-wire",
+    "category": "Builder",
+    "tier": 0,
+    "title": "One driver",
+    "prompt": "In the builder, a wire connects…?",
+    "choices": [
+      "one output to input pins",
+      "two outputs together",
+      "two probes",
+      "inputs to inputs"
+    ],
+    "answer": 0,
+    "hint": "Signals flow from outputs to inputs.",
+    "explanation": "Each wire carries one output signal into input pins; the probe only observes."
+  },
+  {
+    "id": "gh-score",
+    "category": "Arithmetic",
+    "tier": 0,
+    "title": "Derby goals",
+    "prompt": "Hearts score 2, Kotoko score 1. Total goals in binary?",
+    "choices": [
+      "11",
+      "10",
+      "101",
+      "3"
+    ],
+    "answer": 0,
+    "hint": "2 + 1 goals, then convert.",
+    "explanation": "3₁₀ = 11₂."
+  },
+  {
+    "id": "kmap-cells-3var",
+    "category": "K-maps",
+    "tier": 0,
+    "title": "Count the cells",
+    "prompt": "A 3-variable K-map has how many cells?",
+    "choices": [
+      "8",
+      "6",
+      "4",
+      "16"
+    ],
+    "answer": 0,
+    "hint": "One cell per input combination.",
+    "explanation": "2³ = 8 cells."
+  },
+  {
+    "id": "rep-nibble",
+    "category": "Representations",
+    "tier": 0,
+    "title": "Half a byte",
+    "prompt": "A nibble is…?",
+    "choices": [
+      "4 bits",
+      "2 bits",
+      "8 bits",
+      "10 bits"
+    ],
+    "answer": 0,
+    "hint": "Two nibbles make a byte.",
+    "explanation": "A nibble is 4 bits — exactly one hex digit."
+  },
+  {
+    "id": "float-bias",
+    "category": "Floats",
+    "tier": 1,
+    "title": "Shifted by 127",
+    "prompt": "Single-precision exponent bias is…?",
+    "choices": [
+      "127",
+      "128",
+      "1023",
+      "255"
+    ],
+    "answer": 0,
+    "hint": "Half of 254, rounded down.",
+    "explanation": "Bias 127 centers the 1…254 range around 2^0."
+  },
+  {
+    "id": "float-inf",
+    "category": "Floats",
+    "tier": 1,
+    "title": "All ones, empty tail",
+    "prompt": "Exponent all 1s, fraction all 0s means…?",
+    "choices": [
+      "Infinity",
+      "The largest normal",
+      "Zero",
+      "NaN"
+    ],
+    "answer": 0,
+    "hint": "Zero fraction keeps it infinite; nonzero would be NaN.",
+    "explanation": "That pattern is ±Infinity (the sign bit picks which)."
+  },
+  {
+    "id": "float-nan",
+    "category": "Floats",
+    "tier": 1,
+    "title": "All ones, busy tail",
+    "prompt": "Exponent all 1s, fraction nonzero means…?",
+    "choices": [
+      "NaN",
+      "Infinity",
+      "−0",
+      "The smallest normal"
+    ],
+    "answer": 0,
+    "hint": "A nonzero tail breaks the infinity pattern.",
+    "explanation": "That pattern is NaN — the result of 0.0/0.0 or ∞−∞."
+  },
+  {
+    "id": "float-hex-one",
+    "category": "Floats",
+    "tier": 1,
+    "title": "One, exactly",
+    "prompt": "1.0 as single-precision hex is…?",
+    "choices": [
+      "3F800000",
+      "3F000000",
+      "40000000",
+      "00000001"
+    ],
+    "answer": 0,
+    "hint": "Sign 0, exponent 127, zero fraction.",
+    "explanation": "0 01111111 000…0 = 0x3F800000."
+  },
+  {
+    "id": "float-double-bias",
+    "category": "Floats",
+    "tier": 1,
+    "title": "Bigger bias",
+    "prompt": "Double-precision (64-bit) exponent bias is…?",
+    "choices": [
+      "1023",
+      "127",
+      "2047",
+      "511"
+    ],
+    "answer": 0,
+    "hint": "Half of 2046.",
+    "explanation": "Bias 1023 centers the 11-bit exponent range."
+  },
+  {
+    "id": "sim-glitch",
+    "category": "Builder",
+    "tier": 1,
+    "title": "A flicker of wrong",
+    "prompt": "A glitch is…?",
+    "choices": [
+      "a brief wrong pulse from uneven path delays",
+      "a broken gate",
+      "a slow clock",
+      "a floating input"
+    ],
+    "answer": 0,
+    "hint": "Two paths to one gate can arrive at different times.",
+    "explanation": "When paths disagree briefly, the output flickers before settling."
+  },
+  {
+    "id": "builder-nand",
+    "category": "Circuits",
+    "tier": 1,
+    "title": "One gate to rule",
+    "prompt": "NAND is called universal because…?",
+    "choices": [
+      "NOT, AND and OR can all be built from NANDs",
+      "it has the most inputs",
+      "it never glitches",
+      "it needs no power"
+    ],
+    "answer": 0,
+    "hint": "Tie NAND inputs together and watch.",
+    "explanation": "NOT, AND and OR each have a NAND-only construction."
+  },
+  {
+    "id": "builder-xor-set",
+    "category": "Builder",
+    "tier": 1,
+    "title": "What builds XOR?",
+    "prompt": "Which gate set can build an XOR?",
+    "choices": [
+      "AND, OR and NOT",
+      "AND gates only",
+      "OR gates only",
+      "BUFFERs only"
+    ],
+    "answer": 0,
+    "hint": "XOR needs both AND-shaped and OR-shaped work.",
+    "explanation": "A′B + AB′ uses AND, OR and NOT — e.g. the 4-NAND build."
+  },
+  {
+    "id": "gh-kmap-row",
+    "category": "K-maps",
+    "tier": 1,
+    "title": "Kofi shades four",
+    "prompt": "Kofi shades 4 cells in a straight row on a 4-var map. How many literals stay?",
+    "choices": [
+      "2",
+      "4",
+      "3",
+      "1"
+    ],
+    "answer": 0,
+    "hint": "A group of 4 = 2² kills 2 variables.",
+    "explanation": "4 variables − 2 eliminated = a 2-literal term."
+  },
+  {
+    "id": "gh-trotro-change",
+    "category": "Arithmetic",
+    "tier": 1,
+    "title": "Keep the change",
+    "prompt": "Trotro fare is 15 cedis; Ama pays 20. Change in binary?",
+    "choices": [
+      "101",
+      "111",
+      "1010",
+      "100"
+    ],
+    "answer": 0,
+    "hint": "20 − 15 in decimal first.",
+    "explanation": "5₁₀ = 101₂."
+  },
+  {
+    "id": "gh-data-float",
+    "category": "Floats",
+    "tier": 1,
+    "title": "Ama checks 0.1 + 0.2",
+    "prompt": "Ama’s phone shows 0.1 + 0.2 = 0.30000000000000004. Why?",
+    "choices": [
+      "binary floats round 0.1 and 0.2",
+      "her phone is broken",
+      "addition is broken in binary",
+      "0.1 + 0.2 really equals that"
+    ],
+    "answer": 0,
+    "hint": "0.1 repeats forever in binary.",
+    "explanation": "0.1 and 0.2 are stored as nearest floats; their sum shows the rounding."
+  },
+  {
+    "id": "exam-float-01",
+    "category": "Floats",
+    "tier": 2,
+    "title": "The famous comparison",
+    "prompt": "In floating point, is 0.1 + 0.2 == 0.3?",
+    "choices": [
+      "No — rounding breaks it",
+      "Yes, always",
+      "Only in doubles",
+      "Only in singles"
+    ],
+    "answer": 0,
+    "hint": "Neither 0.1 nor 0.2 is exact in binary.",
+    "explanation": "Both round on input, so the sum differs from the rounded 0.3."
+  },
+  {
+    "id": "exam-sim-race",
+    "category": "Builder",
+    "tier": 2,
+    "title": "Neck and neck",
+    "prompt": "A race condition means…?",
+    "choices": [
+      "the result depends on which signal arrives first",
+      "two clocks with the same speed",
+      "a very fast glitch",
+      "two gates sharing one wire"
+    ],
+    "answer": 0,
+    "hint": "Order of arrival decides the outcome.",
+    "explanation": "If the answer changes with arrival order, the circuit has a race."
+  },
+  {
+    "id": "exam-kmap8",
+    "category": "K-maps",
+    "tier": 2,
+    "title": "Eight cells, one literal",
+    "prompt": "A group of 8 on a 4-variable map eliminates…?",
+    "choices": [
+      "3 variables",
+      "2 variables",
+      "4 variables",
+      "8 variables"
+    ],
+    "answer": 0,
+    "hint": "8 = 2³: three variables vary across the group.",
+    "explanation": "Three varying variables drop out, leaving a single literal."
+  },
+  {
+    "id": "exam-twos-overflow",
+    "category": "Arithmetic",
+    "tier": 2,
+    "title": "Seven plus one",
+    "prompt": "4-bit two’s complement: 0111 + 0001 = ?",
+    "choices": [
+      "1000 — that is −8, overflow!",
+      "1000 — that is +8",
+      "0111 — unchanged",
+      "0000 with carry"
+    ],
+    "answer": 0,
+    "hint": "Positive + positive must stay positive.",
+    "explanation": "Bit result 1000 reads as −8: adding positives gave a negative, so it overflowed."
+  },
+  {
+    "id": "exam-setup",
+    "category": "Memory",
+    "tier": 2,
+    "title": "Stable before the edge",
+    "prompt": "Setup time means data must be stable…?",
+    "choices": [
+      "before the clock edge",
+      "after the clock edge",
+      "only during reset",
+      "never — edges fix all"
+    ],
+    "answer": 0,
+    "hint": "The flip-flop photographs D at the edge.",
+    "explanation": "D must hold still for the setup window before the capturing edge."
+  }
+]

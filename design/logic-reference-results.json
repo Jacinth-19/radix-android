@@ -1,0 +1,9 @@
+{
+  "status": "pass",
+  "articles": 31,
+  "completeTables": 43,
+  "truthAndStateRows": 1164,
+  "mobileWidth": 320,
+  "externalResources": 0,
+  "note": "Offline browser document QA, not Android runtime."
+}

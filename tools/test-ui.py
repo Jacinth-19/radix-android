@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+"""Browser-companion smoke tests and design screenshots. Requires Playwright."""
+from pathlib import Path
+import json
+from playwright.sync_api import sync_playwright, expect
+
+root = Path(__file__).resolve().parent.parent
+screens = root / 'design'
+results = []
+def passed(name):
+    results.append(name)
+    print('PASS:', name, flush=True)
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(args=['--no-sandbox', '--disable-dev-shm-usage'])
+    ctx = browser.new_context(viewport={'width':1440,'height':1000}, permissions=['clipboard-read','clipboard-write'])
+    page = ctx.new_page()
+    errors = []
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.goto('http://127.0.0.1:3000/', wait_until='networkidle')
+    page.evaluate('document.fonts.ready')
+    expect(page.locator('#number-input')).to_have_value('255')
+    expect(page.locator('#result-2')).to_have_text('1111 1111')
+    expect(page.locator('#result-16')).to_have_text('FF')
+    page.screenshot(path=str(screens/'desktop-dark.png'), full_page=True)
+    passed('Default example is immediately useful')
+
+    field = page.locator('#number-input')
+    field.fill('42')
+    expect(page.locator('#result-2')).to_have_text('10 1010')
+    expect(page.locator('#result-8')).to_have_text('52')
+    expect(page.locator('#result-16')).to_have_text('2A')
+    passed('Results update while typing')
+
+    page.locator('.base-chip[data-base="16"]').click()
+    page.locator('#number-input').fill('0xFF')
+    expect(page.locator('#result-10')).to_have_text('255')
+    page.locator('#number-input').fill('G')
+    expect(page.locator('#input-help')).to_contain_text("isn't a base-16 digit")
+    expect(page.locator('#result-10')).to_have_text('—')
+    expect(page.locator('#save-number')).to_be_disabled()
+    expect(page.locator('[data-action="copy"][data-base="10"]')).to_be_disabled()
+    passed('Invalid input cannot produce stale results')
+
+    page.locator('.base-chip[data-base="10"]').click()
+    page.locator('#number-input').fill('-10.625')
+    expect(page.locator('#result-2')).to_have_text('-1010.101')
+    page.locator('#number-input').fill('0.(3)')
+    expect(page.locator('#result-2')).to_have_text('0.(01)')
+    passed('Negative, fractional and recurring numbers work')
+
+    page.locator('#number-input').fill('35')
+    page.locator('[data-action="picker"][data-kind="output"]').click()
+    page.locator('.grid-base[data-base="12"]').click()
+    expect(page.locator('#result-custom-12')).to_have_text('2B')
+    page.locator('[data-action="remove-custom"]').click()
+    expect(page.locator('#result-custom-12')).to_have_count(0)
+    page.locator('[data-action="picker"][data-kind="source"]').click()
+    page.locator('.grid-base[data-base="36"]').click()
+    page.locator('#number-input').fill('Z')
+    expect(page.locator('#result-10')).to_have_text('35')
+    passed('Every source base and a custom output can be selected')
+
+    page.locator('#save-number').click()
+    page.locator('.topnav [data-tab="more"]').click()
+    page.locator('.more-card[data-tab="saved"]').click()
+    expect(page.locator('.saved-value')).to_have_text('Z')
+    page.locator('[data-action="restore"]').click()
+    expect(page.locator('#number-input')).to_have_value('Z')
+    page.reload(wait_until='networkidle')
+    page.locator('.topnav [data-tab="more"]').click()
+    page.locator('.more-card[data-tab="saved"]').click()
+    expect(page.locator('.saved-value')).to_have_text('Z')
+    page.locator('[data-action="delete"]').click()
+    expect(page.locator('.empty-state')).to_be_visible()
+    passed('Save, restore, reload persistence and delete work')
+
+    page.locator('.topnav [data-tab="convert"]').click()
+    page.locator('.base-chip[data-base="10"]').click()
+    page.locator('#number-input').fill('255')
+    page.locator('[data-action="copy"][data-base="2"]').click()
+    assert page.evaluate('navigator.clipboard.readText()') == '11111111'
+    page.evaluate('navigator.clipboard.writeText("15")')
+    page.locator('[data-action="paste"]').click()
+    expect(page.locator('#number-input')).to_have_value('15')
+    expect(page.locator('#result-16')).to_have_text('F')
+    passed('Copy is ungrouped and paste is functional')
+
+    page.locator('.teaser').click()
+    expect(page.locator('#bit-decimal')).to_have_text('15')
+    page.locator('[data-action="bits-off"]').click()
+    page.locator('#bit-7').click()
+    expect(page.locator('#bit-decimal')).to_have_text('128')
+    expect(page.locator('#bit-7')).to_have_attribute('aria-pressed','true')
+    page.locator('[data-action="bits-on"]').click()
+    expect(page.locator('#bit-decimal')).to_have_text('255')
+    expect(page.locator('#bit-hex')).to_have_text('FF HEX')
+    page.locator('[data-action="use-bits"]').click()
+    expect(page.locator('#number-input')).to_have_value('255')
+    passed('Bit switches, bulk actions and conversion handoff work')
+
+    page.locator('#theme-toggle').click()
+    expect(page.locator('html')).to_have_attribute('data-theme','light')
+    page.reload(wait_until='networkidle')
+    expect(page.locator('html')).to_have_attribute('data-theme','light')
+    page.locator('#theme-toggle').click()
+    passed('Theme preference survives reload')
+
+    page.keyboard.press('Control+k')
+    expect(page.locator('#number-input')).to_be_focused()
+    page.locator('[data-action="clear"]').click()
+    expect(page.locator('#result-10')).to_have_text('—')
+    page.locator('#number-input').fill('255')
+    passed('Keyboard shortcut and clear work')
+
+    # New context: the phone's defaults are unaffected by desktop test state.
+    mobile = browser.new_context(viewport={'width':390,'height':844}, device_scale_factor=2, is_mobile=True, has_touch=True)
+    phone = mobile.new_page()
+    phone.on('pageerror', lambda error: errors.append(str(error)))
+    phone.goto('http://127.0.0.1:3000/', wait_until='networkidle')
+    phone.evaluate('document.fonts.ready')
+    assert phone.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    expect(phone.locator('.mobile-nav')).to_be_visible()
+    phone.screenshot(path=str(screens/'phone-dark.png'), full_page=True)
+    phone.locator('.mobile-nav [data-tab="more"]').click()
+    phone.locator('.more-card[data-tab="lab"]').click()
+    phone.screenshot(path=str(screens/'phone-bit-lab.png'), full_page=True)
+    phone.locator('.mobile-nav [data-tab="convert"]').click()
+    phone.locator('#theme-toggle').click()
+    phone.screenshot(path=str(screens/'phone-light.png'), full_page=True)
+    phone.set_viewport_size({'width':320,'height':640})
+    assert phone.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    passed('390px and 320px layouts have no page overflow')
+    phone.set_viewport_size({'width':390,'height':520})
+    phone.locator('#number-input').fill('42')
+    expect(phone.locator('#editing-results')).to_be_visible()
+    expect(phone.locator('.hero')).not_to_be_visible()
+    expect(phone.locator('.quick-result.hex .quick-value')).to_have_text('2A')
+    bounds = phone.locator('#editing-results').bounding_box()
+    assert bounds['y'] + bounds['height'] < 450, bounds
+    phone.screenshot(path=str(screens/'phone-editing.png'), full_page=False)
+    passed('Compact phone mode keeps live results visible with a short keyboard-height viewport')
+
+    # Match the user's offline file viewer: opaque-origin sandbox, scripts only.
+    embedded = ctx.new_page()
+    embedded.set_content('<iframe id="app" sandbox="allow-scripts" style="width:100%;height:900px;border:0"></iframe>')
+    html = (root/'web/index.html').read_text()
+    embedded.eval_on_selector('#app', '(el,html) => el.srcdoc = html', html)
+    frame = embedded.frame_locator('#app')
+    expect(frame.locator('#result-16')).to_have_text('FF')
+    frame.locator('#save-number').click()
+    expect(frame.locator('#toast')).to_contain_text('preview session')
+    frame.locator('.topnav [data-tab="more"]').click()
+    frame.locator('.more-card[data-tab="saved"]').click()
+    expect(frame.locator('.saved-value')).to_have_text('255')
+    passed('Offline sandboxed file preview renders and degrades honestly')
+
+    assert not errors, errors
+    passed('No browser JavaScript errors')
+    browser.close()
+
+report = {'status':'pass', 'checks':len(results), 'tests':results}
+(root/'design/browser-test-results.json').write_text(json.dumps(report,indent=2))
+print(f'PASS: {len(results)} browser UX checks.',flush=True)

@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "assertions": 4985,
+  "gateKinds": 8,
+  "gateTruthRows": 172,
+  "combinationalCircuits": 12,
+  "combinationalTruthRows": 656,
+  "sequentialModels": 11,
+  "nextStateRows": 336,
+  "clockCombinationTransitions": 1344,
+  "note": "Independent arithmetic/state oracle and diagram topology checks; not Android runtime tests."
+}

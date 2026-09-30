@@ -1,0 +1,15 @@
+# Gradle / Android generated
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+.DS_Store
+# Logs
+*.log
+# Release secrets must NEVER be committed (the real key lives in ~/private-signing, outside this repo)
+*.p12
+*.pfx
+release-password*.txt
+*password*.txt
+signing-key*.zip

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.radix.app.KMapEngineTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-09-30T15:53:07.314Z" hostname="e2b.local" time="5.948">
+  <properties/>
+  <testcase name="fourCornersMakeOneWrappedGroup" classname="com.radix.app.KMapEngineTest" time="0.015"/>
+  <testcase name="exhaustiveThreeVariableTernaryMaps" classname="com.radix.app.KMapEngineTest" time="0.869"/>
+  <testcase name="seededFourVariableDontCareMaps" classname="com.radix.app.KMapEngineTest" time="0.557"/>
+  <testcase name="constantsAndUnspecifiedFunctions" classname="com.radix.app.KMapEngineTest" time="0.001"/>
+  <testcase name="overlapsAreAllowedAndEssential" classname="com.radix.app.KMapEngineTest" time="0.001"/>
+  <testcase name="inputListsValidateBoundsAndConflicts" classname="com.radix.app.KMapEngineTest" time="0.002"/>
+  <testcase name="rejectsOppositeOutputsAndAllXGroups" classname="com.radix.app.KMapEngineTest" time="0.002"/>
+  <testcase name="exhaustiveFourVariableBooleanMaps" classname="com.radix.app.KMapEngineTest" time="4.453"/>
+  <testcase name="complementRulesDifferBetweenForms" classname="com.radix.app.KMapEngineTest" time="0.0"/>
+  <testcase name="exhaustiveTwoVariableTernaryMaps" classname="com.radix.app.KMapEngineTest" time="0.003"/>
+  <testcase name="beginnerExerciseCatalog" classname="com.radix.app.KMapEngineTest" time="0.033"/>
+  <testcase name="independentPublicExpressionEvaluator" classname="com.radix.app.KMapEngineTest" time="0.003"/>
+  <testcase name="rejectsDiagonalAndWrongSizedGroups" classname="com.radix.app.KMapEngineTest" time="0.0"/>
+  <testcase name="grayCodeOrderAndAxisWrapping" classname="com.radix.app.KMapEngineTest" time="0.001"/>
+  <system-out><![CDATA[3-variable ternary truth tables verified: 6561, SOP and POS, with independent minimum-cover oracle.
+Additional seeded 4-variable ternary tables verified: 2000; first 200 checked against the independent optimum oracle.
+4-variable Boolean truth tables verified: 65536, SOP and POS, via an independent visible-expression parser.
+2-variable ternary truth tables verified: 81, SOP and POS, with independent minimum-cover oracle.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
