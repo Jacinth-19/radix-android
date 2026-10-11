@@ -142,7 +142,28 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                 Row(Modifier.padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {KMapEngine.Form.entries.forEach {form->StudentChip(form.name,vm.kForm==form,{vm.selectKForm(form);fresh()},Modifier.weight(1f))}}
                 OutlinedTextField(value=notation,onValueChange={notation=it.take(512);notationError=null},label={Text("Function notation · F(A.B.C)=Σm(1,3,5)")},modifier=Modifier.fillMaxWidth().padding(top=10.dp),textStyle=LocalTextStyle.current.copy(fontFamily=Mono),minLines=1,maxLines=2)
                 notationError?.let{Text(it,color=MaterialTheme.colorScheme.error,fontSize=11.sp,lineHeight=17.sp)}
-                OutlinedButton(onClick={runCatching{KMapEngine.fromNotation(notation).also{require(it.names==KMapEngine.names(it.variables)){"List the map variables in A, B, C… order so the displayed axes match."}}}.onSuccess{parsed->vm.logicToKMap(parsed.variables,parsed.cells,parsed.form);notation="";notationError=null;fresh();notify("${parsed.form} function opened in K-maps.")}.onFailure{notationError=it.message?:"Check function notation."},enabled=notation.isNotBlank(),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Load Σm / ΠM function",fontSize=12.sp)}
+                OutlinedButton(
+                    onClick = {
+                        val result = runCatching {
+                            KMapEngine.fromNotation(notation).also { parsed ->
+                                require(parsed.names == KMapEngine.names(parsed.variables)) {
+                                    "List the map variables in A, B, C… order so the displayed axes match."
+                                }
+                            }
+                        }
+                        result.onSuccess { parsed ->
+                            vm.logicToKMap(parsed.variables, parsed.cells, parsed.form)
+                            notation = ""
+                            notationError = null
+                            fresh()
+                            notify("${parsed.form} function opened in K-maps.")
+                        }.onFailure { failure ->
+                            notationError = failure.message ?: "Check function notation."
+                        }
+                    },
+                    enabled = notation.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                ) { Text("Load Σm / ΠM function", fontSize = 12.sp) }
                 Text(if(vm.kForm==KMapEngine.Form.SOP) "Group 1s. Xs may enlarge groups." else "Group 0s. Fixed literals use the opposite complement rule.",fontSize=12.sp,color=muted(),modifier=Modifier.padding(top=12.dp))
                 TextButton(onClick={showInputs=!showInputs},modifier=Modifier.fillMaxWidth()) {Text(if(showInputs)"Hide input lists" else "Edit ${if(vm.kForm==KMapEngine.Form.SOP)"minterms (1s)" else "maxterms (0s)"} and don't-cares",fontSize=11.sp)}
                 if(showInputs) {
