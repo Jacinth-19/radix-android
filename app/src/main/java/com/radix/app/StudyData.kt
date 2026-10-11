@@ -24,8 +24,8 @@ internal object StudyData {
     fun session(value:Any?):CircuitSession {
         val o=obj(value,"Session");val id=string(o["id"],"Session ID",64);require(id.matches(Regex("[A-Za-z0-9_-]{1,64}"))){"Invalid session ID."}
         val name=string(o["name"],"Session name",40);require(name.isNotBlank()&&name.none{it.code<32}){"Give the session a name without control characters."}
-        val kind=string(o["kind"],"Session kind",16);val model=string(o["model"],"Session model",32);val width=integer(o["width"],"Session width",1,9).toInt()
-        val inputs=list(o["inputs"],"Session inputs",9).map{bool(it,"Input")}
+        val kind=string(o["kind"],"Session kind",16);val model=string(o["model"],"Session model",32);val width=integer(o["width"],"Session width",1,20).toInt()
+        val inputs=list(o["inputs"],"Session inputs",20).map{bool(it,"Input")}
         val bits=if(o["bits"]==null)null else integer(o["bits"],"Stored state",0,15).toInt();val clock=bool(o["clock"],"Clock")
         when(kind){
             "gates"->{val gate=LogicEngine.Gate.entries.firstOrNull{it.name==model}?:throw IllegalArgumentException("Unknown gate.");require(if(gate in listOf(LogicEngine.Gate.NOT,LogicEngine.Gate.BUFFER))width==1 else width in 2..4){"Invalid gate width."};require(inputs.size==width&&bits==null&&!clock){"Invalid gate session state."}}
@@ -46,8 +46,8 @@ internal object StudyData {
         require(saves.map{it.id}.distinct().size==saves.size){"Duplicate conversion IDs."}
         val sessions=list(o["sessions"],"Sessions",24).map(::session);require(sessions.map{it.id}.distinct().size==sessions.size){"Duplicate session IDs."}
         val progress=progress(StudyJson.write(o["progress"]))
-        val k=obj(o["kmap"],"K-map");val n=integer(k["variables"],"Variables",2,4).toInt();val cells=list(k["cells"],"Cells",16).map{integer(it,"Cell",0,2).toInt()};val form=string(k["form"],"Form",3);require(cells.size==(1 shl n)&&form in listOf("SOP","POS")){"Invalid K-map dimensions/form."}
-        val ex=obj(o["expression"],"Expression lab");val expression=StudyExpression(integer(ex["variables"],"Expression variables",2,4).toInt(),string(ex["left"],"Expression",256),string(ex["right"],"Comparison expression",256))
+        val k=obj(o["kmap"],"K-map");val n=integer(k["variables"],"Variables",2,6).toInt();val cells=list(k["cells"],"Cells",64).map{integer(it,"Cell",0,2).toInt()};val form=string(k["form"],"Form",3);require(cells.size==(1 shl n)&&form in listOf("SOP","POS")){"Invalid K-map dimensions/form."}
+        val ex=obj(o["expression"],"Expression lab");val expression=StudyExpression(integer(ex["variables"],"Expression variables",2,6).toInt(),string(ex["left"],"Expression",256),string(ex["right"],"Comparison expression",256))
         val rep=obj(o["representation"],"Representation lab");val width=integer(rep["width"],"Bit width",4,64).toInt();val mode=string(rep["mode"],"Input mode",16);require(width in RepresentationEngine.widths&&mode in listOf("decimal","bits","gray")){"Invalid representation width/mode."}
         val representation=StudyRepresentation(width,bool(rep["signed"],"Signed mode"),mode,string(rep["input"],"Representation input",128))
         val settings=obj(o["settings"],"Settings");val prefs=StudySettings(bool(settings["haptics"],"Haptics"),bool(settings["largeControls"],"Large controls"))
@@ -56,7 +56,7 @@ internal object StudyData {
         return StudyBackup(saves,sessions,progress,StudyMap(n,cells,form),expression,representation,prefs,converter)
     }
     fun encode(b:StudyBackup):String = StudyJson.write(linkedMapOf(
-        "format" to "radix-study","version" to 1,"appVersion" to "6.0.0",
+        "format" to "radix-study","version" to 1,"appVersion" to "7.0.0",
         "saved" to b.saved.map{mapOf("id" to it.id,"input" to it.input,"base" to it.base)},"sessions" to b.sessions.map(::sessionMap),"progress" to b.progress.sorted(),
         "kmap" to mapOf("variables" to b.kmap.variables,"cells" to b.kmap.cells,"form" to b.kmap.form),
         "expression" to mapOf("variables" to b.expression.variables,"left" to b.expression.left,"right" to b.expression.right),

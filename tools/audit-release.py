@@ -39,7 +39,7 @@ with zipfile.ZipFile(apk) as z,apk.open('rb') as f:
   assert aligns and all(v>=16384 for v in aligns)
   libs.append({'entry':info.filename,'uncompressed':True,'zipDataOffset':off,'zipAligned16KiB':True,'elfLoadAlignments':aligns})
 assert {x['entry'].split('/')[1] for x in libs}=={'arm64-v8a','armeabi-v7a','x86','x86_64'}
-native={};combined=E.Element('testsuites',{'name':'Radix 5 native JVM unit tests; debug and release variants','tests':'168'})
+native={};combined=E.Element('testsuites',{'name':'Radix 6 native JVM unit tests; debug and release variants','tests':'168'})
 for variant in ['debug','release']:
  dest=design/'native-unit-tests'/variant
  if dest.exists():shutil.rmtree(dest)

@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "checks": 33,
+  "checks": 34,
   "tests": [
     "Integer working exposes correct place values, divisions and reverse remainder order",
     "Working target selector supports every base from 2 to 36",
@@ -28,6 +28,7 @@
     "Four-variable POS zero-corner grouping uses the reversed complement rule",
     "Optional Xs enlarge an octet and truth-table display distinguishes them",
     "K-map values, dimensions, form and don\u2019t-cares persist locally across reload",
+    "Six-variable 8\u00d78 K-map loads \u03a3m(63), gives landscape guidance and rejects shuffled A\u2013F axes without mutation",
     "All 24 challenges load, hide the answer, reveal the correct result and show the lesson",
     "K-map copy includes expression, grouping working and truth table",
     "K-map UI has no page overflow on phone, keyboard-height and tablet viewports",

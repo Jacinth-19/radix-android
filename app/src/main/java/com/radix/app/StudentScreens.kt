@@ -110,7 +110,8 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
 }
 
 @Composable internal fun KMapScreen(vm: RadixViewModel,notify:(String)->Unit) {
-    val clipboard=LocalClipboardManager.current;val haptic=LocalHapticFeedback.current;val context=LocalContext.current
+    val clipboard=LocalClipboardManager.current;val haptic=LocalHapticFeedback.current;val context=LocalContext.current;val strings=LocalStrings.current
+    var notation by remember {mutableStateOf("")};var notationError by remember {mutableStateOf<String?>(null)}
     val solution=remember(vm.kVariables,vm.kCells,vm.kForm,vm.kError) {if(vm.kError==null)KMapEngine.solve(vm.kVariables,vm.kCells,vm.kForm)else null}
     var highlight by remember {mutableIntStateOf(-1)}
     var manual by remember {mutableStateOf(false)}
@@ -132,12 +133,16 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     Text("YOUR LOGIC PLAYGROUND",fontSize=9.sp,letterSpacing=1.sp,color=muted(),modifier=Modifier.weight(1f))
                     TextButton(onClick={examples=true}) {Text("24 examples",fontSize=11.sp)}
                 }
-                Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {(2..4).forEach {n->StudentChip("$n variables",vm.kVariables==n,{vm.selectKVariables(n);fresh()},Modifier.weight(1f))}}
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {(2..6).forEach {n->StudentChip("$n variables",vm.kVariables==n,{vm.selectKVariables(n);fresh()},Modifier.width(78.dp))}}
+                if(vm.kVariables>=5)Text(strings.landscapeKmapHint,fontSize=10.sp,color=muted(),lineHeight=16.sp,modifier=Modifier.padding(top=6.dp))
                 Row(Modifier.padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                     listOf(Triple("XOR · 2-var",2,"1,2"),Triple("Majority · 3-var",3,"3,5,6,7"),Triple("Primes · 4-var",4,"2,3,5,7,11,13")).forEach{(name,n,terms)->
                         StudentChip(name,false,{vm.selectKVariables(n);vm.updateKTerms(terms);vm.updateKDontCare("");fresh()},Modifier.weight(1f))}
                 }
                 Row(Modifier.padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {KMapEngine.Form.entries.forEach {form->StudentChip(form.name,vm.kForm==form,{vm.selectKForm(form);fresh()},Modifier.weight(1f))}}
+                OutlinedTextField(value=notation,onValueChange={notation=it.take(512);notationError=null},label={Text("Function notation · F(A.B.C)=Σm(1,3,5)")},modifier=Modifier.fillMaxWidth().padding(top=10.dp),textStyle=LocalTextStyle.current.copy(fontFamily=Mono),minLines=1,maxLines=2)
+                notationError?.let{Text(it,color=MaterialTheme.colorScheme.error,fontSize=11.sp,lineHeight=17.sp)}
+                OutlinedButton(onClick={runCatching{KMapEngine.fromNotation(notation).also{require(it.names==KMapEngine.names(it.variables)){"List the map variables in A, B, C… order so the displayed axes match."}}}.onSuccess{parsed->vm.logicToKMap(parsed.variables,parsed.cells,parsed.form);notation="";notationError=null;fresh();notify("${parsed.form} function opened in K-maps.")}.onFailure{notationError=it.message?:"Check function notation."},enabled=notation.isNotBlank(),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Load Σm / ΠM function",fontSize=12.sp)}
                 Text(if(vm.kForm==KMapEngine.Form.SOP) "Group 1s. Xs may enlarge groups." else "Group 0s. Fixed literals use the opposite complement rule.",fontSize=12.sp,color=muted(),modifier=Modifier.padding(top=12.dp))
                 TextButton(onClick={showInputs=!showInputs},modifier=Modifier.fillMaxWidth()) {Text(if(showInputs)"Hide input lists" else "Edit ${if(vm.kForm==KMapEngine.Form.SOP)"minterms (1s)" else "maxterms (0s)"} and don't-cares",fontSize=11.sp)}
                 if(showInputs) {
@@ -171,7 +176,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     OutlinedButton(onClick={showTruth=!showTruth},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)) {Text("Truth table",fontSize=11.sp)}
                 }
                 if(manual) {
-                    Text("Select 1, 2, 4, 8 or 16 adjacent cells, then check your group.",fontSize=12.sp,color=muted(),lineHeight=18.sp,modifier=Modifier.padding(top=12.dp))
+                    Text("Select an adjacent power-of-two group (1–${1 shl vm.kVariables} cells), then check it.",fontSize=12.sp,color=muted(),lineHeight=18.sp,modifier=Modifier.padding(top=12.dp))
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text("${selected.size} selected",fontFamily=Mono,fontSize=11.sp,modifier=Modifier.weight(1f))
                         TextButton(onClick={selected=emptySet();groupCheck=null}) {Text("Clear",fontSize=11.sp)}
@@ -209,7 +214,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     Surface(shape=RoundedCornerShape(18.dp),color=panel(),border=BorderStroke(1.dp,groupColors[i%groupColors.size].copy(alpha=0.7f)),modifier=Modifier.padding(top=10.dp)) {
                         Column(Modifier.fillMaxWidth().padding(16.dp)) {
                             Text("G${i+1}   ${(if(vm.kForm==KMapEngine.Form.POS)"(${group.term})"else group.term).replace("'","′")}",fontFamily=Mono,fontSize=17.sp,fontWeight=FontWeight.Bold)
-                            Text("Cells ${group.cube.indices(1 shl vm.kVariables).joinToString(", ")} · ${Integer.bitCount(group.cube.members)} cells${if(group.wraps)" · edge wrap"else""}${if(group.essential)" · essential"else""}",color=muted(),fontSize=10.sp,lineHeight=16.sp,modifier=Modifier.padding(top=8.dp))
+                            Text("Cells ${group.cube.indices(1 shl vm.kVariables).joinToString(", ")} · ${java.lang.Long.bitCount(group.cube.members)} cells${if(group.wraps)" · edge wrap"else""}${if(group.essential)" · essential"else""}",color=muted(),fontSize=10.sp,lineHeight=16.sp,modifier=Modifier.padding(top=8.dp))
                             group.explanation.forEach {Text(it,color=muted(),fontSize=12.sp,lineHeight=20.sp,modifier=Modifier.padding(top=4.dp))}
                             Text(if(group.essential)"At least one required cell has no other maximal covering group."else"Chosen to finish a minimum cover. Overlap is allowed.",color=muted(),fontSize=10.sp,lineHeight=16.sp,modifier=Modifier.padding(top=8.dp))
                         }
@@ -246,7 +251,10 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
 
 @Composable private fun KMapGrid(vm: RadixViewModel, solution: KMapEngine.Solution?, highlight: Int, manual: Boolean, selected: Set<Int>, action:(Int)->Unit) {
     val n=vm.kVariables;val rows=KMapEngine.gray(KMapEngine.rowBits(n));val cols=KMapEngine.gray(KMapEngine.columnBits(n))
-    Column(Modifier.fillMaxWidth().padding(top=10.dp).guideAnchor("kmap")) {
+    BoxWithConstraints(Modifier.fillMaxWidth().padding(top=10.dp).guideAnchor("kmap")) {
+        val gridWidth=if(n>=5)maxOf(maxWidth,548.dp)else maxWidth
+        Column(Modifier.horizontalScroll(rememberScrollState())) {
+        Column(Modifier.width(gridWidth)) {
         Row(horizontalArrangement=Arrangement.spacedBy(6.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("${KMapEngine.names(n).take(KMapEngine.rowBits(n))}/${KMapEngine.names(n).drop(KMapEngine.rowBits(n))}",fontFamily=Mono,fontSize=9.sp,color=muted(),modifier=Modifier.width(28.dp))
             cols.forEach {label->Box(Modifier.weight(1f).height(26.dp),contentAlignment=Alignment.Center){Text(KMapEngine.binary(label,KMapEngine.columnBits(n)),fontFamily=Mono,fontSize=12.sp,color=muted())}}
@@ -275,6 +283,8 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     }
                 }
             }
+        }
+    }
         }
     }
 }

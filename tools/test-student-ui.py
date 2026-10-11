@@ -167,6 +167,14 @@ with sync_playwright() as p:
     expect(page.locator('#k-dc')).to_have_value('5, 9, 13')
     passed('K-map values, dimensions, form and don’t-cares persist locally across reload')
 
+    vars(6);expect(page.locator('#k-grid .k-cell')).to_have_count(64);expect(page.locator('.kmap-panel')).to_contain_text('rotate your device to landscape')
+    page.locator('.k-inputs summary').click();page.locator('#k-notation').fill('F(A,B,C,D,E,F)=Σm(63)');page.locator('[data-student="notation"]').click()
+    notation_rows=page.locator('#k-grid .k-cell').evaluate_all('(els)=>els.map(e=>[Number(e.dataset.index),e.querySelector("strong").textContent])')
+    assert len(notation_rows)==64 and sum(value=='1' for _,value in notation_rows)==1 and dict(notation_rows)[63]=='1'
+    page.locator('.k-inputs summary').click();page.locator('#k-notation').fill('F(A,B,C,D,F,E)=Σm(63)');page.locator('[data-student="notation"]').click()
+    expect(page.locator('#k-notation-error')).to_contain_text('A, B, C');assert dict(page.locator('#k-grid .k-cell').evaluate_all('(els)=>els.map(e=>[Number(e.dataset.index),e.querySelector("strong").textContent])'))==dict(notation_rows)
+    passed('Six-variable 8×8 K-map loads Σm(63), gives landscape guidance and rejects shuffled A–F axes without mutation')
+
     for i in range(24):
         page.locator('[data-student="examples"]').click()
         expect(page.locator('.example-list button')).to_have_count(24)

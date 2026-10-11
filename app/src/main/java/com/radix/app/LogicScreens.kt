@@ -118,13 +118,35 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
         if(n in 2..4)TextButton(onClick={vm.logicToKMap(n,rows.map{it.last().toInt()})},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Simplify this gate in K-maps",fontSize=12.sp)}
     }
 }
+@Composable private fun PagedCircuitTruthTable(c:LogicEngine.Circuit,currentInputs:List<Boolean>,notify:(String)->Unit){
+    val headers=c.inputs+c.outputs.keys;val current=LogicEngine.code(currentInputs);val total=1 shl c.inputs.size
+    var page by remember(c.id){mutableIntStateOf(0)}
+    val pages=maxOf(1,(total+15)/16)
+    LaunchedEffect(current){page=current/16}
+    val rows=remember(c.id,page){(page*16 until minOf(total,page*16+16)).map{code->val bits=LogicEngine.bits(code,c.inputs.size);bits.map{if(it)"1"else"0"}+LogicEngine.evaluate(c,bits).outputs.values.map{if(it)"1"else"0"}}}
+    Column(Modifier.fillMaxWidth().guideAnchor("logic-table")){
+        Text("${total} ROWS · SHOWING 16 AT A TIME",fontSize=9.sp,letterSpacing=.7.sp,color=muted(),modifier=Modifier.padding(top=12.dp,bottom=10.dp))
+        Column(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())){
+            Row{headers.forEach{Text(it,fontFamily=Mono,fontSize=10.sp,color=muted(),modifier=Modifier.width(if(it.length>4)58.dp else 42.dp).padding(vertical=9.dp))}}
+            rows.forEachIndexed{i,row->val active=current==page*16+i;Surface(color=if(active)MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,shape=RoundedCornerShape(6.dp)){Row{row.forEachIndexed{j,value->Text(value,fontFamily=Mono,fontSize=11.sp,color=if(active)accent()else MaterialTheme.colorScheme.onSurface,modifier=Modifier.width(if(headers[j].length>4)58.dp else 42.dp).padding(vertical=8.dp))}}}
+        }
+        if(pages>1)Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){TextButton(onClick={page--},enabled=page>0){Text("Previous",fontSize=11.sp)};Text("${page+1}/$pages",fontFamily=Mono,fontSize=10.sp,modifier=Modifier.weight(1f));TextButton(onClick={page++},enabled=page<pages-1){Text("Next",fontSize=11.sp)}}
+        TextButton(onClick={page=current/16},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Show current input row (${current})",fontSize=11.sp)}
+    }
+    val text=tableText("${c.title} · rows ${page*16}–${minOf(total-1,page*16+15)}",headers,rows)
+    val clipboard=LocalClipboardManager.current
+    TextButton(onClick={clipboard.setText(AnnotatedString(text));notify("Visible truth-table page copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Copy this page (${rows.size} rows)",fontSize=12.sp)}
+}
 @Composable private fun CombinationalPanel(vm:RadixViewModel,notify:(String)->Unit){
+    val strings=LocalStrings.current
     val c=LogicCatalog.circuits.first{it.id==vm.circuitId};val result=remember(c,vm.circuitInputs){LogicEngine.evaluate(c,vm.circuitInputs)}
     var expanded by remember(c.id){mutableStateOf(true)};var output by remember(c.id){mutableStateOf(c.outputs.keys.first())}
     val headers=c.inputs+c.outputs.keys
-    val rows=remember(c.id){(0 until(1 shl c.inputs.size)).map{code->val i=LogicEngine.bits(code,c.inputs.size);i.map{if(it)"1"else"0"}+LogicEngine.evaluate(c,i).outputs.values.map{if(it)"1"else"0"}}}
+    val paged=c.inputs.size>12
+    val rows=remember(c.id){if(paged)emptyList()else (0 until(1 shl c.inputs.size)).map{code->val i=LogicEngine.bits(code,c.inputs.size);i.map{if(it)"1"else"0"}+LogicEngine.evaluate(c,i).outputs.values.map{if(it)"1"else"0"}}}
     LogicCard {
         Text("No memory: outputs follow the current inputs.",color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(bottom=12.dp))
+        if(c.inputs.size>=12)Text(strings.landscapeCircuitHint,fontSize=10.sp,color=muted(),lineHeight=16.sp,modifier=Modifier.padding(bottom=10.dp))
         BitControls(c.inputs,vm.circuitInputs,vm::toggleCircuitInput);LogicOutputs(c.outputs.keys.toList(),result.outputs.values.map{if(it)1 else 0})
         TextButton(onClick={expanded=!expanded},modifier=Modifier.heightIn(min=48.dp)){Text(if(expanded)"Switch to phone-friendly block view"else"Explore the gate-level diagram",fontSize=11.sp)}
         Box(Modifier.fillMaxWidth().guideAnchor("logic-diagram")){CircuitDiagram(c,result,expanded)}
@@ -133,12 +155,14 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
     }
     LogicCard {
         Text("Truth table",fontSize=20.sp,fontWeight=FontWeight.Bold)
-        TruthGrid(headers,rows,LogicEngine.code(vm.circuitInputs),c.id);CopyTable(tableText(c.title,headers,rows),notify)
-        if(c.inputs.size in 2..4){
+        if(paged)PagedCircuitTruthTable(c,vm.circuitInputs,notify) else {
+            TruthGrid(headers,rows,LogicEngine.code(vm.circuitInputs),c.id);CopyTable(tableText(c.title,headers,rows),notify)
+        }
+        if(c.inputs.size in 2..6){
             Text("K-map variables: ${c.inputs.mapIndexed{i,name->"${'A'+i}=$name"}.joinToString(", ")}",fontSize=10.sp,color=muted())
             Row(Modifier.horizontalScroll(rememberScrollState())){c.outputs.keys.forEach{name->FilterChip(selected=name==output,onClick={output=name},label={Text(name,fontSize=11.sp)},modifier=Modifier.padding(end=6.dp))}}
             TextButton(onClick={val index=c.outputs.keys.indexOf(output);vm.logicToKMap(c.inputs.size,rows.map{it[c.inputs.size+index].toInt()})},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Open $output in K-maps",fontSize=12.sp)}
-        }else Text("This circuit has more than four inputs; K-maps support up to four variables.",fontSize=10.sp,color=muted(),lineHeight=17.sp)
+        }else Text("This circuit has more than six input variables; K-maps support up to six variables.",fontSize=10.sp,color=muted(),lineHeight=17.sp)
     }
 }
 @Composable private fun SequentialPanel(vm:RadixViewModel,notify:(String)->Unit){
@@ -229,6 +253,6 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
             if(wide)entries.withIndex().chunked(2).forEach{row->Row(horizontalArrangement=Arrangement.spacedBy(12.dp)){row.forEach{(i,e)->card(i,e.first,e.second,e.third,Modifier.weight(1f))};if(row.size<2)Spacer(Modifier.weight(1f))}}
             else entries.forEachIndexed{i,(title,detail,action)->card(i,title,detail,action,Modifier.fillMaxWidth())}
         }
-        Text("Radix 6.0 · no ads, accounts or Internet permission",color=muted(),fontSize=11.sp,modifier=Modifier.padding(top=12.dp))
+        Text("Radix 7.0 · no ads, accounts or Internet permission",color=muted(),fontSize=11.sp,modifier=Modifier.padding(top=12.dp))
     }
 }

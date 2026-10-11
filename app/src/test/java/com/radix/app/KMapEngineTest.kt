@@ -11,10 +11,10 @@ class KMapEngineTest {
         val clauses = if (form == KMapEngine.Form.SOP) expression.split('+') else Regex("\\(([^()]*)\\)").findAll(expression).map { it.groupValues[1] }.toList()
         return clauses.map { clause ->
             var mask=0; var bits=0
-            val literals=Regex("[A-D]'?").findAll(clause).map { it.value }.toList()
+            val literals=Regex("[A-F]'?").findAll(clause).map { it.value }.toList()
             assertEquals(clause.replace(" ", "").replace("+", ""), literals.joinToString(""))
             literals.forEach { literal ->
-                val variable="ABCD".indexOf(literal[0]); assertTrue(variable in 0 until n)
+                val variable="ABCDEF".indexOf(literal[0]); assertTrue(variable in 0 until n)
                 val bit=1 shl (n-1-variable); mask=mask or bit
                 val complemented=literal.endsWith("'")
                 val fixedOne=if(form==KMapEngine.Form.SOP) !complemented else complemented
@@ -101,6 +101,36 @@ class KMapEngineTest {
         repeat(2000) { verify(4,List(16) {random.nextInt(3)},minimum=it<200) }
         println("Additional seeded 4-variable ternary tables verified: 2000; first 200 checked against the independent optimum oracle.")
     }
+    @Test fun sixVariableMapsCoverAll64CellsAndParseVisibleExpressions() {
+        val random=Random(606L)
+        repeat(24) {
+            val mask=random.nextInt(1 shl 6);val bits=random.nextInt(1 shl 6) and mask
+            val cells=List(64){index->if(index and mask==bits)1 else 0}
+            verify(6,cells)
+        }
+        val parity=List(64){Integer.bitCount(it)%2}
+        verify(6,parity)
+        println("Six-variable SOP/POS tables verified against independently parsed expressions, including parity and seeded cubes.")
+    }
+    @Test fun sixVariableWholeMapIsOne64CellGroupAcrossTheLongMaskBoundary() {
+        val ones=KMapEngine.solve(6,List(64){1})
+        assertEquals("1",ones.expression);assertEquals(1,ones.groups.size);assertEquals(64,ones.groups.single().cube.indices(64).size)
+        assertEquals(64,java.lang.Long.bitCount(ones.groups.single().cube.members))
+        assertTrue(KMapEngine.checkGroup(6,List(64){1},(0 until 64).toList(),KMapEngine.Form.SOP).valid)
+        val zeros=KMapEngine.solve(6,List(64){0},KMapEngine.Form.POS)
+        assertEquals("0",zeros.expression);assertEquals(64,zeros.groups.single().cube.indices(64).size)
+    }
+    @Test fun sigmaPiFunctionNotationKeepsMintermAndMaxtermMeaning() {
+        val sigma=KMapEngine.fromNotation("F(A.B.C)=Σm(1,3,5)")
+        assertEquals(KMapEngine.Notation(3,"ABC",KMapEngine.Form.SOP,listOf(0,1,0,1,0,1,0,0)),sigma)
+        val pi=KMapEngine.fromNotation("F(A,B,C)=ΠM(0,2)")
+        assertEquals(KMapEngine.Notation(3,"ABC",KMapEngine.Form.POS,listOf(0,1,0,1,1,1,1,1)),pi)
+        val six=KMapEngine.fromNotation("F(A,B,C,D,E,F)=Σm(63)")
+        assertEquals(KMapEngine.Notation(6,"ABCDEF",KMapEngine.Form.SOP,List(64){if(it==63)1 else 0}),six)
+        assertThrows(IllegalArgumentException::class.java){KMapEngine.fromNotation("F(A,A)=Σm(0)")}
+        assertThrows(IllegalArgumentException::class.java){KMapEngine.fromNotation("F(A,B)=Σm(4)")}
+        assertThrows(IllegalArgumentException::class.java){KMapEngine.fromNotation("F(A,B)=Σm(1-3)")}
+    }
     @Test fun beginnerExerciseCatalog() {
         assertEquals(24,KMapEngine.exercises.size)
         KMapEngine.exercises.forEach { verify(it.variables,it.cells(),true) }
@@ -109,7 +139,8 @@ class KMapEngineTest {
         assertEquals(listOf(0,1,3,2),KMapEngine.gray(2))
         assertEquals(listOf(0,1,3,2),(0..3).map {KMapEngine.cellAt(3,0,it)})
         assertEquals(listOf(0,4,12,8),(0..3).map {KMapEngine.cellAt(4,it,0)})
-        for(bits in 1..2) {
+        assertEquals(listOf(0,1,3,2,6,7,5,4),KMapEngine.gray(3))
+        for(bits in 1..3) {
             val labels=KMapEngine.gray(bits)
             labels.indices.forEach { assertEquals(1,Integer.bitCount(labels[it] xor labels[(it+1)%labels.size])) }
         }

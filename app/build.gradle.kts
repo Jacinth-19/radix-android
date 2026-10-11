@@ -12,8 +12,8 @@ android {
         applicationId = "com.radix.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "6.0.0"
+        versionCode = 7
+        versionName = "7.0.0"
     }
     buildTypes {
         release {

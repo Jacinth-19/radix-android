@@ -1,18 +1,18 @@
 package com.radix.app
 
-/** Exact two-level Boolean minimization for 2–4 variables. A is the MSB. */
+/** Exact two-level Boolean minimization for 2–6 variables. A is the MSB. */
 object KMapEngine {
     enum class Form { SOP, POS }
     const val DONT_CARE = 2
-    private const val LETTERS = "ABCD"
+    private const val LETTERS = "ABCDEF"
 
-    data class Cube(val mask: Int, val bits: Int, val members: Int) {
+    data class Cube(val mask: Int, val bits: Int, val members: Long) {
         val literals: Int get() = Integer.bitCount(mask)
-        fun contains(index: Int): Boolean = members and (1 shl index) != 0
+        fun contains(index: Int): Boolean = index in 0..63 && members and (1L shl index) != 0L
         fun indices(size: Int): List<Int> = (0 until size).filter(::contains)
     }
     data class Group(val cube: Cube, val term: String, val essential: Boolean, val wraps: Boolean, val explanation: List<String>)
-    data class Solution(val variables: Int, val form: Form, val expression: String, val groups: List<Group>, val primeCount: Int, val requiredMask: Int, val note: String) {
+    data class Solution(val variables: Int, val form: Form, val expression: String, val groups: List<Group>, val primeCount: Int, val requiredMask: Long, val note: String) {
         val literalCount: Int get() = groups.sumOf { it.cube.literals }
         fun evaluate(index: Int): Boolean {
             require(index in 0 until (1 shl variables))
@@ -25,12 +25,13 @@ object KMapEngine {
         data class Invalid(val message: String) : Input
     }
     data class GroupCheck(val valid: Boolean, val message: String, val cube: Cube? = null)
+    data class Notation(val variables: Int, val names: String, val form: Form, val cells: List<Int>)
     data class Exercise(val id: String, val title: String, val variables: Int, val ones: List<Int>, val dc: List<Int> = emptyList(), val form: Form = Form.SOP, val hint: String, val lesson: String) {
         fun cells(): List<Int> = List(1 shl variables) { if (it in dc) DONT_CARE else if (it in ones) 1 else 0 }
     }
 
-    fun gray(bits: Int): List<Int> { require(bits in 1..2); return (0 until (1 shl bits)).map { it xor (it shr 1) } }
-    fun rowBits(variables: Int): Int { require(variables in 2..4); return variables / 2 }
+    fun gray(bits: Int): List<Int> { require(bits in 1..3); return (0 until (1 shl bits)).map { it xor (it shr 1) } }
+    fun rowBits(variables: Int): Int { require(variables in 2..6); return variables / 2 }
     fun columnBits(variables: Int): Int = variables - rowBits(variables)
     fun cellAt(variables: Int, row: Int, column: Int): Int {
         val rows = gray(rowBits(variables)); val columns = gray(columnBits(variables))
@@ -42,17 +43,32 @@ object KMapEngine {
     fun indicesText(cells: List<Int>, value: Int): String = cells.indices.filter { cells[it] == value }.joinToString(", ")
 
     private val allCubes: Map<Int, List<Cube>> by lazy {
-        (2..4).associateWith { n ->
+        (2..6).associateWith { n ->
             val size = 1 shl n
             buildList {
                 for (mask in 0 until size) for (bits in 0 until size) {
                     if (bits and mask != bits) continue
-                    var members = 0
-                    for (index in 0 until size) if (index and mask == bits) members = members or (1 shl index)
+                    var members = 0L
+                    for (index in 0 until size) if (index and mask == bits) members = members or (1L shl index)
                     add(Cube(mask, bits, members))
                 }
             }.sortedWith(compareBy<Cube> { it.literals }.thenBy { it.mask }.thenBy { it.bits })
         }
+    }
+
+    /** Parse editable textbook notation such as F(A.B.C)=Σm(1,3,5) or ΠM(0,2). */
+    fun fromNotation(source: String): Notation {
+        require(source.length <= 512) { "Keep function notation within 512 characters." }
+        val normalized = source.trim().uppercase(java.util.Locale.ROOT)
+        val match = Regex("""F\s*\(\s*([A-F](?:\s*[,·.]\s*[A-F]){1,5})\s*\)\s*=\s*([Σ∑Π])\s*([MM])\s*\(\s*([^()]*)\s*\)""").matchEntire(normalized)
+            ?: throw IllegalArgumentException("Use F(A.B.C)=Σm(1,3) or F(A,B,C)=ΠM(0,2). Variables A–F; indices are comma-separated.")
+        val names = match.groupValues[1].split(Regex("[,·.\\s]+")).joinToString("")
+        require(names.length in 2..6 && names.distinct().size == names.length) { "List 2–6 different variables in significance order." }
+        val form = when (match.groupValues[2]) { "Σ", "∑" -> Form.SOP; "Π" -> Form.POS; else -> error("Unknown form") }
+        val indices = parseIndices(match.groupValues[4], 1 shl names.length)
+        val target = if (form == Form.SOP) 1 else 0
+        val cells = List(1 shl names.length) { if (it in indices) target else 1-target }
+        return Notation(names.length, names, form, cells)
     }
 
     private fun parseIndices(text: String, size: Int): Set<Int> {
@@ -68,7 +84,7 @@ object KMapEngine {
         }.toSet()
     }
     fun fromLists(variables: Int, terms: String, dc: String, form: Form): Input = try {
-        require(variables in 2..4) { "Choose 2, 3, or 4 variables." }
+        require(variables in 2..6) { "Choose 2 to 6 variables." }
         val size = 1 shl variables
         val required = parseIndices(terms, size); val ignored = parseIndices(dc, size)
         val overlap = required.intersect(ignored)
@@ -97,13 +113,13 @@ object KMapEngine {
     }
 
     fun solve(variables: Int, cells: List<Int>, form: Form = Form.SOP): Solution {
-        require(variables in 2..4)
+        require(variables in 2..6)
         require(cells.size == 1 shl variables && cells.all { it in 0..2 })
         val target = if (form == Form.SOP) 1 else 0
-        var required = 0; var forbidden = 0
+        var required = 0L; var forbidden = 0L
         for (i in cells.indices) {
-            if (cells[i] == target) required = required or (1 shl i)
-            if (cells[i] == 1 - target) forbidden = forbidden or (1 shl i)
+            if (cells[i] == target) required = required or (1L shl i)
+            if (cells[i] == 1 - target) forbidden = forbidden or (1L shl i)
         }
         if (required == 0) return Solution(variables, form, if (form == Form.SOP) "0" else "1", emptyList(), 0, 0,
             if (cells.all { it == DONT_CARE }) "Every cell is unspecified. ${if (form == Form.SOP) "0" else "1"} is a valid simplest choice; the other constant is valid too."
@@ -112,14 +128,14 @@ object KMapEngine {
         val primes = eligible.filter { cube -> eligible.none { other -> other.members != cube.members && other.members and cube.members == cube.members } }
         val coverage = primes.map { it.members and required }
         val essential = primes.indices.filter { p ->
-            (0 until cells.size).any { cell -> required and (1 shl cell) != 0 && coverage[p] and (1 shl cell) != 0 && coverage.count { it and (1 shl cell) != 0 } == 1 }
+            (0 until cells.size).any { cell -> required and (1L shl cell) != 0L && coverage[p] and (1L shl cell) != 0L && coverage.count { it and (1L shl cell) != 0L } == 1 }
         }.toSet()
-        var startCoverage = 0
+        var startCoverage = 0L
         essential.forEach { startCoverage = startCoverage or coverage[it] }
         var best: List<Int>? = null
         var bestLiterals = Int.MAX_VALUE
-        val visited = mutableMapOf<Int, Pair<Int, Int>>()
-        fun search(covered: Int, chosen: List<Int>, literalCount: Int) {
+        val visited = mutableMapOf<Long, Pair<Int, Int>>()
+        fun search(covered: Long, chosen: List<Int>, literalCount: Int) {
             if (covered == required) {
                 val sorted = chosen.sorted()
                 val current = best
@@ -137,11 +153,11 @@ object KMapEngine {
             val remaining = required and covered.inv()
             var candidates = emptyList<Int>()
             var fewest = Int.MAX_VALUE
-            for (cell in cells.indices) if (remaining and (1 shl cell) != 0) {
-                val options = primes.indices.filter { coverage[it] and (1 shl cell) != 0 }
+            for (cell in cells.indices) if (remaining and (1L shl cell) != 0L) {
+                val options = primes.indices.filter { coverage[it] and (1L shl cell) != 0L }
                 if (options.size < fewest) { fewest = options.size; candidates = options }
             }
-            candidates.sortedWith(compareByDescending<Int> { Integer.bitCount(coverage[it] and remaining) }.thenBy { primes[it].literals }.thenBy { it }).forEach { p ->
+            candidates.sortedWith(compareByDescending<Int> { java.lang.Long.bitCount(coverage[it] and remaining) }.thenBy { primes[it].literals }.thenBy { it }).forEach { p ->
                 search(covered or coverage[p], chosen + p, literalCount + primes[p].literals)
             }
         }
@@ -167,15 +183,15 @@ object KMapEngine {
     }
 
     fun checkGroup(variables: Int, cells: List<Int>, indices: Collection<Int>, form: Form): GroupCheck {
-        if (variables !in 2..4 || cells.size != 1 shl variables || cells.any { it !in 0..2 }) return GroupCheck(false, "Check the map dimensions and values.")
+        if (variables !in 2..6 || cells.size != 1 shl variables || cells.any { it !in 0..2 }) return GroupCheck(false, "Check the map dimensions and values.")
         val selected = indices.toSet()
         if (selected.isEmpty()) return GroupCheck(false, "Select at least one cell.")
         if (selected.any { it !in cells.indices }) return GroupCheck(false, "A selected index is outside this map.")
-        if (selected.size and (selected.size - 1) != 0) return GroupCheck(false, "Groups must have a power-of-two size: 1, 2, 4, 8 or 16.")
+        if (selected.size and (selected.size - 1) != 0) return GroupCheck(false, "Groups must have a power-of-two size: 1, 2, 4, 8, 16, 32 or 64.")
         val target = if (form == Form.SOP) 1 else 0
         if (selected.any { cells[it] == 1 - target }) return GroupCheck(false, "${form.name} groups cannot contain a ${1 - target}.")
         if (selected.none { cells[it] == target }) return GroupCheck(false, "A useful group must cover a required $target, not only don't-cares.")
-        var members = 0; selected.forEach { members = members or (1 shl it) }
+        var members = 0L; selected.forEach { members = members or (1L shl it) }
         val cube = allCubes.getValue(variables).firstOrNull { it.members == members }
             ?: return GroupCheck(false, "Use adjacent Gray-code rectangles. Diagonal-only groups are not valid; opposite edges can touch.")
         val canGrow = allCubes.getValue(variables).any { other -> other.members != members && other.members and members == members && other.indices(cells.size).all { cells[it] != 1 - target } }
@@ -185,17 +201,17 @@ object KMapEngine {
 
     /** Independent expression parser used by tests, not by the solver. */
     fun evaluateExpression(expression: String, variables: Int, index: Int, form: Form): Boolean {
-        require(variables in 2..4 && index in 0 until (1 shl variables))
+        require(variables in 2..6 && index in 0 until (1 shl variables))
         if (expression == "0") return false
         if (expression == "1") return true
         fun literal(token: String): Boolean {
-            val s = token.trim(); require(s.matches(Regex("[A-D]'?")))
+            val s = token.trim(); require(s.matches(Regex("[A-F]'?")))
             val variable = LETTERS.indexOf(s[0]); require(variable < variables)
             val value = index and (1 shl (variables - 1 - variable)) != 0
             return if (s.endsWith("'")) !value else value
         }
         return if (form == Form.SOP) expression.split('+').any { product ->
-            val tokens = Regex("[A-D]'?").findAll(product.replace(" ", "")).map { it.value }.toList()
+            val tokens = Regex("[A-F]'?").findAll(product.replace(" ", "")).map { it.value }.toList()
             require(tokens.joinToString("") == product.replace(" ", ""))
             tokens.all(::literal)
         } else {

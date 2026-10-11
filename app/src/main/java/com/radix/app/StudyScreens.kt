@@ -59,10 +59,10 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
     val comparison=remember(s.left,s.right,s.variables){if(s.right.isBlank())null else runCatching{ExpressionEngine.compare(s.left,s.right,s.variables)}}
     StudyPage("Write logic.","Prove the idea.","THE BOOLEAN EXPRESSION LAB","Real truth tables. Both forms. No guesswork."){
         StudyCard("Your expression"){
-            Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){(2..4).forEach{n->OutlinedButton(onClick={vm.setExpression(s.copy(variables=n))},modifier=Modifier.weight(1f).heightIn(min=actionHeight())){Text("$n vars",fontSize=12.sp,color=if(n==s.variables)accent()else muted())}}}
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)){(2..6).forEach{n->OutlinedButton(onClick={vm.setExpression(s.copy(variables=n))},modifier=Modifier.width(70.dp).heightIn(min=actionHeight())){Text("$n vars",fontSize=11.sp,color=if(n==s.variables)accent()else muted())}}}
             OutlinedTextField(value=s.left,onValueChange={vm.setExpression(s.copy(left=it))},label={Text("Expression F")},textStyle=LocalTextStyle.current.copy(fontFamily=Mono),modifier=Modifier.fillMaxWidth(),minLines=2,maxLines=4)
             FlowRow(horizontalArrangement=Arrangement.spacedBy(7.dp),verticalArrangement=Arrangement.spacedBy(5.dp)){
-                listOf("A","B","C","D","′"," + "," · "," ⊕ "," ⊙ ","(",")","0","1").forEach{token->OutlinedButton(onClick={vm.setExpression(s.copy(left=s.left+token))},enabled=token !in listOf("C","D")||token[0]-'A'<s.variables,modifier=Modifier.heightIn(min=actionHeight()),contentPadding=PaddingValues(horizontal=12.dp)){Text(token.trim(),fontFamily=Mono,fontSize=12.sp)}}
+                listOf("A","B","C","D","E","F","′"," + "," · "," ⊕ "," ⊙ ","(",")","0","1").forEach{token->OutlinedButton(onClick={vm.setExpression(s.copy(left=s.left+token))},enabled=token.length!=1||token[0] !in 'A'..'F'||token[0]-'A'<s.variables,modifier=Modifier.heightIn(min=actionHeight()),contentPadding=PaddingValues(horizontal=12.dp)){Text(token.trim(),fontFamily=Mono,fontSize=12.sp)}}
             }
             StudyNote("Buttons append symbols: ⊕ is XOR, ⊙ is XNOR, ′ is NOT. Precedence: NOT first; AND (including adjacency) next; XOR/XNOR next; OR last. NAND/NOR/XNOR sit at their corresponding level and associate left-to-right.")
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){listOf("XOR" to "A'B + AB'","De Morgan" to "!(A B)","Distribute" to "A(B+C)").forEach{(name,text)->TextButton(onClick={vm.setExpression(s.copy(left=text,variables=if(name=="Distribute")maxOf(3,s.variables)else s.variables))},modifier=Modifier.heightIn(min=actionHeight())){Text(name,fontSize=12.sp)}};TextButton(onClick={vm.setExpression(s.copy(left=""))},modifier=Modifier.heightIn(min=actionHeight())){Text("Clear",fontSize=12.sp)}}
@@ -81,19 +81,19 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
                     }
                 }
                 StudyValue("F · CURRENT OUTPUT",r.cells[LogicEngine.code(bits)].toString());StudyNote("Parsed as ${r.normalized}")
-                StudyValue("MINIMUM SOP",r.sop);StudyValue("MINIMUM POS",r.pos)
+                StudyValue("MINIMUM SOP",r.sop);StudyValue("MINIMUM POS",r.pos);StudyValue("MINTERMS · Σm",r.sigmaM);StudyValue("MAXTERMS · ΠM",r.piM)
                 Row(horizontalArrangement=Arrangement.spacedBy(10.dp)){Button(onClick={vm.logicToKMap(s.variables,r.cells,KMapEngine.Form.SOP)},modifier=Modifier.weight(1f).heightIn(min=actionHeight())){Text("SOP K-map",fontSize=11.sp)};OutlinedButton(onClick={vm.logicToKMap(s.variables,r.cells,KMapEngine.Form.POS)},modifier=Modifier.weight(1f).heightIn(min=actionHeight())){Text("POS K-map",fontSize=11.sp)}}
             }
             StudyCard("Complete truth table"){
                 Row(Modifier.fillMaxWidth()){Text("INPUTS",color=muted(),fontSize=10.sp,modifier=Modifier.weight(1f));Text("F",color=muted(),fontSize=10.sp)}
                 r.cells.forEachIndexed{code,value->Row(Modifier.fillMaxWidth().background(if(code==LogicEngine.code(bits))accent().copy(alpha=.07f)else androidx.compose.ui.graphics.Color.Transparent).padding(vertical=7.dp)){Text(LogicEngine.binary(code,s.variables),fontFamily=Mono,fontSize=13.sp,modifier=Modifier.weight(1f));Text(value.toString(),fontFamily=Mono,fontSize=13.sp)}}
-                TextButton(onClick={clipboard.setText(AnnotatedString("F = ${s.left}\nParsed: ${r.normalized}\nSOP: ${r.sop}\nPOS: ${r.pos}\n${(0 until s.variables).map{('A'+it).toString()}.joinToString("\t")}\tF\n"+r.cells.mapIndexed{c,v->LogicEngine.binary(c,s.variables).toCharArray().joinToString("\t")+"\t$v"}.joinToString("\n")));notify("Expression report copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight())){Text("Copy expression + complete table",fontSize=12.sp)}
+                TextButton(onClick={clipboard.setText(AnnotatedString("F = ${s.left}\nParsed: ${r.normalized}\nSOP: ${r.sop}\nPOS: ${r.pos}\n${r.sigmaM}\n${r.piM}\n${(0 until s.variables).map{('A'+it).toString()}.joinToString("\t")}\tF\n"+r.cells.mapIndexed{c,v->LogicEngine.binary(c,s.variables).toCharArray().joinToString("\t")+"\t$v"}.joinToString("\n")));notify("Expression report copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight())){Text("Copy expression + complete table",fontSize=12.sp)}
             }
         }
         StudyCard("Compare another expression"){
             OutlinedTextField(value=s.right,onValueChange={vm.setExpression(s.copy(right=it))},label={Text("Expression G · optional")},textStyle=LocalTextStyle.current.copy(fontFamily=Mono),modifier=Modifier.fillMaxWidth(),minLines=2,maxLines=4)
             comparison?.fold(onSuccess={c->if(report.isSuccess){Text(if(c.equivalent)"✓ Equivalent in EVERY row"else"Not equivalent · ${c.mismatches.size} different rows",color=if(c.equivalent)accent()else MaterialTheme.colorScheme.error,fontWeight=FontWeight.Bold,fontSize=15.sp);if(!c.equivalent)StudyNote("Counterexamples: "+c.mismatches.joinToString{LogicEngine.binary(it,s.variables)})}},onFailure={StudyNote(it.message?:"Check comparison expression.",true)})
-            StudyNote("Comparisons include every selected input combination, not just the current switches. Only A–D and constants 0/1 are supported; no scripting is executed.")
+            StudyNote("Comparisons include every selected input combination, not just the current switches. A–F and constants 0/1 are supported; no scripting is executed.")
         }
     }
 }

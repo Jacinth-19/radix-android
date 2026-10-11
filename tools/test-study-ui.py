@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Radix 4 new-feature regressions; real browser companion, NOT Android UI."""
+"""Radix 7 companion regressions; NOT Android UI."""
 from pathlib import Path
 import html,json
 from playwright.sync_api import sync_playwright,expect
@@ -58,7 +58,14 @@ with sync_playwright() as p:
     nav('expression');page.locator('[data-study="expr-vars"][data-n="4"]').click();page.locator('#expr-left').fill('A XOR D');page.locator('[data-study="expr-kmap"][data-form="POS"]').click();m=map_state();assert m['variables']==4 and m['form']=='POS' and m['cells']==[int(bool(c&8)!=bool(c&1)) for c in range(16)]
     page.locator('[data-student="undo"]').click();expect(page.locator('#k-grid .k-cell')).to_have_count(4)
     passed('POS handoff preserves all four-variable outputs rather than complementing the function')
-    nav('expression');action('expr-copy');text=page.evaluate('navigator.clipboard.readText()');assert 'POS:' in text and 'SOP:' in text and len(text.splitlines())==21
+    nav('expression');page.locator('#expr-right').fill('');page.locator('[data-study="expr-vars"][data-n="5"]').click();page.locator('#expr-left').fill('A XOR F');expect(page.locator('#expr-error')).to_contain_text('F needs at least 6 variables');expect(page.locator('#expr-results')).to_be_empty()
+    page.locator('[data-study="expr-vars"][data-n="6"]').click();page.locator('#expr-left').fill('A XOR F');expect(page.locator('#expr-truth tbody tr')).to_have_count(64);expect(page.locator('#expr-truth thead th')).to_have_count(7);
+    page.locator('#expr-right').fill("A'F + AF'");expect(page.locator('#expr-comparison')).to_contain_text('Equivalent in EVERY row')
+    page.locator('[data-study="expr-kmap"][data-form="POS"]').click();m=map_state();assert m['variables']==6 and m['form']=='POS' and len(m['cells'])==64 and m['cells']==[int(bool(c&32)!=bool(c&1)) for c in range(64)]
+    expect(page.locator('#k-grid .k-cell')).to_have_count(64);expect(page.locator('.kmap-panel')).to_contain_text('rotate your device to landscape')
+    page.locator('[data-student="undo"]').click();expect(page.locator('#k-grid .k-cell')).to_have_count(4)
+    passed('Six-variable expressions evaluate 64 rows, reject F outside A–E, compare exactly and hand off all rows to POS K-maps')
+    nav('expression');page.locator('[data-study="expr-vars"][data-n="6"]').click();page.locator('#expr-left').fill('A XOR F');action('expr-copy');text=page.evaluate('navigator.clipboard.readText()');assert 'POS:' in text and 'SOP:' in text and 'A\tB\tC\tD\tE\tF\tY' in text and len(text.splitlines())==71
     passed('Expression copy includes both forms and every selected truth-table row')
     # Fixed-width representations.
     nav('representation');expect(page.locator('#rep-results')).to_contain_text('1111 0011');expect(page.locator('#rep-results')).to_contain_text('243');expect(page.locator('#rep-results')).to_contain_text('Invert every bit')
@@ -129,6 +136,10 @@ with sync_playwright() as p:
     passed('Unbroken 40-character session names wrap inside phone cards and confirmation dialogs')
     nav('sessions');count=len(study_state()['sessions']);page.locator('[data-study="session-delete"]').first.click();close();assert len(study_state()['sessions'])==count;page.locator('[data-study="session-delete"]').first.click();action('session-confirm-delete');assert len(study_state()['sessions'])==count-1
     passed('Session names are validated and deletion explicitly confirms without changing the active circuit')
+    # Six-variable textbook notation, axis order and map history.
+    nav('kmap');page.locator('[data-student="variables"][data-n="6"]').click();page.locator('.k-inputs summary').click();page.locator('#k-notation').fill('F(A,B,C,D,E,F)=Σm(63)');page.locator('[data-student="notation"]').click();m=map_state();assert m['variables']==6 and m['form']=='SOP' and len(m['cells'])==64 and m['cells'][63]==1 and sum(m['cells'])==1;expect(page.locator('#k-grid .k-cell')).to_have_count(64)
+    page.locator('.k-inputs summary').click();page.locator('#k-notation').fill('F(A,B,C,D,F,E)=Σm(63)');page.locator('[data-student="notation"]').click();expect(page.locator('#k-notation-error')).to_contain_text('A, B, C');assert map_state()==m
+    passed('Six-variable Σm notation loads cell 63 on the 8×8 map; shuffled axes are rejected without mutation')
     # K-map histories, including invalid draft state.
     nav('kmap');page.locator('[data-student="variables"][data-n="2"]').click();page.locator('[data-student="reset"]').click();page.locator('[data-student="cell"][data-index="0"]').click();m1=map_state();page.locator('[data-student="cell"][data-index="0"]').click();assert map_state()['cells'][0]==2;page.locator('[data-student="undo"]').click();assert map_state()==m1;page.locator('[data-student="redo"]').click();assert map_state()['cells'][0]==2
     passed('K-map 0→1→X edits undo/redo with exact cell values')
@@ -138,7 +149,7 @@ with sync_playwright() as p:
     page.locator('[data-student="undo"]').click()
     passed('Invalid K-map draft/error history restores honestly without changing the last valid cells')
     # Backup: export, validation, nonmutation, explicit replacement.
-    nav('preferences');action('backup-copy');export=page.evaluate('navigator.clipboard.readText()');data=json.loads(export);assert data['format']=='radix-study' and data['version']==1 and data['appVersion']=='5.0.0';assert 'history' not in export and 'password' not in export.lower() and 'keystore' not in export.lower()
+    nav('preferences');action('backup-copy');export=page.evaluate('navigator.clipboard.readText()');data=json.loads(export);assert data['format']=='radix-study' and data['version']==1 and data['appVersion']=='7.0.0';assert 'history' not in export and 'password' not in export.lower() and 'keystore' not in export.lower()
     before=storage();validate(export);expect(page.locator('#backup-result')).to_contain_text('Valid:');assert storage()==before;review();close();assert storage()==before
     passed('Portable backup exports only intended study fields; validation/review/cancel never mutate local data')
     with page.expect_download() as download:action('backup-download')
@@ -167,9 +178,9 @@ with sync_playwright() as p:
             prefix='.mobile-nav' if page.locator('.mobile-nav').is_visible() else '.topnav'
             page.locator(prefix+' [data-tab="more"]').click();page.locator('.more-card[data-tab="'+route+'"]').click();assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(route,width,height)
     passed('All five new routes fit 320px phones, keyboard-height/landscape viewports, tablets and desktop without page overflow')
-    page.set_viewport_size({'width':390,'height':844});nav('preferences');page.locator('#pref-large').check();nav('expression');page.locator('[data-study="expr-vars"][data-n="4"]').click();page.locator('#expr-left').fill('A XOR B XOR C XOR D');assert page.locator('[data-study="expr-bit"]').first.bounding_box()['height']>=78;assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');page.screenshot(path=str(root/'design/study-expression-phone.png'),full_page=True);nav('representation');page.screenshot(path=str(root/'design/study-representation-phone.png'),full_page=True);nav('practice');page.screenshot(path=str(root/'design/study-practice-phone.png'),full_page=True);nav('preferences');page.screenshot(path=str(root/'design/study-backup-phone.png'),full_page=True)
+    page.set_viewport_size({'width':390,'height':844});nav('preferences');page.locator('#pref-large').check();nav('expression');page.locator('[data-study="expr-vars"][data-n="6"]').click();page.locator('#expr-left').fill('A XOR B XOR C XOR D XOR E XOR F');assert page.locator('[data-study="expr-bit"]').first.bounding_box()['height']>=78;assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');page.screenshot(path=str(root/'design/study-expression-phone.png'),full_page=True);nav('representation');page.screenshot(path=str(root/'design/study-representation-phone.png'),full_page=True);nav('practice');page.screenshot(path=str(root/'design/study-practice-phone.png'),full_page=True);nav('preferences');page.screenshot(path=str(root/'design/study-backup-phone.png'),full_page=True)
     passed('Large-control mode keeps expression/practice controls touch-sized and contained on phones')
-    page.set_viewport_size({'width':320,'height':640});nav('expression');assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');assert all(b['width']>=64 and b['height']>=78 for b in [x.bounding_box() for x in page.locator('[data-study="expr-bit"]').all()]);page.set_viewport_size({'width':390,'height':844})
+    page.set_viewport_size({'width':320,'height':640});nav('expression');assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');assert len(page.locator('[data-study="expr-bit"]').all())==6 and all(b['width']>=64 and b['height']>=78 for b in [x.bounding_box() for x in page.locator('[data-study="expr-bit"]').all()]);page.set_viewport_size({'width':390,'height':844})
     passed('All four large expression inputs wrap cleanly and stay touch-sized at 320px width')
     page.emulate_media(reduced_motion='reduce');assert page.locator('.mobile-nav button').first.evaluate('(e)=>getComputedStyle(e).transitionDuration') in ['1e-05s','0.00001s','0s']
     passed('Reduced-motion media preference removes decorative animation/transition duration')
@@ -190,4 +201,4 @@ with sync_playwright() as p:
     assert not errors,errors;assert not opaque_errors,opaque_errors;passed('No new-study JavaScript runtime errors in normal or offline sandbox execution')
     browser.close()
 (root/'design/study-ux-checks.json').write_text(json.dumps({'status':'pass','checks':len(results),'passed':results,'androidRuntimeQA':False,'note':'Browser companion at 320/390/768/844/1440 widths; not native Android screenshots or installed-APK testing.'},indent=2)+'\n')
-print('PASS:',len(results),'Radix 4 study UX checks.',flush=True)
+print('PASS:',len(results),'Radix 7 study UX checks.',flush=True)

@@ -9,6 +9,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.media.AudioAttributes
+import android.net.Uri
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -21,7 +24,7 @@ internal data class InboxItem(val id:Long,val title:String,val body:String,val d
 
 /** Offline study reminders. No server, no tracking; all content is computed on-device. */
 internal object StudyReminder {
-    const val CHANNEL="radix_study";const val DAILY_ID=101;const val MILESTONE_ID=102;const val TEST_ID=103
+    const val CHANNEL="radix_study_v2";private const val LEGACY_CHANNEL="radix_study";const val DAILY_ID=101;const val MILESTONE_ID=102;const val TEST_ID=103
     val milestones=listOf(3,7,14,30,60,100)
     private val tipsEn=listOf(
         "11111111 means 255 unsigned — and −1 in 8-bit two’s complement.",
@@ -39,21 +42,40 @@ internal object StudyReminder {
         "Dans A + BC, le ET passe avant le OU.",
         "Le code Gray change un seul bit entre voisins.",
         "Un additionneur complet avec A=B=Cin=1 donne S=1, Cout=1.")
+    private val tipsEs=listOf(
+        "11111111 vale 255 sin signo y −1 en complemento a dos de 8 bits.",
+        "A′B + AB′ y A XOR B coinciden en todas las filas de verdad.",
+        "En un mapa de Karnaugh de 4 variables, las cuatro esquinas forman un grupo.",
+        "Un flip-flop D captura solo en el flanco ascendente.",
+        "En A + BC, AND se evalúa antes que OR.",
+        "El código Gray cambia un bit entre vecinos.",
+        "Un sumador completo con A=B=Cin=1 da Sum=1 y Cout=1.")
     fun dayString():String=LocalDate.now().toString()
     fun prefs(ctx:Context)=ctx.getSharedPreferences("radix_local",0)
     fun notificationsAllowed(ctx:Context)=Build.VERSION.SDK_INT<33||ContextCompat.checkSelfPermission(ctx,android.Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED
     fun dailyContent(lang:String,hour:Int,streak:Int,dayOfYear:Int):Pair<String,String>{
-        val fr=lang=="fr"
-        val greeting=if(fr)when{hour<12->"Bonjour";hour<18->"Bon après-midi";else->"Bonsoir"}else when{hour<12->"Good morning";hour<18->"Good afternoon";else->"Good evening"}
-        val tips=if(fr)tipsFr else tipsEn;val tip=tips[dayOfYear%tips.size]
-        val title=if(streak>=2)if(fr)"$greeting — série de $streak jours 🔥"else"$greeting — $streak-day streak 🔥"else if(fr)"$greeting — une petite découverte ?"else"$greeting — time for a tiny discovery?"
-        val body=if(streak>=2)if(fr)"Une question garde la série en vie. Astuce : $tip"else"One question keeps it alive. Tip: $tip"else if(fr)"Une carte d’entraînement par jour suffit. Astuce : $tip"else"One practice card a day is enough. Tip: $tip"
+        val greeting=when(lang){
+            "fr"->when{hour<12->"Bonjour";hour<18->"Bon après-midi";else->"Bonsoir"}
+            "es"->when{hour<12->"Buenos días";hour<18->"Buenas tardes";else->"Buenas noches"}
+            else->when{hour<12->"Good morning";hour<18->"Good afternoon";else->"Good evening"}
+        }
+        val tips=when(lang){"fr"->tipsFr;"es"->tipsEs;else->tipsEn};val tip=tips[dayOfYear%tips.size]
+        val title=when(lang){
+            "fr"->if(streak>=2)"$greeting — série de $streak jours 🔥"else"$greeting — une petite découverte ?"
+            "es"->if(streak>=2)"$greeting — racha de $streak días 🔥"else"$greeting — ¿una pequeña idea?"
+            else->if(streak>=2)"$greeting — $streak-day streak 🔥"else"$greeting — time for a tiny discovery?"
+        }
+        val body=when(lang){
+            "fr"->if(streak>=2)"Une question garde la série en vie. Astuce : $tip"else"Une carte d’entraînement par jour suffit. Astuce : $tip"
+            "es"->if(streak>=2)"Una pregunta mantiene la racha. Consejo: $tip"else"Una tarjeta al día es suficiente. Consejo: $tip"
+            else->if(streak>=2)"One question keeps it alive. Tip: $tip"else"One practice card a day is enough. Tip: $tip"
+        }
         return title to body
     }
-    fun milestoneContent(lang:String,streak:Int):Pair<String,String>{
-        val fr=lang=="fr"
-        return (if(fr)"🔥 Série de $streak jours !"else"🔥 $streak-day streak!") to
-            if(fr)"Tu progresses vraiment. Continue à ton rythme — sans pression."else"You’re really progressing. Keep your own pace — no pressure."
+    fun milestoneContent(lang:String,streak:Int):Pair<String,String> = when(lang){
+        "fr"->"🔥 Série de $streak jours !" to "Tu progresses vraiment. Continue à ton rythme — sans pression."
+        "es"->"🔥 ¡Racha de $streak días!" to "Estás avanzando. Sigue a tu ritmo, sin presión."
+        else->"🔥 $streak-day streak!" to "You’re really progressing. Keep your own pace — no pressure."
     }
     fun loadInbox(ctx:Context):List<InboxItem> = runCatching{
         val a=JSONArray(prefs(ctx).getString("inbox_json","[]"));(0 until a.length()).map{val o=a.getJSONObject(it);InboxItem(o.getLong("id"),o.getString("title"),o.getString("body"),o.getString("day"))}
@@ -66,8 +88,22 @@ internal object StudyReminder {
     fun clearInbox(ctx:Context){prefs(ctx).edit{putString("inbox_json","[]")}}
     private fun channel(ctx:Context){
         val m=ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        m.createNotificationChannel(NotificationChannel(CHANNEL,if(prefs(ctx).getString("app_language","en")=="fr")"Rappels d’étude"else"Study reminders",NotificationManager.IMPORTANCE_DEFAULT).apply{description="Gentle offline study reminders you control."})
+        val lang=prefs(ctx).getString("app_language","en")?:"en"
+        val name=when(lang){"fr"->"Rappels d’étude";"es"->"Recordatorios de estudio";else->"Study reminders"}
+        val sound=Uri.parse("android.resource://${ctx.packageName}/${R.raw.radix_reminder}")
+        val audio=AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
+        val fresh=NotificationChannel(CHANNEL,name,NotificationManager.IMPORTANCE_DEFAULT).apply{
+            description=when(lang){"fr"->"Rappels hors ligne avec sonnerie facultative, réglable par vous.";"es"->"Recordatorios sin conexión con tono opcional que puedes controlar.";else->"Offline reminders with an optional chime you control."}
+            setSound(sound,audio)
+        }
+        m.getNotificationChannel(LEGACY_CHANNEL)?.let{old->
+            // A new ID is needed to add the bundled sound, but do not undo an old mute/custom sound.
+            if(old.importance!=NotificationManager.IMPORTANCE_DEFAULT)fresh.setImportance(old.importance)
+            when(val oldSound=old.sound){null->fresh.setSound(null,null);Settings.System.DEFAULT_NOTIFICATION_URI->Unit;else->fresh.setSound(oldSound,audio)}
+        }
+        m.createNotificationChannel(fresh)
     }
+    fun prepareChannel(ctx:Context)=channel(ctx)
     fun show(ctx:Context,id:Int,title:String,body:String){
         channel(ctx);if(!notificationsAllowed(ctx))return
         val open=PendingIntent.getActivity(ctx,0,Intent(ctx,MainActivity::class.java).apply{flags=Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP},PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -79,6 +115,7 @@ internal object StudyReminder {
         val pi=PendingIntent.getBroadcast(ctx,0,Intent(ctx,ReminderReceiver::class.java),PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         am.cancel(pi)
         if(!p.getBoolean("notif_enabled",false))return
+        channel(ctx)
         val at=java.util.Calendar.getInstance().apply{set(java.util.Calendar.HOUR_OF_DAY,p.getInt("notif_hour",19).coerceIn(0,23));set(java.util.Calendar.MINUTE,p.getInt("notif_minute",0).coerceIn(0,59));set(java.util.Calendar.SECOND,0);set(java.util.Calendar.MILLISECOND,0);if(timeInMillis<=System.currentTimeMillis())add(java.util.Calendar.DAY_OF_YEAR,1)}
         am.setInexactRepeating(AlarmManager.RTC_WAKEUP,at.timeInMillis,AlarmManager.INTERVAL_DAY,pi)
     }
@@ -96,13 +133,13 @@ internal object StudyReminder {
         pushInbox(ctx,title,body)
         if(prefs(ctx).getBoolean("notif_enabled",false)&&prefs(ctx).getBoolean("notif_streak",true))show(ctx,MILESTONE_ID,title,body)
     }
-    fun test(ctx:Context){
+    fun preview(ctx:Context){
         val lang=prefs(ctx).getString("app_language","en")?:"en"
-        val title=if(lang=="fr")"Les rappels Radix fonctionnent ✓"else"Radix reminders work ✓"
-        val p=prefs(ctx);val time="%02d:%02d".format(p.getInt("notif_hour",19),p.getInt("notif_minute",0))
-        val body=if(lang=="fr")"Un rappel doux chaque jour à $time."else"One gentle nudge daily at $time."
-        pushInbox(ctx,title,body);show(ctx,TEST_ID,title,body)
+        val time="%02d:%02d".format(prefs(ctx).getInt("notif_hour",19),prefs(ctx).getInt("notif_minute",0))
+        val title=when(lang){"fr"->"Aperçu des rappels Radix";"es"->"Vista previa de recordatorios Radix";else->"Radix reminder preview"}
+        val body=when(lang){"fr"->"Une douce notification hors ligne, chaque jour à $time.";"es"->"Una notificación suave sin conexión cada día a las $time.";else->"One gentle offline nudge each day at $time."}
+        show(ctx,TEST_ID,title,body)
     }
 }
 internal class ReminderReceiver:BroadcastReceiver(){override fun onReceive(ctx:Context,intent:Intent){StudyReminder.fireDaily(ctx)}}
-internal class BootReceiver:BroadcastReceiver(){override fun onReceive(ctx:Context,intent:Intent){if(intent.action==Intent.ACTION_BOOT_COMPLETED)StudyReminder.schedule(ctx)}}
+internal class BootReceiver:BroadcastReceiver(){override fun onReceive(ctx:Context,intent:Intent){if(intent.action in listOf(Intent.ACTION_BOOT_COMPLETED,Intent.ACTION_MY_PACKAGE_REPLACED))StudyReminder.schedule(ctx)}}

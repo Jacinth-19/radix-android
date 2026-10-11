@@ -67,9 +67,9 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
     private fun recordSequence(){val s=LogicCatalog.sequential.first{it.id==sequentialId};sequenceHistory=(sequenceHistory+LogicEngine.Sample(++sequenceTick,sequenceState.clock,sequentialInputs.toList(),LogicEngine.outputs(s,sequenceState,sequentialInputs))).takeLast(12)}
     internal fun markTourSeen(){tourSeen=true;prefs.edit{putBoolean("tour_v3_seen",true)}}
     internal fun persistLogic(){prefs.edit{putInt("logic_section",logicSection);putString("logic_gate",gateId);putString("logic_circuit",circuitId);putString("logic_sequential",sequentialId)}}
-    internal fun logicToKMap(n:Int,cells:List<Int>,form:KMapEngine.Form=KMapEngine.Form.SOP)=editMap {require(n in 2..4 && cells.size==(1 shl n));kVariables=n;kCells=cells;kForm=form;syncKInputs();tab=3}
+    internal fun logicToKMap(n:Int,cells:List<Int>,form:KMapEngine.Form=KMapEngine.Form.SOP)=editMap {require(n in 2..6 && cells.size==(1 shl n));kVariables=n;kCells=cells;kForm=form;syncKInputs();tab=3}
 
-    var kVariables by mutableIntStateOf(prefs.getInt("k_variables", 2).coerceIn(2, 4))
+    var kVariables by mutableIntStateOf(prefs.getInt("k_variables", 2).coerceIn(2, 6))
         private set
     var kCells by mutableStateOf(runCatching {
         val array = JSONArray(prefs.getString("k_cells", if (kVariables == 2) "[0,1,1,1]" else "[]"))
@@ -85,7 +85,7 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
     var kError by mutableStateOf<String?>(null)
         private set
     fun selectKVariables(value: Int)=editMap {
-        require(value in 2..4)
+        require(value in 2..6)
         kVariables = value; kCells = List(1 shl value) { 0 }; syncKInputs()
     }
     fun selectKForm(value: KMapEngine.Form)=editMap { kForm = value; syncKInputs() }
@@ -183,7 +183,7 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
                 SavedNumber(item.getLong("id"), input, base) else null
         }
     }.getOrDefault(emptyList())
-    internal var expression by mutableStateOf(runCatching {val o=StudyJson.parse(prefs.getString("study_expression","{}")?:"{}") as Map<*,*>;StudyExpression((o["variables"] as Number).toInt().coerceIn(2,4),(o["left"] as String).take(256),(o["right"] as String).take(256))}.getOrDefault(StudyExpression()))
+    internal var expression by mutableStateOf(runCatching {val o=StudyJson.parse(prefs.getString("study_expression","{}")?:"{}") as Map<*,*>;StudyExpression((o["variables"] as Number).toInt().coerceIn(2,6),(o["left"] as String).take(256),(o["right"] as String).take(256))}.getOrDefault(StudyExpression()))
         private set
     internal var representation by mutableStateOf(runCatching {val o=StudyJson.parse(prefs.getString("study_representation","{}")?:"{}") as Map<*,*>;val w=(o["width"] as Number).toInt();require(w in RepresentationEngine.widths);val mode=o["mode"] as String;require(mode in listOf("decimal","bits","gray"));StudyRepresentation(w,o["signed"] as Boolean,mode,(o["input"] as String).take(128))}.getOrDefault(StudyRepresentation()))
         private set
@@ -197,7 +197,7 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
         private set
     internal var largeControls by mutableStateOf(prefs.getBoolean("study_large_controls",false))
         private set
-    internal fun setExpression(value:StudyExpression){expression=value.copy(left=value.left.take(256),right=value.right.take(256));prefs.edit{putString("study_expression",StudyJson.write(mapOf("variables" to value.variables,"left" to expression.left,"right" to expression.right)))}}
+    internal fun setExpression(value:StudyExpression){require(value.variables in 2..6){"Choose 2 to 6 variables."};expression=value.copy(left=value.left.take(256),right=value.right.take(256));prefs.edit{putString("study_expression",StudyJson.write(mapOf("variables" to expression.variables,"left" to expression.left,"right" to expression.right)))}}
     internal fun setRepresentation(value:StudyRepresentation){representation=value.copy(input=value.input.take(128));prefs.edit{putString("study_representation",StudyJson.write(mapOf("width" to value.width,"signed" to value.signed,"mode" to value.mode,"input" to representation.input)))}}
     internal fun selectQuestion(index:Int){practiceIndex=index.coerceIn(0,PracticeCatalog.questions.lastIndex);prefs.edit{putInt("study_question",practiceIndex)}}
     internal fun completeQuestion(id:String){val q=PracticeCatalog.questions.firstOrNull{it.id==id}?:throw IllegalArgumentException("Unknown question.");practiceProgress=practiceProgress+id;persistStudy();recordPracticeDay();awardGameXp(q.tier);GameWidget.refreshAll(getApplication())}

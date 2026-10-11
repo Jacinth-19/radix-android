@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "checks": 48,
+  "checks": 50,
   "passed": [
     "Expression defaults show XOR, both minimum forms and the complete live truth table",
     "Live expression aliases/equivalence and explicit counterexample rows update correctly",
@@ -8,6 +8,7 @@
     "Variable/keypad availability, implicit AND and input switches update the highlighted row",
     "SOP expression handoff is a single reversible K-map edit",
     "POS handoff preserves all four-variable outputs rather than complementing the function",
+    "Six-variable expressions evaluate 64 rows, reject F outside A\u2013E, compare exactly and hand off all rows to POS K-maps",
     "Expression copy includes both forms and every selected truth-table row",
     "Representation default shows signed \u221213 and unsigned 243 with encoding working",
     "Unsigned mode rejects negatives and all 64-bit extrema remain exact, not floating-point",
@@ -32,6 +33,7 @@
     "Unary sessions restore one input and returning to variable-input gates remains valid",
     "Unbroken 40-character session names wrap inside phone cards and confirmation dialogs",
     "Session names are validated and deletion explicitly confirms without changing the active circuit",
+    "Six-variable \u03a3m notation loads cell 63 on the 8\u00d78 map; shuffled axes are rejected without mutation",
     "K-map 0\u21921\u2192X edits undo/redo with exact cell values",
     "Map form/variable changes are reversible and a new map edit clears redo",
     "Invalid K-map draft/error history restores honestly without changing the last valid cells",
