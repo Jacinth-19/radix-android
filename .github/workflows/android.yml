@@ -66,6 +66,7 @@ jobs:
           if [ "$gradle_status" -ne 0 ]; then
             python3 - <<'PY'
           import re
+          import xml.etree.ElementTree as ET
           from pathlib import Path
 
           lines = Path("android-build.log").read_text(errors="replace").splitlines()
@@ -73,7 +74,19 @@ jobs:
           focus = lines[failure_start:] if failure_start >= 0 else lines[-600:]
           focus = [line for line in focus if line.strip() and not re.match(r"^\s*(at\s+|\.\.\.\s+\d+\s+more$)", line)]
           context = [line for line in lines[-800:] if re.search(r"(^e: |^> Task .*FAILED|failed tests|tests completed, \d+ failed|AssertionError|No matching variant|Could not resolve|Could not find)", line, re.I)]
-          details = "\n".join(dict.fromkeys(context[-35:] + focus[:60]))[:3200]
+          test_failures = []
+          for report in Path("app/build/test-results").glob("test*/TEST-*.xml"):
+              try:
+                  root = ET.parse(report).getroot()
+              except (ET.ParseError, OSError):
+                  continue
+              for case in root.iter("testcase"):
+                  failure = case.find("failure")
+                  if failure is None:
+                      failure = case.find("error")
+                  if failure is not None:
+                      test_failures.append(f"{root.get('name')}#{case.get('name')}: {failure.get('message', '')}\n{(failure.text or '').strip()}")
+          details = "\n".join(test_failures + list(dict.fromkeys(context[-35:] + focus[:60])))[:3200]
           details = details.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
           print(f"::error title=Android Gradle failure::{details or 'Gradle exited nonzero; see android-build.log artifact.'}")
           PY
