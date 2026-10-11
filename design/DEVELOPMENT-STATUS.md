@@ -8,7 +8,20 @@
 
 The current source tree contains the requested six-variable Boolean-expression and Karnaugh-map work, bounded/paged large truth tables, landscape guidance, revised 7.0 onboarding, localized reminder copy, and an optional locally bundled CC0 reminder chime with preview and Android channel controls. Existing conversion, practice, history/checkpoint, backup, gate, and circuit functionality was checked against the repository's browser and engine suites rather than assumed to be absent.
 
-**The Android app has not been compiled or packaged.** This is intentional, per the user's instruction. Consequently, there is no version-7 APK, no current native JVM test result, and no claim of installed-device behavior. The checked-in signed APK and `design/VERIFICATION.md` are for version 6.0.0 / versionCode 6 and remain historical evidence only.
+**The Android build was completed successfully through GitHub Actions.** Run [38110656003](https://github.com/Jacinth-19/radix-android/actions/runs/38110656003) passed native debug/release unit tests, both lint variants, and debug/release APK assembly. The unsigned APKs and reports were uploaded as one workflow artifact; no APK was signed or installed on a device. The checked-in signed APK and `design/VERIFICATION.md` are for version 6.0.0 / versionCode 6 and remain historical evidence only.
+
+## GitHub Actions Android validation
+
+| Item | Result |
+|---|---|
+| Workflow run | [38110656003](https://github.com/Jacinth-19/radix-android/actions/runs/38110656003) — **passed** on commit `11584f89708ae73144a299e292fd0707697255df`. |
+| Toolchain | JDK 17; Android SDK/API 36. |
+| Native tests | `testDebugUnitTest` and `testReleaseUnitTest` — passed. |
+| Lint | `lintDebug` and `lintRelease` — passed. |
+| APK assembly | `assembleDebug` and `assembleRelease` — passed. Outputs are unsigned; this is not release signing or device validation. |
+| Artifact | [`radix-android-11584f89708ae73144a299e292fd0707697255df`](https://github.com/Jacinth-19/radix-android/actions/runs/38110656003/artifacts/11690449142), 12,671,402 bytes. Includes the configured APK, test/lint report, and Gradle-log paths. |
+
+The successful run emitted non-blocking notices that Gradle 8.13 is out of date and `ubuntu-latest` will migrate to Ubuntu 26 on 2026-10-19. Neither affected the build.
 
 ## Implemented in source
 
@@ -22,7 +35,7 @@ The current source tree contains the requested six-variable Boolean-expression a
 
 Localization is strongest for app chrome, settings and reminders; many technical lessons remain in English for precision, as documented in `README.md`.
 
-## Non-compiling validation completed
+## Engine, browser and static validation completed
 
 All results below are source/engine/browser-companion evidence, not Android runtime evidence.
 
@@ -42,10 +55,9 @@ All results below are source/engine/browser-companion evidence, not Android runt
 
 The browser tests use Chromium and Playwright and do not exercise Compose, Android notifications, OS upgrades, TalkBack, installed-app permissions, or device-specific landscape behavior. Browser test setup is documented in `README.md`; the Playwright version is pinned in `tools/requirements-browser.txt`.
 
-## Not yet verified / next authorized checks
+## Remaining device and release verification
 
-1. **Wait for explicit user authorization before compiling.** Then run native JVM tests, Android debug/release assembly, lint/R8 and a version-7 APK audit; review any failures before packaging.
-2. Install/update on Android API 26+ devices/emulators and verify six-variable maps, reminder opt-in/permission handling, notification preview, sound/mute settings, old-channel preference migration, and reminder rescheduling after reboot/package replacement.
-3. Check TalkBack, font scaling, keyboard/IME behavior, real 5-/6-variable map landscape use, and wide-circuit touch/scroll behavior on device.
-4. Audition the bundled chime and validate volume/loop/timing on device before describing it as pleasant or shipping it as a release.
-5. Re-run native backup/upgrade and data-retention tests after the authorized Android build. The version-6 signed APK and its audit must not be substituted for these checks.
+1. Install/update the uploaded debug APK on Android API 26+ devices/emulators and verify six-variable maps, reminder opt-in/permission handling, notification preview, sound/mute settings, old-channel preference migration, and rescheduling after reboot/package replacement.
+2. Check TalkBack, font scaling, keyboard/IME behavior, real 5-/6-variable map landscape use, and wide-circuit touch/scroll behavior on device.
+3. Audition the bundled chime and validate volume/loop/timing on device before describing it as pleasant or shipping it in a release. It has **not** been auditioned or device-tested.
+4. The CI release APK is unsigned. Complete any release signing and APK audit through the trusted release process; verify upgrade/data-retention behavior separately on device. The version-6 signed APK and its audit must not substitute for version-7 checks.
