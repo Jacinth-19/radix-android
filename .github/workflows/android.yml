@@ -55,11 +55,25 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Run Android unit tests, lint and debug/release builds
-        run: >-
-          ./gradlew --no-daemon --stacktrace
-          testDebugUnitTest testReleaseUnitTest
-          lintDebug lintRelease
-          assembleDebug assembleRelease
+        shell: bash
+        run: |
+          set +e
+          ./gradlew --no-daemon --stacktrace \
+            testDebugUnitTest testReleaseUnitTest \
+            lintDebug lintRelease \
+            assembleDebug assembleRelease 2>&1 | tee android-build.log
+          gradle_status=${PIPESTATUS[0]}
+          if [ "$gradle_status" -ne 0 ]; then
+            python3 - <<'PY'
+          from pathlib import Path
+
+          lines = Path("android-build.log").read_text(errors="replace").splitlines()
+          details = "\n".join(lines[-80:])[-12000:]
+          details = details.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          print(f"::error title=Android Gradle failure::{details}")
+          PY
+          fi
+          exit "$gradle_status"
 
       - name: Upload APKs and Android reports
         if: always()
@@ -68,6 +82,7 @@ jobs:
           name: radix-android-${{ github.sha }}
           if-no-files-found: warn
           path: |
+            android-build.log
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/release/*.apk
             app/build/reports/tests/testDebugUnitTest/**
