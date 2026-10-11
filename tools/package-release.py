@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package a previously built/signed/audited Radix 5 release. Does not create signing keys."""
+"""Package the archived signed/audited Radix 6 artifact. This script does not build current source 7.0 or create signing keys."""
 from pathlib import Path
 import hashlib,json,re,shutil,sys,zipfile
 root=Path(__file__).resolve().parent.parent

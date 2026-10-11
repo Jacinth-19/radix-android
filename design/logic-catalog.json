@@ -983,6 +983,2350 @@
         "A3/B3 are the MSBs. S3\u2026S0 is the low four-bit sum; Cout is the fifth bit.",
         "This ideal model has no propagation-delay simulation. The 512-row truth table is paginated."
       ]
+    },
+    {
+      "id": "mux-8",
+      "title": "8:1 multiplexer",
+      "inputs": [
+        "D0",
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "D5",
+        "D6",
+        "D7",
+        "S2",
+        "S1",
+        "S0"
+      ],
+      "outputs": {
+        "Y": "mux-or_13"
+      },
+      "nodes": [
+        {
+          "id": "nS2",
+          "gate": "NOT",
+          "refs": [
+            "S2"
+          ]
+        },
+        {
+          "id": "nS1",
+          "gate": "NOT",
+          "refs": [
+            "S1"
+          ]
+        },
+        {
+          "id": "nS0",
+          "gate": "NOT",
+          "refs": [
+            "S0"
+          ]
+        },
+        {
+          "id": "m0",
+          "gate": "AND",
+          "refs": [
+            "D0",
+            "nS2",
+            "nS1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "m1",
+          "gate": "AND",
+          "refs": [
+            "D1",
+            "nS2",
+            "nS1",
+            "S0"
+          ]
+        },
+        {
+          "id": "m2",
+          "gate": "AND",
+          "refs": [
+            "D2",
+            "nS2",
+            "S1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "m3",
+          "gate": "AND",
+          "refs": [
+            "D3",
+            "nS2",
+            "S1",
+            "S0"
+          ]
+        },
+        {
+          "id": "m4",
+          "gate": "AND",
+          "refs": [
+            "D4",
+            "S2",
+            "nS1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "m5",
+          "gate": "AND",
+          "refs": [
+            "D5",
+            "S2",
+            "nS1",
+            "S0"
+          ]
+        },
+        {
+          "id": "m6",
+          "gate": "AND",
+          "refs": [
+            "D6",
+            "S2",
+            "S1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "m7",
+          "gate": "AND",
+          "refs": [
+            "D7",
+            "S2",
+            "S1",
+            "S0"
+          ]
+        },
+        {
+          "id": "mux-or_11",
+          "gate": "OR",
+          "refs": [
+            "m0",
+            "m1",
+            "m2",
+            "m3"
+          ]
+        },
+        {
+          "id": "mux-or_12",
+          "gate": "OR",
+          "refs": [
+            "m4",
+            "m5",
+            "m6",
+            "m7"
+          ]
+        },
+        {
+          "id": "mux-or_13",
+          "gate": "OR",
+          "refs": [
+            "mux-or_11",
+            "mux-or_12"
+          ]
+        }
+      ],
+      "formula": [
+        "Y = D[base-2 index selected by S2, S1, S0]"
+      ],
+      "lesson": [
+        "3 select bits choose exactly one of 8 data inputs.",
+        "Select inputs are ordered most-significant first; 0\u2026 selects D0\u2026D7.",
+        "A full table has 2^11 rows and is paginated on demand."
+      ]
+    },
+    {
+      "id": "mux-16",
+      "title": "16:1 multiplexer",
+      "inputs": [
+        "D0",
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "D5",
+        "D6",
+        "D7",
+        "D8",
+        "D9",
+        "D10",
+        "D11",
+        "D12",
+        "D13",
+        "D14",
+        "D15",
+        "S3",
+        "S2",
+        "S1",
+        "S0"
+      ],
+      "outputs": {
+        "Y": "mux-or_32"
+      },
+      "nodes": [
+        {
+          "id": "nS3",
+          "gate": "NOT",
+          "refs": [
+            "S3"
+          ]
+        },
+        {
+          "id": "nS2",
+          "gate": "NOT",
+          "refs": [
+            "S2"
+          ]
+        },
+        {
+          "id": "nS1",
+          "gate": "NOT",
+          "refs": [
+            "S1"
+          ]
+        },
+        {
+          "id": "nS0",
+          "gate": "NOT",
+          "refs": [
+            "S0"
+          ]
+        },
+        {
+          "id": "hi0",
+          "gate": "AND",
+          "refs": [
+            "nS3",
+            "nS2"
+          ]
+        },
+        {
+          "id": "hi1",
+          "gate": "AND",
+          "refs": [
+            "nS3",
+            "S2"
+          ]
+        },
+        {
+          "id": "hi2",
+          "gate": "AND",
+          "refs": [
+            "S3",
+            "nS2"
+          ]
+        },
+        {
+          "id": "hi3",
+          "gate": "AND",
+          "refs": [
+            "S3",
+            "S2"
+          ]
+        },
+        {
+          "id": "lo0",
+          "gate": "AND",
+          "refs": [
+            "nS1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "lo1",
+          "gate": "AND",
+          "refs": [
+            "nS1",
+            "S0"
+          ]
+        },
+        {
+          "id": "lo2",
+          "gate": "AND",
+          "refs": [
+            "S1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "lo3",
+          "gate": "AND",
+          "refs": [
+            "S1",
+            "S0"
+          ]
+        },
+        {
+          "id": "m0",
+          "gate": "AND",
+          "refs": [
+            "D0",
+            "hi0",
+            "lo0"
+          ]
+        },
+        {
+          "id": "m1",
+          "gate": "AND",
+          "refs": [
+            "D1",
+            "hi0",
+            "lo1"
+          ]
+        },
+        {
+          "id": "m2",
+          "gate": "AND",
+          "refs": [
+            "D2",
+            "hi0",
+            "lo2"
+          ]
+        },
+        {
+          "id": "m3",
+          "gate": "AND",
+          "refs": [
+            "D3",
+            "hi0",
+            "lo3"
+          ]
+        },
+        {
+          "id": "m4",
+          "gate": "AND",
+          "refs": [
+            "D4",
+            "hi1",
+            "lo0"
+          ]
+        },
+        {
+          "id": "m5",
+          "gate": "AND",
+          "refs": [
+            "D5",
+            "hi1",
+            "lo1"
+          ]
+        },
+        {
+          "id": "m6",
+          "gate": "AND",
+          "refs": [
+            "D6",
+            "hi1",
+            "lo2"
+          ]
+        },
+        {
+          "id": "m7",
+          "gate": "AND",
+          "refs": [
+            "D7",
+            "hi1",
+            "lo3"
+          ]
+        },
+        {
+          "id": "m8",
+          "gate": "AND",
+          "refs": [
+            "D8",
+            "hi2",
+            "lo0"
+          ]
+        },
+        {
+          "id": "m9",
+          "gate": "AND",
+          "refs": [
+            "D9",
+            "hi2",
+            "lo1"
+          ]
+        },
+        {
+          "id": "m10",
+          "gate": "AND",
+          "refs": [
+            "D10",
+            "hi2",
+            "lo2"
+          ]
+        },
+        {
+          "id": "m11",
+          "gate": "AND",
+          "refs": [
+            "D11",
+            "hi2",
+            "lo3"
+          ]
+        },
+        {
+          "id": "m12",
+          "gate": "AND",
+          "refs": [
+            "D12",
+            "hi3",
+            "lo0"
+          ]
+        },
+        {
+          "id": "m13",
+          "gate": "AND",
+          "refs": [
+            "D13",
+            "hi3",
+            "lo1"
+          ]
+        },
+        {
+          "id": "m14",
+          "gate": "AND",
+          "refs": [
+            "D14",
+            "hi3",
+            "lo2"
+          ]
+        },
+        {
+          "id": "m15",
+          "gate": "AND",
+          "refs": [
+            "D15",
+            "hi3",
+            "lo3"
+          ]
+        },
+        {
+          "id": "mux-or_28",
+          "gate": "OR",
+          "refs": [
+            "m0",
+            "m1",
+            "m2",
+            "m3"
+          ]
+        },
+        {
+          "id": "mux-or_29",
+          "gate": "OR",
+          "refs": [
+            "m4",
+            "m5",
+            "m6",
+            "m7"
+          ]
+        },
+        {
+          "id": "mux-or_30",
+          "gate": "OR",
+          "refs": [
+            "m8",
+            "m9",
+            "m10",
+            "m11"
+          ]
+        },
+        {
+          "id": "mux-or_31",
+          "gate": "OR",
+          "refs": [
+            "m12",
+            "m13",
+            "m14",
+            "m15"
+          ]
+        },
+        {
+          "id": "mux-or_32",
+          "gate": "OR",
+          "refs": [
+            "mux-or_28",
+            "mux-or_29",
+            "mux-or_30",
+            "mux-or_31"
+          ]
+        }
+      ],
+      "formula": [
+        "Y = D[base-2 index selected by S3, S2, S1, S0]"
+      ],
+      "lesson": [
+        "4 select bits choose exactly one of 16 data inputs.",
+        "Select inputs are ordered most-significant first; 0\u2026 selects D0\u2026D15.",
+        "A full table has 2^20 rows and is paginated on demand."
+      ]
+    },
+    {
+      "id": "demux-4",
+      "title": "1:4 demultiplexer",
+      "inputs": [
+        "D",
+        "S1",
+        "S0"
+      ],
+      "outputs": {
+        "Y0": "y0",
+        "Y1": "y1",
+        "Y2": "y2",
+        "Y3": "y3"
+      },
+      "nodes": [
+        {
+          "id": "nS1",
+          "gate": "NOT",
+          "refs": [
+            "S1"
+          ]
+        },
+        {
+          "id": "nS0",
+          "gate": "NOT",
+          "refs": [
+            "S0"
+          ]
+        },
+        {
+          "id": "y0",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "nS1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "y1",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "nS1",
+            "S0"
+          ]
+        },
+        {
+          "id": "y2",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "S1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "y3",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "S1",
+            "S0"
+          ]
+        }
+      ],
+      "formula": [
+        "Y0 = D \u00b7 minterm(S) for select 00",
+        "Y1 = D \u00b7 minterm(S) for select 01",
+        "Y2 = D \u00b7 minterm(S) for select 10",
+        "Y3 = D \u00b7 minterm(S) for select 11"
+      ],
+      "lesson": [
+        "Routes one data input to the output selected by the binary select word.",
+        "Select inputs are most-significant first. With D=0 every output is 0.",
+        "A full table has 2^3 rows and is paginated on demand."
+      ]
+    },
+    {
+      "id": "demux-8",
+      "title": "1:8 demultiplexer",
+      "inputs": [
+        "D",
+        "S2",
+        "S1",
+        "S0"
+      ],
+      "outputs": {
+        "Y0": "y0",
+        "Y1": "y1",
+        "Y2": "y2",
+        "Y3": "y3",
+        "Y4": "y4",
+        "Y5": "y5",
+        "Y6": "y6",
+        "Y7": "y7"
+      },
+      "nodes": [
+        {
+          "id": "nS2",
+          "gate": "NOT",
+          "refs": [
+            "S2"
+          ]
+        },
+        {
+          "id": "nS1",
+          "gate": "NOT",
+          "refs": [
+            "S1"
+          ]
+        },
+        {
+          "id": "nS0",
+          "gate": "NOT",
+          "refs": [
+            "S0"
+          ]
+        },
+        {
+          "id": "y0",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "nS2",
+            "nS1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "y1",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "nS2",
+            "nS1",
+            "S0"
+          ]
+        },
+        {
+          "id": "y2",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "nS2",
+            "S1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "y3",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "nS2",
+            "S1",
+            "S0"
+          ]
+        },
+        {
+          "id": "y4",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "S2",
+            "nS1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "y5",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "S2",
+            "nS1",
+            "S0"
+          ]
+        },
+        {
+          "id": "y6",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "S2",
+            "S1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "y7",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "S2",
+            "S1",
+            "S0"
+          ]
+        }
+      ],
+      "formula": [
+        "Y[i] = D when select = i; all other outputs are 0."
+      ],
+      "lesson": [
+        "Routes one data input to the output selected by the binary select word.",
+        "Select inputs are most-significant first. With D=0 every output is 0.",
+        "A full table has 2^4 rows and is paginated on demand."
+      ]
+    },
+    {
+      "id": "demux-16",
+      "title": "1:16 demultiplexer",
+      "inputs": [
+        "D",
+        "S3",
+        "S2",
+        "S1",
+        "S0"
+      ],
+      "outputs": {
+        "Y0": "y0",
+        "Y1": "y1",
+        "Y2": "y2",
+        "Y3": "y3",
+        "Y4": "y4",
+        "Y5": "y5",
+        "Y6": "y6",
+        "Y7": "y7",
+        "Y8": "y8",
+        "Y9": "y9",
+        "Y10": "y10",
+        "Y11": "y11",
+        "Y12": "y12",
+        "Y13": "y13",
+        "Y14": "y14",
+        "Y15": "y15"
+      },
+      "nodes": [
+        {
+          "id": "nS3",
+          "gate": "NOT",
+          "refs": [
+            "S3"
+          ]
+        },
+        {
+          "id": "nS2",
+          "gate": "NOT",
+          "refs": [
+            "S2"
+          ]
+        },
+        {
+          "id": "nS1",
+          "gate": "NOT",
+          "refs": [
+            "S1"
+          ]
+        },
+        {
+          "id": "nS0",
+          "gate": "NOT",
+          "refs": [
+            "S0"
+          ]
+        },
+        {
+          "id": "hi0",
+          "gate": "AND",
+          "refs": [
+            "nS3",
+            "nS2"
+          ]
+        },
+        {
+          "id": "hi1",
+          "gate": "AND",
+          "refs": [
+            "nS3",
+            "S2"
+          ]
+        },
+        {
+          "id": "hi2",
+          "gate": "AND",
+          "refs": [
+            "S3",
+            "nS2"
+          ]
+        },
+        {
+          "id": "hi3",
+          "gate": "AND",
+          "refs": [
+            "S3",
+            "S2"
+          ]
+        },
+        {
+          "id": "lo0",
+          "gate": "AND",
+          "refs": [
+            "nS1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "lo1",
+          "gate": "AND",
+          "refs": [
+            "nS1",
+            "S0"
+          ]
+        },
+        {
+          "id": "lo2",
+          "gate": "AND",
+          "refs": [
+            "S1",
+            "nS0"
+          ]
+        },
+        {
+          "id": "lo3",
+          "gate": "AND",
+          "refs": [
+            "S1",
+            "S0"
+          ]
+        },
+        {
+          "id": "y0",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi0",
+            "lo0"
+          ]
+        },
+        {
+          "id": "y1",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi0",
+            "lo1"
+          ]
+        },
+        {
+          "id": "y2",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi0",
+            "lo2"
+          ]
+        },
+        {
+          "id": "y3",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi0",
+            "lo3"
+          ]
+        },
+        {
+          "id": "y4",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi1",
+            "lo0"
+          ]
+        },
+        {
+          "id": "y5",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi1",
+            "lo1"
+          ]
+        },
+        {
+          "id": "y6",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi1",
+            "lo2"
+          ]
+        },
+        {
+          "id": "y7",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi1",
+            "lo3"
+          ]
+        },
+        {
+          "id": "y8",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi2",
+            "lo0"
+          ]
+        },
+        {
+          "id": "y9",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi2",
+            "lo1"
+          ]
+        },
+        {
+          "id": "y10",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi2",
+            "lo2"
+          ]
+        },
+        {
+          "id": "y11",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi2",
+            "lo3"
+          ]
+        },
+        {
+          "id": "y12",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi3",
+            "lo0"
+          ]
+        },
+        {
+          "id": "y13",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi3",
+            "lo1"
+          ]
+        },
+        {
+          "id": "y14",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi3",
+            "lo2"
+          ]
+        },
+        {
+          "id": "y15",
+          "gate": "AND",
+          "refs": [
+            "D",
+            "hi3",
+            "lo3"
+          ]
+        }
+      ],
+      "formula": [
+        "Y[i] = D when select = i; all other outputs are 0."
+      ],
+      "lesson": [
+        "Routes one data input to the output selected by the binary select word.",
+        "Select inputs are most-significant first. With D=0 every output is 0.",
+        "A full table has 2^5 rows and is paginated on demand."
+      ]
+    },
+    {
+      "id": "decoder-3-8",
+      "title": "3:8 decoder",
+      "inputs": [
+        "A2",
+        "A1",
+        "A0"
+      ],
+      "outputs": {
+        "Y0": "y0",
+        "Y1": "y1",
+        "Y2": "y2",
+        "Y3": "y3",
+        "Y4": "y4",
+        "Y5": "y5",
+        "Y6": "y6",
+        "Y7": "y7"
+      },
+      "nodes": [
+        {
+          "id": "nA2",
+          "gate": "NOT",
+          "refs": [
+            "A2"
+          ]
+        },
+        {
+          "id": "nA1",
+          "gate": "NOT",
+          "refs": [
+            "A1"
+          ]
+        },
+        {
+          "id": "nA0",
+          "gate": "NOT",
+          "refs": [
+            "A0"
+          ]
+        },
+        {
+          "id": "y0",
+          "gate": "AND",
+          "refs": [
+            "nA2",
+            "nA1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y1",
+          "gate": "AND",
+          "refs": [
+            "nA2",
+            "nA1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y2",
+          "gate": "AND",
+          "refs": [
+            "nA2",
+            "A1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y3",
+          "gate": "AND",
+          "refs": [
+            "nA2",
+            "A1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y4",
+          "gate": "AND",
+          "refs": [
+            "A2",
+            "nA1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y5",
+          "gate": "AND",
+          "refs": [
+            "A2",
+            "nA1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y6",
+          "gate": "AND",
+          "refs": [
+            "A2",
+            "A1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y7",
+          "gate": "AND",
+          "refs": [
+            "A2",
+            "A1",
+            "A0"
+          ]
+        }
+      ],
+      "formula": [
+        "Y[i] = 1 exactly when input A = i (0\u20267)."
+      ],
+      "lesson": [
+        "Active-high one-hot outputs; exactly one output is 1 for every input word.",
+        "Input A2 is the most significant bit."
+      ]
+    },
+    {
+      "id": "decoder-4-16",
+      "title": "4:16 decoder",
+      "inputs": [
+        "A3",
+        "A2",
+        "A1",
+        "A0"
+      ],
+      "outputs": {
+        "Y0": "y0",
+        "Y1": "y1",
+        "Y2": "y2",
+        "Y3": "y3",
+        "Y4": "y4",
+        "Y5": "y5",
+        "Y6": "y6",
+        "Y7": "y7",
+        "Y8": "y8",
+        "Y9": "y9",
+        "Y10": "y10",
+        "Y11": "y11",
+        "Y12": "y12",
+        "Y13": "y13",
+        "Y14": "y14",
+        "Y15": "y15"
+      },
+      "nodes": [
+        {
+          "id": "nA3",
+          "gate": "NOT",
+          "refs": [
+            "A3"
+          ]
+        },
+        {
+          "id": "nA2",
+          "gate": "NOT",
+          "refs": [
+            "A2"
+          ]
+        },
+        {
+          "id": "nA1",
+          "gate": "NOT",
+          "refs": [
+            "A1"
+          ]
+        },
+        {
+          "id": "nA0",
+          "gate": "NOT",
+          "refs": [
+            "A0"
+          ]
+        },
+        {
+          "id": "y0",
+          "gate": "AND",
+          "refs": [
+            "nA3",
+            "nA2",
+            "nA1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y1",
+          "gate": "AND",
+          "refs": [
+            "nA3",
+            "nA2",
+            "nA1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y2",
+          "gate": "AND",
+          "refs": [
+            "nA3",
+            "nA2",
+            "A1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y3",
+          "gate": "AND",
+          "refs": [
+            "nA3",
+            "nA2",
+            "A1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y4",
+          "gate": "AND",
+          "refs": [
+            "nA3",
+            "A2",
+            "nA1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y5",
+          "gate": "AND",
+          "refs": [
+            "nA3",
+            "A2",
+            "nA1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y6",
+          "gate": "AND",
+          "refs": [
+            "nA3",
+            "A2",
+            "A1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y7",
+          "gate": "AND",
+          "refs": [
+            "nA3",
+            "A2",
+            "A1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y8",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "nA2",
+            "nA1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y9",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "nA2",
+            "nA1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y10",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "nA2",
+            "A1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y11",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "nA2",
+            "A1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y12",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "A2",
+            "nA1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y13",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "A2",
+            "nA1",
+            "A0"
+          ]
+        },
+        {
+          "id": "y14",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "A2",
+            "A1",
+            "nA0"
+          ]
+        },
+        {
+          "id": "y15",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "A2",
+            "A1",
+            "A0"
+          ]
+        }
+      ],
+      "formula": [
+        "Y[i] = 1 exactly when input A = i (0\u202615)."
+      ],
+      "lesson": [
+        "Active-high one-hot outputs; exactly one output is 1 for every input word.",
+        "Input A3 is the most significant bit."
+      ]
+    },
+    {
+      "id": "compare-4",
+      "title": "4-bit magnitude comparator",
+      "inputs": [
+        "A3",
+        "A2",
+        "A1",
+        "A0",
+        "B3",
+        "B2",
+        "B1",
+        "B0"
+      ],
+      "outputs": {
+        "LT": "l",
+        "EQ": "eq",
+        "GT": "g"
+      },
+      "nodes": [
+        {
+          "id": "e3",
+          "gate": "XNOR",
+          "refs": [
+            "A3",
+            "B3"
+          ]
+        },
+        {
+          "id": "na3",
+          "gate": "NOT",
+          "refs": [
+            "A3"
+          ]
+        },
+        {
+          "id": "nb3",
+          "gate": "NOT",
+          "refs": [
+            "B3"
+          ]
+        },
+        {
+          "id": "e2",
+          "gate": "XNOR",
+          "refs": [
+            "A2",
+            "B2"
+          ]
+        },
+        {
+          "id": "na2",
+          "gate": "NOT",
+          "refs": [
+            "A2"
+          ]
+        },
+        {
+          "id": "nb2",
+          "gate": "NOT",
+          "refs": [
+            "B2"
+          ]
+        },
+        {
+          "id": "e1",
+          "gate": "XNOR",
+          "refs": [
+            "A1",
+            "B1"
+          ]
+        },
+        {
+          "id": "na1",
+          "gate": "NOT",
+          "refs": [
+            "A1"
+          ]
+        },
+        {
+          "id": "nb1",
+          "gate": "NOT",
+          "refs": [
+            "B1"
+          ]
+        },
+        {
+          "id": "e0",
+          "gate": "XNOR",
+          "refs": [
+            "A0",
+            "B0"
+          ]
+        },
+        {
+          "id": "na0",
+          "gate": "NOT",
+          "refs": [
+            "A0"
+          ]
+        },
+        {
+          "id": "nb0",
+          "gate": "NOT",
+          "refs": [
+            "B0"
+          ]
+        },
+        {
+          "id": "eq32",
+          "gate": "AND",
+          "refs": [
+            "e3",
+            "e2"
+          ]
+        },
+        {
+          "id": "eq321",
+          "gate": "AND",
+          "refs": [
+            "eq32",
+            "e1"
+          ]
+        },
+        {
+          "id": "lt3",
+          "gate": "AND",
+          "refs": [
+            "na3",
+            "B3"
+          ]
+        },
+        {
+          "id": "lt2",
+          "gate": "AND",
+          "refs": [
+            "e3",
+            "na2",
+            "B2"
+          ]
+        },
+        {
+          "id": "lt1",
+          "gate": "AND",
+          "refs": [
+            "eq32",
+            "na1",
+            "B1"
+          ]
+        },
+        {
+          "id": "lt0",
+          "gate": "AND",
+          "refs": [
+            "eq321",
+            "na0",
+            "B0"
+          ]
+        },
+        {
+          "id": "l",
+          "gate": "OR",
+          "refs": [
+            "lt3",
+            "lt2",
+            "lt1",
+            "lt0"
+          ]
+        },
+        {
+          "id": "gt3",
+          "gate": "AND",
+          "refs": [
+            "A3",
+            "nb3"
+          ]
+        },
+        {
+          "id": "gt2",
+          "gate": "AND",
+          "refs": [
+            "e3",
+            "A2",
+            "nb2"
+          ]
+        },
+        {
+          "id": "gt1",
+          "gate": "AND",
+          "refs": [
+            "eq32",
+            "A1",
+            "nb1"
+          ]
+        },
+        {
+          "id": "gt0",
+          "gate": "AND",
+          "refs": [
+            "eq321",
+            "A0",
+            "nb0"
+          ]
+        },
+        {
+          "id": "g",
+          "gate": "OR",
+          "refs": [
+            "gt3",
+            "gt2",
+            "gt1",
+            "gt0"
+          ]
+        },
+        {
+          "id": "eq",
+          "gate": "AND",
+          "refs": [
+            "e3",
+            "e2",
+            "e1",
+            "e0"
+          ]
+        }
+      ],
+      "formula": [
+        "LT is true at the first (most-significant) bit where A=0 and B=1.",
+        "EQ = (A3 \u2299 B3)(A2 \u2299 B2)(A1 \u2299 B1)(A0 \u2299 B0).",
+        "Exactly one of LT, EQ or GT is 1."
+      ],
+      "lesson": [
+        "Unsigned words A=A3A2A1A0 and B=B3B2B1B0 are compared lexicographically from the MSB.",
+        "A lower bit matters only when every more-significant bit is equal."
+      ]
+    },
+    {
+      "id": "even-parity-gen-3",
+      "title": "3-bit even-parity generator",
+      "inputs": [
+        "A",
+        "B",
+        "C"
+      ],
+      "outputs": {
+        "P": "p"
+      },
+      "nodes": [
+        {
+          "id": "p",
+          "gate": "XOR",
+          "refs": [
+            "A",
+            "B",
+            "C"
+          ]
+        }
+      ],
+      "formula": [
+        "P = A \u2295 B \u2295 C"
+      ],
+      "lesson": [
+        "Append P to the three data bits.",
+        "P is 1 when the data contain an odd number of 1s, making the total number of 1s even."
+      ]
+    },
+    {
+      "id": "even-parity-check-4",
+      "title": "4-bit even-parity checker",
+      "inputs": [
+        "A",
+        "B",
+        "C",
+        "P"
+      ],
+      "outputs": {
+        "Even": "ok",
+        "Error": "err"
+      },
+      "nodes": [
+        {
+          "id": "ok",
+          "gate": "XNOR",
+          "refs": [
+            "A",
+            "B",
+            "C",
+            "P"
+          ]
+        },
+        {
+          "id": "err",
+          "gate": "XOR",
+          "refs": [
+            "A",
+            "B",
+            "C",
+            "P"
+          ]
+        }
+      ],
+      "formula": [
+        "Even = (A \u2295 B \u2295 C \u2295 P)\u2032",
+        "Error = A \u2295 B \u2295 C \u2295 P"
+      ],
+      "lesson": [
+        "Even=1 means the received four-bit word has even parity.",
+        "Error=1 means an odd number of 1s was received; this detects, but cannot correct, an odd-bit error."
+      ]
+    },
+    {
+      "id": "bcd-7seg",
+      "title": "BCD-to-seven-segment decoder",
+      "inputs": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "outputs": {
+        "a": "aor_14",
+        "b": "bor_25",
+        "c": "cor_37",
+        "d": "dor_47",
+        "e": "eor_52",
+        "f": "for_61",
+        "g": "gor_71"
+      },
+      "nodes": [
+        {
+          "id": "nA",
+          "gate": "NOT",
+          "refs": [
+            "A"
+          ]
+        },
+        {
+          "id": "nB",
+          "gate": "NOT",
+          "refs": [
+            "B"
+          ]
+        },
+        {
+          "id": "nC",
+          "gate": "NOT",
+          "refs": [
+            "C"
+          ]
+        },
+        {
+          "id": "nD",
+          "gate": "NOT",
+          "refs": [
+            "D"
+          ]
+        },
+        {
+          "id": "a0",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "a2",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "a3",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "id": "a5",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "a6",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "a7",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "id": "a8",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "a9",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "aor_12",
+          "gate": "OR",
+          "refs": [
+            "a0",
+            "a2",
+            "a3",
+            "a5"
+          ]
+        },
+        {
+          "id": "aor_13",
+          "gate": "OR",
+          "refs": [
+            "a6",
+            "a7",
+            "a8",
+            "a9"
+          ]
+        },
+        {
+          "id": "aor_14",
+          "gate": "OR",
+          "refs": [
+            "aor_12",
+            "aor_13"
+          ]
+        },
+        {
+          "id": "b0",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "b1",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "b2",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "b3",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "id": "b4",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "b7",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "id": "b8",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "b9",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "bor_23",
+          "gate": "OR",
+          "refs": [
+            "b0",
+            "b1",
+            "b2",
+            "b3"
+          ]
+        },
+        {
+          "id": "bor_24",
+          "gate": "OR",
+          "refs": [
+            "b4",
+            "b7",
+            "b8",
+            "b9"
+          ]
+        },
+        {
+          "id": "bor_25",
+          "gate": "OR",
+          "refs": [
+            "bor_23",
+            "bor_24"
+          ]
+        },
+        {
+          "id": "c0",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "c1",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "c3",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "id": "c4",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "c5",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "c6",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "c7",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "id": "c8",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "c9",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "cor_35",
+          "gate": "OR",
+          "refs": [
+            "c0",
+            "c1",
+            "c3",
+            "c4"
+          ]
+        },
+        {
+          "id": "cor_36",
+          "gate": "OR",
+          "refs": [
+            "c5",
+            "c6",
+            "c7",
+            "c8"
+          ]
+        },
+        {
+          "id": "cor_37",
+          "gate": "OR",
+          "refs": [
+            "cor_35",
+            "cor_36",
+            "c9"
+          ]
+        },
+        {
+          "id": "d0",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "d2",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "d3",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "id": "d5",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "d6",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "d8",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "d9",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "dor_45",
+          "gate": "OR",
+          "refs": [
+            "d0",
+            "d2",
+            "d3",
+            "d5"
+          ]
+        },
+        {
+          "id": "dor_46",
+          "gate": "OR",
+          "refs": [
+            "d6",
+            "d8",
+            "d9"
+          ]
+        },
+        {
+          "id": "dor_47",
+          "gate": "OR",
+          "refs": [
+            "dor_45",
+            "dor_46"
+          ]
+        },
+        {
+          "id": "e0",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "e2",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "e6",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "e8",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "eor_52",
+          "gate": "OR",
+          "refs": [
+            "e0",
+            "e2",
+            "e6",
+            "e8"
+          ]
+        },
+        {
+          "id": "f0",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "f4",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "f5",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "f6",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "f8",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "f9",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "for_59",
+          "gate": "OR",
+          "refs": [
+            "f0",
+            "f4",
+            "f5",
+            "f6"
+          ]
+        },
+        {
+          "id": "for_60",
+          "gate": "OR",
+          "refs": [
+            "f8",
+            "f9"
+          ]
+        },
+        {
+          "id": "for_61",
+          "gate": "OR",
+          "refs": [
+            "for_59",
+            "for_60"
+          ]
+        },
+        {
+          "id": "g2",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "g3",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "nB",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "id": "g4",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "g5",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "g6",
+          "gate": "AND",
+          "refs": [
+            "nA",
+            "B",
+            "C",
+            "nD"
+          ]
+        },
+        {
+          "id": "g8",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "nD"
+          ]
+        },
+        {
+          "id": "g9",
+          "gate": "AND",
+          "refs": [
+            "A",
+            "nB",
+            "nC",
+            "D"
+          ]
+        },
+        {
+          "id": "gor_69",
+          "gate": "OR",
+          "refs": [
+            "g2",
+            "g3",
+            "g4",
+            "g5"
+          ]
+        },
+        {
+          "id": "gor_70",
+          "gate": "OR",
+          "refs": [
+            "g6",
+            "g8",
+            "g9"
+          ]
+        },
+        {
+          "id": "gor_71",
+          "gate": "OR",
+          "refs": [
+            "gor_69",
+            "gor_70"
+          ]
+        }
+      ],
+      "formula": [
+        "A B C D are 8-4-2-1 BCD inputs.",
+        "a\u2026g are active-high segments for a common-cathode display."
+      ],
+      "lesson": [
+        "Digits 0\u20139 display their decimal glyph; invalid BCD inputs 10\u201315 turn every segment off.",
+        "The model describes logic only; it does not model current limiting, display wiring or physical polarity."
+      ]
     }
   ],
   "sequential": [

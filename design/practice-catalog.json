@@ -1052,16 +1052,16 @@
     "category": "K-maps",
     "tier": 0,
     "title": "Powers of two",
-    "prompt": "Legal K-map group sizes?",
+    "prompt": "Legal K-map group sizes on maps up to 6 variables?",
     "choices": [
-      "1, 2, 4, 8, 16",
+      "1, 2, 4, 8, 16, 32, 64",
       "Any even count",
       "Multiples of 3",
       "Any count"
     ],
     "answer": 0,
-    "hint": "Groups must be powers of two.",
-    "explanation": "Only 1, 2, 4, 8 or 16 cells form a valid group."
+    "hint": "A map has at most 64 cells; legal groups stay powers of two.",
+    "explanation": "Only powers of two from 1 through 64 are legal on maps up to six variables."
   },
   {
     "id": "kmap-edges",

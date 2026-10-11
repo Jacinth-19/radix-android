@@ -1,3 +1,5 @@
+> Historical v4.0 upgrade plan and evidence. It describes the earlier release and is not the current source status; see [DEVELOPMENT-STATUS.md](DEVELOPMENT-STATUS.md) and the repository README for the v7.0 source work.
+
 # Radix 4.0 — completed upgrade pack
 
 All seven announced groups are implemented in both Kotlin/Compose and the offline companion:

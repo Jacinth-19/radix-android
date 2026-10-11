@@ -55,6 +55,7 @@ private val lawGroups = listOf(
 
 @Composable internal fun LawsScreen(vm: RadixViewModel, notify: (String) -> Unit) {
     val clipboard = LocalClipboardManager.current
+    val language = LocalStrings.current.languageCode
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
         Hero("Laws, not luck.", "Prove every line.", "THE BOOLEAN LAWS LAB", "Each law is verified live against every input row.")
         Text("NOTHING IS TAKEN ON FAITH HERE. Tap Verify and the app checks both sides on all 4 rows (2 variables) or all 8 rows (3 variables).", color = muted(), fontSize = 10.sp, letterSpacing = 1.sp, lineHeight = 17.sp, modifier = Modifier.padding(bottom = 14.dp))
@@ -68,7 +69,12 @@ private val lawGroups = listOf(
             }
         }
         OutlinedButton(onClick = {
-            clipboard.setText(AnnotatedString(lawGroups.joinToString("\n\n") { g -> g.title + "\n" + g.laws.joinToString("\n") { "  ${it.name}: ${it.statement}  ✓ all ${1 shl it.vars} rows" } }))
+            val report = lawGroups.joinToString("\n\n") { g ->
+                AppStrings.translate(g.title, language) + "\n" + g.laws.joinToString("\n") {
+                    "  ${AppStrings.translate(it.name.uppercase(), language)}: ${it.statement}  ✓ ${AppStrings.translate("all ${1 shl it.vars} rows", language)}"
+                }
+            }
+            clipboard.setText(AnnotatedString(report))
             notify("All Boolean laws copied.")
         }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(14.dp)) { Text("Copy all laws", fontSize = 12.sp) }
         Text("Notation: · is AND, + is OR, ⊕ is XOR, ⊙ is XNOR, ′ is NOT. Adjacency (AB) also means AND.", color = muted(), fontSize = 11.sp, lineHeight = 18.sp, modifier = Modifier.padding(top = 12.dp))
@@ -94,6 +100,7 @@ private val lawGroups = listOf(
 
 @Composable internal fun ArithmeticScreen(vm: RadixViewModel, notify: (String) -> Unit) {
     val clipboard = LocalClipboardManager.current
+    val language=LocalStrings.current.languageCode
     var a by remember { mutableStateOf("1011") }
     var b by remember { mutableStateOf("0111") }
     var base by remember { mutableIntStateOf(2) }
@@ -129,7 +136,7 @@ private val lawGroups = listOf(
                     Text(if (op == '÷' || op == '/') "${r.quotient} remainder ${r.remainder}" else r.result, fontFamily = Mono, color = accent(), fontSize = 28.sp, modifier = Modifier.padding(top = 6.dp).horizontalScroll(rememberScrollState()))
                     r.steps.forEachIndexed { i, step -> Text("${i + 1}. $step", fontFamily = Mono, fontSize = 11.sp, lineHeight = 19.sp, modifier = Modifier.padding(top = 6.dp)) }
                     TextButton(onClick = {
-                        clipboard.setText(AnnotatedString("${r.a} ${r.op} ${r.b} (base $base) = ${if (r.quotient != null) "${r.quotient} rem ${r.remainder}" else r.result}\n" + r.steps.joinToString("\n")))
+                        clipboard.setText(AnnotatedString(AppStrings.translateBlock("${r.a} ${r.op} ${r.b} (base $base) = ${if (r.quotient != null) "${r.quotient} rem ${r.remainder}" else r.result}\n" + r.steps.joinToString("\n"),language)))
                         notify("Arithmetic working copied.")
                     }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Copy full working", fontSize = 12.sp) }
                 }

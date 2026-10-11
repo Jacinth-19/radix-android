@@ -3,6 +3,8 @@
 build/
 app/build/
 local.properties
+# Local browser-test environment
+.venv/
 *.iml
 .DS_Store
 # Logs

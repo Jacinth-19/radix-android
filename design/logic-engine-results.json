@@ -1,10 +1,10 @@
 {
   "status": "pass",
-  "assertions": 4985,
+  "assertions": 8791,
   "gateKinds": 8,
   "gateTruthRows": 172,
-  "combinationalCircuits": 12,
-  "combinationalTruthRows": 656,
+  "combinationalCircuits": 23,
+  "combinationalTruthRows": 3490,
   "sequentialModels": 11,
   "nextStateRows": 336,
   "clockCombinationTransitions": 1344,

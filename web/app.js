@@ -9,6 +9,7 @@
   grid:'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z',
   arrow:'M5 12h14m-7-7 7 7-7 7',
   lock:'M7 11V7a5 5 0 0 1 10 0v4M5 11h14v10H5zm7 4v2',
+  settings:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41',
   more:'M5 12h.01M12 12h.01M19 12h.01',
   close:'m6 6 12 12M18 6 6 18',
   paste:'M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3M9 2h6v4H9Z',
@@ -38,6 +39,7 @@
  const student = window.RadixStudentUI({dialog,icon,esc,toast,manualCopy});
  const logic = window.RadixLogicUI({icon,esc,toast,manualCopy,onSaveSession:()=>study.saveCurrentSession(),onFeedback:()=>study.feedback(),onKmap:(n,cells)=>{student.loadTruth(n,cells);navigate('kmap');toast('Truth table opened in K-maps.');}});
  const study = window.RadixStudyUI({dialog,icon,esc,toast,manualCopy,navigate,student,logic,getConverter:()=>({saved:state.saved,converter:{number:state.number,base:state.base,custom:state.custom,bits:state.bits,dark:state.theme==='dark'}}),applyConverter:data=>{state.saved=data.saved;const c=data.converter;state.number=c.number;state.base=c.base;state.custom=c.custom;state.bits=c.bits;state.theme=c.dark?'dark':'light';persist();theme();}});
+ student.setSaveSolution(study.saveKmapSolution);
  const visualHelp = window.RadixVisualHelp({dialog,navigate,logic,icon,esc,getTab:()=>state.tab});
  let pickerType = 'source', outputs = new Map(), toastTimer;
  function persist() {
@@ -80,7 +82,7 @@
      <div class="input-row"><input class="number-input" id="number-input" type="text" inputmode="text" value="${esc(state.number)}" maxlength="600" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="input-help" placeholder="Enter a number"><button class="icon-btn" data-action="clear" aria-label="Clear number">${icon('close')}</button></div>
      <div class="editing-results" id="editing-results" aria-label="Quick conversions while editing"></div>
      <div class="input-help" id="input-help"></div>
-     <div class="source-footer"><button class="quiet-btn" data-action="paste">${icon('paste')}Paste</button><div class="footer-right"><button class="quiet-btn" data-action="surprise" title="Try a different example" aria-label="Try a different example">${icon('dice')}</button><button class="quiet-btn primary" data-action="save" id="save-number">${icon('bookmark')}Save</button></div></div>
+     <div class="source-footer"><button class="quiet-btn" data-action="paste">${icon('paste')}Paste</button><div class="footer-right"><button class="quiet-btn" data-action="surprise" title="Try a different example" aria-label="Randomize value">${icon('dice')}<span>Randomize</span></button><button class="quiet-btn primary" data-action="save" id="save-number">${icon('bookmark')}Save</button></div></div>
     </section>
     <button class="teaser" data-action="open-lab"><span class="mini-bits" id="mini-bits" aria-hidden="true"></span><span class="teaser-bottom"><span><strong>A tiny bit of magic</strong><p>Flip a bit. See what happens.</p></span>${icon('arrow')}</span></button>
     <p class="trust-note">${icon('lock')}No ads. No accounts. Just numbers.</p>
@@ -153,7 +155,7 @@
   document.getElementById('bit-formula').textContent = (weights.length ? weights.join(' + ') : '0') + ' = ' + state.bits;
  }
  function renderMore() {
-  const cards=[['expression','grid','Boolean expression lab','Truth tables, SOP/POS and equivalence.'],['representation','precision','Number representations','Two’s complement, widths, Gray and BCD.'],['practice','sparkle','Logic practice hub',`36 hints/check/reveal cards · ${study.progressCount()} mastered`],['sessions','bookmark','Circuit checkpoints',`${study.sessionCount()} named inputs/clock/memory sessions`],['saved','bookmark','Saved conversions',`${state.saved.length} saved · local to your device`],['lab','dice','The 8-bit playground','Build a byte, one switch at a time.'],['preferences','lock','Preferences & offline backup','Comfort controls and portable study data.']];
+  const cards=[['preferences','settings','Settings & offline backup','Comfort controls and portable study data.'],['expression','grid','Boolean expression lab','A–Z syntax, truth tables, SOP/POS and saved formulas.'],['representation','precision','Number representations','Two’s complement, widths, Gray and BCD.'],['practice','sparkle','Logic practice & progress',`${window.RadixPractice.length} objective cards · ${study.progressCount()} mastered across levels`],['sessions','bookmark','Circuit checkpoints',`${study.sessionCount()} named inputs/clock/memory sessions`],['saved','bookmark','Saved conversions',`${state.saved.length} saved · local to your device`],['lab','dice','The 8-bit playground','Build a byte, one switch at a time.']];
   content.innerHTML = hero('A little extra.','A lot to explore.','YOUR LEARNING TOOLBOX','Everything offline. Everything within a tap.',false) + `<div class="more-grid">${cards.map(([tab,image,title,body])=>`<button class="more-card" data-action="nav" data-tab="${tab}">${icon(image)}<span><strong>${title}</strong><small>${body}</small></span>${icon('arrow')}</button>`).join('')}<button class="more-card" data-action="help" id="more-help">${icon('sparkle')}<span><strong>Visual helper & app tour</strong><small>Illustrated lessons and replayable highlights.</small></span>${icon('arrow')}</button></div>`;
  }
  function render() { nav(); student.deactivate(); logic.deactivate(); study.deactivate(); if (state.tab === 'saved') renderSaved(); else if (state.tab === 'lab') renderLab(); else if (state.tab === 'kmap') student.renderKmap(content); else if (state.tab === 'logic') logic.renderLogic(content); else if (state.tab === 'more') renderMore(); else if (['expression','representation','practice','sessions','preferences'].includes(state.tab)) study.render(state.tab,content); else renderConvert(); }

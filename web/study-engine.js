@@ -1,28 +1,40 @@
-/* Radix 4 pure learning engines. Offline, bounded parsing, BigInt representations, no eval. */
+/* Radix 7 pure learning engines. Offline, bounded parsing, BigInt representations, no eval. */
 (()=>{'use strict';
 const K=typeof window!=='undefined'?window.RadixKMap:require('./student-engines.js').K;
 const L=typeof window!=='undefined'?window.RadixLogic:require('./logic-engine.js');
 const E=typeof window!=='undefined'?window.RadixEngine:require('./engine.js');
 const Q=typeof window!=='undefined'?window.RadixPractice:require('./practice-catalog.js');
 const need=(ok,msg)=>{if(!ok)throw Error(msg);};
-function parse(source,n){need([2,3,4].includes(n),'Choose 2, 3 or 4 variables.');need(typeof source==='string'&&source.length<=256,'Keep expressions within 256 characters.');need(source.trim(),'Enter an expression using A–D and 0/1.');
+function tokens(source){
+ need(typeof source==='string'&&source.length<=256,'Keep expressions within 256 characters.');need(source.trim(),'Enter an expression using A–Z and 0/1.');
  const s=source.toUpperCase(),words=['XNOR','NAND','XOR','NOR','NOT','AND','OR'],ts=[];let at=0;
  const fail=(message,p)=>{throw Error(message+' · position '+(p+1));};
- while(at<s.length){const c=s[at];if(/\s/.test(c)){at++;continue;}const word=words.find(w=>s.startsWith(w,at));let t;if(word)t=word;else if(/[ABCD01()']/.test(c))t=c;else if(c==='′'||c==='’')t="'";else if(c==='!'||c==='~'||c==='¬')t='NOT';else if(c==='+'||c==='|'||c==='∨')t='OR';else if(['*','.','·','&','∧'].includes(c))t='AND';else if(c==='^'||c==='⊕')t='XOR';else if(c==='⊙')t='XNOR';else fail('Use A–D, 0/1, parentheses and Boolean operators',at);ts.push({t,p:at});at+=word?word.length:['&','|'].includes(c)&&s[at+1]===c?2:1;}
- ts.push({t:'END',p:s.length});let i=0,depth=0;
+ while(at<s.length){const c=s[at];if(/\s/.test(c)){at++;continue;}const word=words.find(w=>s.startsWith(w,at));let t;if(word)t=word;else if(/[A-Z01()']/.test(c))t=c;else if(c==='′'||c==='’')t="'";else if(c==='!'||c==='~'||c==='¬')t='NOT';else if(c==='+'||c==='|'||c==='∨')t='OR';else if(['*','.','·','&','∧'].includes(c))t='AND';else if(c==='^'||c==='⊕')t='XOR';else if(c==='⊙')t='XNOR';else fail('Use A–Z, 0/1, parentheses and Boolean operators',at);ts.push({t,p:at});at+=word?word.length:['&','|'].includes(c)&&s[at+1]===c?2:1;}
+ ts.push({t:'END',p:s.length});return ts;
+}
+function variableNames(ts,n,shared){
+ need([2,3,4,5,6].includes(n),'Choose 2 to 6 variables.');
+ const used=[...new Set(ts.map(x=>x.t).filter(t=>/^[A-Z]$/.test(t)))];need(used.length<=n,`This expression uses ${used.length} different variables; select at least that many inputs (maximum 6).`);
+ const names=shared?[...shared]:used.concat([...`ABCDEFGHIJKLMNOPQRSTUVWXYZ`].filter(c=>!used.includes(c)).slice(0,n-used.length));
+ need(names.length===n&&/^[A-Z]+$/.test(names.join(''))&&new Set(names).size===n&&used.every(c=>names.includes(c)),'Choose enough distinct uppercase variables.');return names;
+}
+function parseTree(source,n,shared){
+ const ts=tokens(source),names=variableNames(ts,n,shared);let i=0,depth=0;
+ const fail=(message,p)=>{throw Error(message+' · position '+(p+1));};
  const token=()=>ts[i],take=()=>ts[i++].t;
  const constant=value=>({kind:'c',evaluate:()=>value,display:()=>value?'1':'0'});
- const variable=index=>({kind:'v',evaluate:code=>!!(code&(1<<(n-index-1))),display:()=>String.fromCharCode(65+index)});
+ const variable=(index,label)=>({kind:'v',evaluate:code=>!!(code&(1<<(n-index-1))),display:()=>label});
  const not=e=>({kind:'n',evaluate:code=>!e.evaluate(code),display:()=>(e.kind==='c'||e.kind==='v')?e.display()+'′':'('+e.display()+')′'});
  const binary=(op,a,b)=>({kind:'b',evaluate:code=>{const x=a.evaluate(code),y=b.evaluate(code);return op==='AND'?x&&y:op==='NAND'?!(x&&y):op==='OR'?x||y:op==='NOR'?!(x||y):op==='XOR'?x!==y:x===y;},display:()=>op==='AND'?`(${a.display()}·${b.display()})`:op==='OR'?`(${a.display()}+${b.display()})`:op==='XOR'?`(${a.display()}⊕${b.display()})`:op==='XNOR'?`(${a.display()}⊙${b.display()})`:op==='NAND'?`(${a.display()}·${b.display()})′`:`(${a.display()}+${b.display()})′`});
- function primary(){const t=token();if(['0','1'].includes(t.t)){take();return constant(t.t==='1');}if(['A','B','C','D'].includes(t.t)){take();const j=t.t.charCodeAt(0)-65;if(j>=n)fail(`${t.t} needs at least ${j+1} variables`,t.p);return variable(j);}if(t.t==='('){take();const e=or();if(token().t!==')')fail('Close the parenthesis',token().p);take();return e;}fail('Expected a variable, 0/1 or parenthesis',t.p);}
+ function primary(){const t=token();if(['0','1'].includes(t.t)){take();return constant(t.t==='1');}if(/^[A-Z]$/.test(t.t)){take();const j=names.indexOf(t.t);if(j<0)fail(`${t.t} is not in the selected input order`,t.p);return variable(j,t.t);}if(t.t==='('){take();const e=or();if(token().t!==')')fail('Close the parenthesis',token().p);take();return e;}fail('Expected a variable, 0/1 or parenthesis',t.p);}
  function unary(){if(++depth>32)fail('Nesting is too deep; use at most 32 levels',token().p);let e;if(token().t==='NOT'){take();e=not(unary());}else e=primary();while(token().t==="'"){take();e=not(e);}depth--;return e;}
- function and(){let e=unary();while(['AND','NAND','A','B','C','D','0','1','(','NOT'].includes(token().t)){const op=['AND','NAND'].includes(token().t)?take():'AND';e=binary(op,e,unary());}return e;}
+ function and(){let e=unary();while(['AND','NAND','0','1','(','NOT'].includes(token().t)||/^[A-Z]$/.test(token().t)){const op=['AND','NAND'].includes(token().t)?take():'AND';e=binary(op,e,unary());}return e;}
  function xor(){let e=and();while(['XOR','XNOR'].includes(token().t)){const op=take();e=binary(op,e,and());}return e;}
  function or(){let e=xor();while(['OR','NOR'].includes(token().t)){const op=take();e=binary(op,e,xor());}return e;}
- const ast=or();if(token().t!=='END')fail('Unexpected '+token().t+'; check operators/parentheses',token().p);return ast;
+ const ast=or();if(token().t!=='END')fail('Unexpected '+token().t+'; check operators/parentheses',token().p);return {ast,names};
 }
-const Expression={parse,report:(source,n)=>{const e=parse(source,n),cells=Array.from({length:1<<n},(_,c)=>Number(e.evaluate(c)));return {normalized:e.display(),cells,sop:K.solve(n,cells,'SOP').expression,pos:K.solve(n,cells,'POS').expression};},compare:(left,right,n)=>{const a=parse(left,n),b=parse(right,n),mismatches=Array.from({length:1<<n},(_,c)=>c).filter(c=>a.evaluate(c)!==b.evaluate(c));return {equivalent:mismatches.length===0,mismatches};}};
+function parse(source,n){return parseTree(source,n).ast;}
+const Expression={parse,report:(source,n)=>{const {ast:e,names}=parseTree(source,n),cells=Array.from({length:1<<n},(_,c)=>Number(e.evaluate(c))),minterms=cells.flatMap((v,i)=>v?[i]:[]),maxterms=cells.flatMap((v,i)=>v?[]:[i]),labels=names.join('');return {normalized:e.display(),names,cells,sop:K.solve(n,cells,'SOP',labels).expression,pos:K.solve(n,cells,'POS',labels).expression,minterms,maxterms,sigmaM:`Σm(${minterms.join(',')})`,piM:`ΠM(${maxterms.join(',')})`};},compare:(left,right,n)=>{const lt=tokens(left),rt=tokens(right),names=variableNames([...lt,...rt],n),a=parseTree(left,n,names).ast,b=parseTree(right,n,names).ast,mismatches=Array.from({length:1<<n},(_,c)=>c).filter(c=>a.evaluate(c)!==b.evaluate(c));return {equivalent:mismatches.length===0,mismatches};}};
 const widths=[4,8,16,32,64];
 const grayEncode=v=>{need(v>=0n,'Use a non-negative word.');return v^(v>>1n);};
 const grayDecode=g=>{need(g>=0n&&g<1n<<64n,'Use a Gray word of at most 64 bits.');let out=0n;while(g){out^=g;g>>=1n;}return out;};
@@ -49,7 +61,7 @@ const str=(v,name,max)=>{need(typeof v==='string',name+' must be text.');need(v.
 const bool=(v,name)=>{need(typeof v==='boolean',name+' must be true or false.');return v;};
 const int=(v,name,min,max)=>{need(Number.isSafeInteger(v)&&v>=min&&v<=max,name+' is out of range or not an exact integer.');return v;};
 const unique=(rows,key,name)=>need(new Set(rows.map(key)).size===rows.length,'Duplicate '+name+'.');
-function session(value){const o=obj(value,'Session'),id=str(o.id,'Session ID',64),name=str(o.name,'Session name',40),kind=str(o.kind,'Session kind',16),model=str(o.model,'Session model',32),width=int(o.width,'Session width',1,9),inputs=list(o.inputs,'Session inputs',9).map(v=>bool(v,'Input')),bits=o.bits==null?null:int(o.bits,'Stored state',0,15),clock=bool(o.clock,'Clock');need(/^[A-Za-z0-9_-]{1,64}$/.test(id),'Invalid session ID.');need(name.trim()&&!/[\x00-\x1f]/.test(name),'Give the session a name without control characters.');
+function session(value){const o=obj(value,'Session'),id=str(o.id,'Session ID',64),name=str(o.name,'Session name',40),kind=str(o.kind,'Session kind',16),model=str(o.model,'Session model',32),width=int(o.width,'Session width',1,20),inputs=list(o.inputs,'Session inputs',20).map(v=>bool(v,'Input')),bits=o.bits==null?null:int(o.bits,'Stored state',0,15),clock=bool(o.clock,'Clock');need(/^[A-Za-z0-9_-]{1,64}$/.test(id),'Invalid session ID.');need(name.trim()&&!/[\x00-\x1f]/.test(name),'Give the session a name without control characters.');
  if(kind==='gates'){need(L.catalog.gates.some(g=>g.id===model),'Unknown gate.');need(['NOT','BUFFER'].includes(model)?width===1:[2,3,4].includes(width),'Invalid gate width.');need(inputs.length===width&&bits===null&&!clock,'Invalid gate session state.');}
  else if(kind==='combinational'){const c=L.catalog.circuits.find(c=>c.id===model);need(c,'Unknown circuit.');need(width===c.inputs.length&&inputs.length===c.inputs.length&&bits===null&&!clock,'Invalid combinational session state.');}
  else if(kind==='sequential'){const s=L.catalog.sequential.find(s=>s.id===model);need(s,'Unknown sequential model.');need(width===s.width&&inputs.length===s.inputs.length&&(bits===null||bits<(1<<width))&&(s.clocked||!clock),'Invalid sequential session state.');need(s.clocked||!L.forbidden(s,inputs)||bits===null,'Forbidden latch inputs must have unknown stored memory.');}
@@ -57,14 +69,23 @@ function session(value){const o=obj(value,'Session'),id=str(o.id,'Session ID',64
 }
 function sessions(text){const out=list(readJson(text),'Sessions',24).map(session);unique(out,s=>s.id,'session IDs');return out;}
 function progress(text){const ids=list(readJson(text),'Progress',Q.length).map(v=>str(v,'Question ID',64)),allowed=new Set(Q.map(q=>q.id));need(ids.every(id=>allowed.has(id))&&new Set(ids).size===ids.length,'Unknown or duplicate practice question ID.');return ids;}
-function decode(text){const o=obj(readJson(text),'Backup');need(o.format==='radix-study'&&int(o.version,'Backup version',1,100)===1,'Unsupported backup format/version. Use a Radix study backup version 1.');const saved=list(o.saved,'Saved conversions',50).map(row=>{const x=obj(row,'Saved conversion'),id=int(x.id,'Save ID',1,Number.MAX_SAFE_INTEGER),input=str(x.input,'Saved input',600),base=int(x.base,'Saved base',2,36);need(E.parse(input,base).kind==='valid','A saved conversion is invalid for its source base.');return {id,input,base};});unique(saved,s=>s.id,'conversion IDs');const ss=list(o.sessions,'Sessions',24).map(session);unique(ss,s=>s.id,'session IDs');const pg=progress(JSON.stringify(o.progress));
- const k=obj(o.kmap,'K-map'),n=int(k.variables,'Variables',2,4),cells=list(k.cells,'Cells',16).map(v=>int(v,'Cell',0,2)),form=str(k.form,'Form',3);need(cells.length===(1<<n)&&['SOP','POS'].includes(form),'Invalid K-map dimensions/form.');
- const ex=obj(o.expression,'Expression lab'),expression={variables:int(ex.variables,'Expression variables',2,4),left:str(ex.left,'Expression',256),right:str(ex.right,'Comparison expression',256)};
+function savedExpression(value){const x=obj(value,'Saved Boolean solution'),id=int(x.id,'Solution ID',1,Number.MAX_SAFE_INTEGER),variables=int(x.variables,'Solution variables',2,6),expression=str(x.expression,'Saved expression',256),form=str(x.form,'Solution form',3);need(['SOP','POS'].includes(form),'Unknown solution form.');Expression.report(expression,variables);return {id,variables,expression,form};}
+function savedExpressions(text){const rows=list(readJson(text),'Saved Boolean solutions',50).map(savedExpression);unique(rows,x=>x.id,'solution IDs');return rows;}
+function historyEntry(value){const x=obj(value,'Conversion history entry'),id=int(x.id,'History ID',1,Number.MAX_SAFE_INTEGER),input=str(x.input,'History input',600),base=int(x.base,'History base',2,36);need(E.parse(input,base).kind==='valid','A history entry is invalid for its source base.');return {id,input,base};}
+function conversionHistory(text){const rows=list(readJson(text),'Conversion history',100).map(historyEntry);unique(rows,x=>x.id,'history IDs');return rows;}
+function decode(text){
+ const o=obj(readJson(text),'Backup');need(o.format==='radix-study'&&int(o.version,'Backup version',1,100)===1,'Unsupported backup format/version. Use a Radix study backup version 1.');
+ const saved=list(o.saved,'Saved conversions',50).map(row=>{const x=obj(row,'Saved conversion'),id=int(x.id,'Save ID',1,Number.MAX_SAFE_INTEGER),input=str(x.input,'Saved input',600),base=int(x.base,'Saved base',2,36);need(E.parse(input,base).kind==='valid','A saved conversion is invalid for its source base.');return {id,input,base};});unique(saved,s=>s.id,'conversion IDs');
+ const ss=list(o.sessions,'Sessions',24).map(session);unique(ss,s=>s.id,'session IDs');const pg=progress(JSON.stringify(o.progress));
+ const solutions=(o.savedExpressions==null?[]:list(o.savedExpressions,'Saved Boolean solutions',50).map(savedExpression));unique(solutions,x=>x.id,'solution IDs');
+ const history=(o.conversionHistory==null?[]:list(o.conversionHistory,'Conversion history',100).map(historyEntry));unique(history,x=>x.id,'history IDs');
+ const k=obj(o.kmap,'K-map'),n=int(k.variables,'Variables',2,6),cells=list(k.cells,'Cells',64).map(v=>int(v,'Cell',0,2)),form=str(k.form,'Form',3),names=k.names==null?K.names(n):str(k.names,'K-map variable labels',6);need(cells.length===(1<<n)&&['SOP','POS'].includes(form)&&/^[A-Z]+$/.test(names)&&names.length===n&&new Set(names).size===n,'Invalid K-map dimensions, form or variable labels.');K.solve(n,cells,form,names);
+ const ex=obj(o.expression,'Expression lab'),expressionForm=ex.form==null?'SOP':str(ex.form,'Expression form',3);need(['SOP','POS'].includes(expressionForm),'Unknown expression form.');const expression={variables:int(ex.variables,'Expression variables',2,6),left:str(ex.left,'Expression',256),right:str(ex.right,'Comparison expression',256),form:expressionForm};
  const r=obj(o.representation,'Representation lab'),width=int(r.width,'Bit width',4,64),mode=str(r.mode,'Input mode',16);need(widths.includes(width)&&['decimal','bits','gray'].includes(mode),'Invalid representation width/mode.');const representation={width,signed:bool(r.signed,'Signed mode'),mode,input:str(r.input,'Representation input',128)};
  const st=obj(o.settings,'Settings'),settings={haptics:bool(st.haptics,'Haptics'),largeControls:bool(st.largeControls,'Large controls')};
  const c=obj(o.converter,'Converter'),converter={number:str(c.number,'Current number',600),base:int(c.base,'Source base',2,36),custom:c.custom==null?null:int(c.custom,'Custom base',2,36),bits:int(c.bits,'Bit lab value',0,255),dark:bool(c.dark,'Theme')};
- return {saved,sessions:ss,progress:pg,kmap:{variables:n,cells,form},expression,representation,settings,converter};
+ return {saved,savedExpressions:solutions,conversionHistory:history,sessions:ss,progress:pg,kmap:{variables:n,cells,form,names},expression,representation,settings,converter};
 }
-const Backup={readJson,session,sessions,progress,decode,encode:data=>JSON.stringify({format:'radix-study',version:1,appVersion:'5.0.0',...data},null,2)};
+const Backup={readJson,session,sessions,progress,savedExpressions,conversionHistory,decode,encode:data=>{const out={savedExpressions:[],conversionHistory:[],...data};if(out.kmap)out.kmap={...out.kmap,names:out.kmap.names||K.names(out.kmap.variables)};if(out.expression)out.expression={...out.expression,form:out.expression.form||'SOP'};return JSON.stringify({format:'radix-study',version:1,appVersion:'7.0.0',...out},null,2)}};
 const api={Expression,Representation,History,Backup,clone:structClone};if(typeof module!=='undefined'&&module.exports)module.exports=api;if(typeof window!=='undefined')window.RadixStudy=api;
 })();

@@ -50,7 +50,10 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
     internal var tourSeen by mutableStateOf(prefs.getBoolean("tour_v3_seen",false))
         private set
     private var sequenceTick=0
-    init { if(gateId in listOf("NOT","BUFFER")){gateWidth=1;gateInputs=listOf(true)} }
+    init {
+        if (prefs.contains("app_language")) prefs.edit { remove("app_language") }
+        if(gateId in listOf("NOT","BUFFER")){gateWidth=1;gateInputs=listOf(true)}
+    }
     internal fun chooseGate(id:String)=editLogic {require(LogicEngine.Gate.entries.any{it.name==id});gateId=id;gateWidth=if(id in listOf("NOT","BUFFER"))1 else gateWidth.coerceIn(2,4);gateInputs=List(gateWidth){true};persistLogic()}
     internal fun chooseGateWidth(value:Int)=editLogic {require(value in 2..4 && gateId !in listOf("NOT","BUFFER"));gateWidth=value;gateInputs=List(value){false}}
     internal fun toggleGateInput(index:Int)=editLogic {gateInputs=gateInputs.mapIndexed{i,v->if(i==index)!v else v}}
@@ -67,9 +70,18 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
     private fun recordSequence(){val s=LogicCatalog.sequential.first{it.id==sequentialId};sequenceHistory=(sequenceHistory+LogicEngine.Sample(++sequenceTick,sequenceState.clock,sequentialInputs.toList(),LogicEngine.outputs(s,sequenceState,sequentialInputs))).takeLast(12)}
     internal fun markTourSeen(){tourSeen=true;prefs.edit{putBoolean("tour_v3_seen",true)}}
     internal fun persistLogic(){prefs.edit{putInt("logic_section",logicSection);putString("logic_gate",gateId);putString("logic_circuit",circuitId);putString("logic_sequential",sequentialId)}}
-    internal fun logicToKMap(n:Int,cells:List<Int>,form:KMapEngine.Form=KMapEngine.Form.SOP)=editMap {require(n in 2..4 && cells.size==(1 shl n));kVariables=n;kCells=cells;kForm=form;syncKInputs();tab=3}
+    internal fun logicToKMap(n:Int,cells:List<Int>,form:KMapEngine.Form=KMapEngine.Form.SOP,names:String=KMapEngine.names(n))=editMap {
+        require(n in 2..6 && cells.size==(1 shl n));require(names.length==n&&names.all{it in 'A'..'Z'}&&names.toSet().size==n)
+        kVariables=n;kNames=names;kCells=cells;kForm=form;syncKInputs();tab=3
+    }
 
-    var kVariables by mutableIntStateOf(prefs.getInt("k_variables", 2).coerceIn(2, 4))
+    var kVariables by mutableIntStateOf(prefs.getInt("k_variables", 2).coerceIn(2, 6))
+        private set
+    var kNames by mutableStateOf(runCatching {
+        val value = prefs.getString("k_names", KMapEngine.names(kVariables)) ?: KMapEngine.names(kVariables)
+        require(value.length == kVariables && value.all { it in 'A'..'Z' } && value.toSet().size == kVariables)
+        value
+    }.getOrDefault(KMapEngine.names(kVariables)))
         private set
     var kCells by mutableStateOf(runCatching {
         val array = JSONArray(prefs.getString("k_cells", if (kVariables == 2) "[0,1,1,1]" else "[]"))
@@ -85,8 +97,8 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
     var kError by mutableStateOf<String?>(null)
         private set
     fun selectKVariables(value: Int)=editMap {
-        require(value in 2..4)
-        kVariables = value; kCells = List(1 shl value) { 0 }; syncKInputs()
+        require(value in 2..6)
+        kVariables = value; kNames = KMapEngine.names(value); kCells = List(1 shl value) { 0 }; syncKInputs()
     }
     fun selectKForm(value: KMapEngine.Form)=editMap { kForm = value; syncKInputs() }
     fun cycleKCell(index: Int)=editMap { kCells = kCells.mapIndexed { i, value -> if (i == index) (value + 1) % 3 else value }; syncKInputs() }
@@ -94,7 +106,7 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
     fun updateKTerms(value: String)=editMap { kTerms = value.take(256); parseKInputs() }
     fun updateKDontCare(value: String)=editMap { kDontCare = value.take(256); parseKInputs() }
     fun loadKExercise(exercise: KMapEngine.Exercise)=editMap {
-        kVariables = exercise.variables; kCells = exercise.cells(); kForm = exercise.form; syncKInputs()
+        kVariables = exercise.variables; kNames = KMapEngine.names(exercise.variables); kCells = exercise.cells(); kForm = exercise.form; syncKInputs()
     }
     private fun parseKInputs() {
         when (val result = KMapEngine.fromLists(kVariables, kTerms, kDontCare, kForm)) {
@@ -108,7 +120,7 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
     }
     private fun persistK() {
         prefs.edit {
-            putInt("k_variables", kVariables); putString("k_form", kForm.name)
+            putInt("k_variables", kVariables); putString("k_names", kNames); putString("k_form", kForm.name)
             putString("k_cells", JSONArray(kCells).toString())
         }
     }
@@ -183,11 +195,17 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
                 SavedNumber(item.getLong("id"), input, base) else null
         }
     }.getOrDefault(emptyList())
-    internal var expression by mutableStateOf(runCatching {val o=StudyJson.parse(prefs.getString("study_expression","{}")?:"{}") as Map<*,*>;StudyExpression((o["variables"] as Number).toInt().coerceIn(2,4),(o["left"] as String).take(256),(o["right"] as String).take(256))}.getOrDefault(StudyExpression()))
+    internal var expression by mutableStateOf(runCatching {val o=StudyJson.parse(prefs.getString("study_expression","{}")?:"{}") as Map<*,*>;val form=(o["form"] as? String?:prefs.getString("study_expression_form","SOP")?:"SOP");require(form in listOf("SOP","POS"));StudyExpression((o["variables"] as Number).toInt().coerceIn(2,6),(o["left"] as String).take(256),(o["right"] as String).take(256),form)}.getOrDefault(StudyExpression()))
+        private set
+    internal var expressionResultForm by mutableStateOf(runCatching{KMapEngine.Form.valueOf(expression.form)}.getOrDefault(KMapEngine.Form.SOP))
         private set
     internal var representation by mutableStateOf(runCatching {val o=StudyJson.parse(prefs.getString("study_representation","{}")?:"{}") as Map<*,*>;val w=(o["width"] as Number).toInt();require(w in RepresentationEngine.widths);val mode=o["mode"] as String;require(mode in listOf("decimal","bits","gray"));StudyRepresentation(w,o["signed"] as Boolean,mode,(o["input"] as String).take(128))}.getOrDefault(StudyRepresentation()))
         private set
     internal var sessions by mutableStateOf(runCatching{StudyData.sessions(prefs.getString("study_sessions","[]")?:"[]")}.getOrDefault(emptyList()))
+        private set
+    internal var savedExpressions by mutableStateOf(runCatching{StudyData.savedExpressions(prefs.getString("study_saved_expressions","[]")?:"[]")}.getOrDefault(emptyList()))
+        private set
+    internal var conversionHistory by mutableStateOf(runCatching{StudyData.conversionHistory(prefs.getString("conversion_history","[]")?:"[]")}.getOrDefault(emptyList()))
         private set
     internal var practiceProgress by mutableStateOf(runCatching{StudyData.progress(prefs.getString("study_progress","[]")?:"[]")}.getOrDefault(emptySet()))
         private set
@@ -197,8 +215,29 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
         private set
     internal var largeControls by mutableStateOf(prefs.getBoolean("study_large_controls",false))
         private set
-    internal fun setExpression(value:StudyExpression){expression=value.copy(left=value.left.take(256),right=value.right.take(256));prefs.edit{putString("study_expression",StudyJson.write(mapOf("variables" to value.variables,"left" to expression.left,"right" to expression.right)))}}
+    internal fun setExpression(value:StudyExpression){require(value.variables in 2..6){"Choose 2 to 6 variables."};require(value.form in listOf("SOP","POS")){"Choose SOP or POS."};expression=value.copy(left=value.left.take(256),right=value.right.take(256));expressionResultForm=KMapEngine.Form.valueOf(expression.form);prefs.edit{putString("study_expression",StudyJson.write(mapOf("variables" to expression.variables,"left" to expression.left,"right" to expression.right,"form" to expression.form)));putString("study_expression_form",expression.form)}}
+    internal fun setExpressionResultForm(value:KMapEngine.Form){setExpression(expression.copy(form=value.name))}
     internal fun setRepresentation(value:StudyRepresentation){representation=value.copy(input=value.input.take(128));prefs.edit{putString("study_representation",StudyJson.write(mapOf("width" to value.width,"signed" to value.signed,"mode" to value.mode,"input" to representation.input)))}}
+    internal fun saveExpressionSolution(value:StudyExpression,form:KMapEngine.Form):Boolean {
+        val source=value.left.trim();require(source.isNotEmpty()){"Enter an expression before saving."};ExpressionEngine.report(source,value.variables)
+        val same=savedExpressions.firstOrNull{it.variables==value.variables&&it.expression==source&&it.form==form.name}
+        if(same!=null){savedExpressions=listOf(same)+savedExpressions.filterNot{it.id==same.id};persistStudy();return false}
+        require(savedExpressions.size<50){"Saved Boolean-solution library is full (50). Delete an older item first."}
+        val id=maxOf(System.currentTimeMillis(),(savedExpressions.maxOfOrNull{it.id}?:0L)+1L)
+        savedExpressions=(listOf(StudySavedExpression(id,value.variables,source,form.name))+savedExpressions).take(50);persistStudy();return true
+    }
+    internal fun deleteSavedExpression(id:Long){savedExpressions=savedExpressions.filterNot{it.id==id};persistStudy()}
+    internal fun openSavedExpression(item:StudySavedExpression){setExpression(StudyExpression(item.variables,item.expression,""));setExpressionResultForm(KMapEngine.Form.valueOf(item.form));tab=6}
+    internal fun recordConversionHistory(input:String,base:Int){
+        val clean=input.trim();if(base !in 2..36||BaseConverter.parse(clean,base)!is BaseConverter.Parsed.Valid)return
+        if(conversionHistory.firstOrNull()?.let{it.input==clean&&it.base==base}==true)return
+        val id=maxOf(System.currentTimeMillis(),(conversionHistory.maxOfOrNull{it.id}?:0L)+1L)
+        conversionHistory=(listOf(StudyConversionHistory(id,clean,base))+conversionHistory).take(100)
+        prefs.edit{putString("conversion_history",StudyData.conversionHistoryText(conversionHistory))}
+    }
+    internal fun deleteHistoryEntry(id:Long){conversionHistory=conversionHistory.filterNot{it.id==id};prefs.edit{putString("conversion_history",StudyData.conversionHistoryText(conversionHistory))}}
+    internal fun clearConversionHistory(){conversionHistory=emptyList();prefs.edit{putString("conversion_history","[]")}}
+    internal fun restoreHistoryEntry(item:StudyConversionHistory){selectSource(item.base);updateNumber(item.input);tab=0}
     internal fun selectQuestion(index:Int){practiceIndex=index.coerceIn(0,PracticeCatalog.questions.lastIndex);prefs.edit{putInt("study_question",practiceIndex)}}
     internal fun completeQuestion(id:String){val q=PracticeCatalog.questions.firstOrNull{it.id==id}?:throw IllegalArgumentException("Unknown question.");practiceProgress=practiceProgress+id;persistStudy();recordPracticeDay();awardGameXp(q.tier);GameWidget.refreshAll(getApplication())}
     private fun recordPracticeDay(){
@@ -214,13 +253,13 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
         prefs.edit{putString("last_open_day",today.toString())}
         GameWidget.refreshAll(getApplication())
         if(last!=null&&last.until(today,java.time.temporal.ChronoUnit.DAYS)>=3){
-            pushInbox(when(language){"fr"->"Bon retour !";"es"->"¡Bienvenido de nuevo!";else->"Welcome back!"},when(language){"fr"->"Reprends avec une carte facile — ta progression est intacte.";"es"->"Retoma con una tarjeta fácil — tu progreso está intacto.";else->"Pick up with one easy card — your progress is intact."})
+            pushInbox(when(effectiveLanguage){"fr"->"Bon retour !";"es"->"¡Bienvenido de nuevo!";"pt"->"Boas-vindas de volta!";else->"Welcome back!"},when(effectiveLanguage){"fr"->"Reprends avec une carte facile — ta progression est intacte.";"es"->"Retoma con una tarjeta fácil — tu progreso está intacto.";"pt"->"Retome com uma questão fácil — seu progresso está intacto.";else->"Pick up with one easy card — your progress is intact."})
         }
     }
     internal fun resetProgress(){practiceProgress=emptySet();persistStudy()}
     internal fun setHaptics(value:Boolean){haptics=value;persistStudy()}
     internal fun setLargeControls(value:Boolean){largeControls=value;persistStudy()}
-    private fun persistStudy(){prefs.edit{putString("study_sessions",StudyData.sessionText(sessions));putString("study_progress",StudyJson.write(practiceProgress.sorted()));putBoolean("study_haptics",haptics);putBoolean("study_large_controls",largeControls)}}
+    private fun persistStudy(){prefs.edit{putString("study_sessions",StudyData.sessionText(sessions));putString("study_saved_expressions",StudyData.savedExpressionText(savedExpressions));putString("conversion_history",StudyData.conversionHistoryText(conversionHistory));putString("study_progress",StudyJson.write(practiceProgress.sorted()));putBoolean("study_haptics",haptics);putBoolean("study_large_controls",largeControls)}}
     internal fun saveCircuitSession(name:String){
         require(sessions.size<24){"Session library is full. Delete or back up an older checkpoint first."};val clean=name.trim().take(40);val id=java.util.UUID.randomUUID().toString()
         val session=when(logicSection){
@@ -248,22 +287,22 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
     private fun editLogic(action:()->Unit){val before=logicSnapshot();action();logicHistory.record(before,logicSnapshot());syncLogicHistory()}
     internal fun undoLogic(){logicHistory.undo(logicSnapshot())?.let(::applyLogic);syncLogicHistory()}
     internal fun redoLogic(){logicHistory.redo(logicSnapshot())?.let(::applyLogic);syncLogicHistory()}
-    private data class MapSnapshot(val variables:Int,val cells:List<Int>,val form:KMapEngine.Form,val terms:String,val dc:String,val error:String?)
+    private data class MapSnapshot(val variables:Int,val names:String,val cells:List<Int>,val form:KMapEngine.Form,val terms:String,val dc:String,val error:String?)
     private val mapHistory=StudyHistory<MapSnapshot>()
     internal var mapCanUndo by mutableStateOf(false);private set
     internal var mapCanRedo by mutableStateOf(false);private set
-    private fun mapSnapshot()=MapSnapshot(kVariables,kCells,kForm,kTerms,kDontCare,kError)
-    private fun applyMap(s:MapSnapshot){kVariables=s.variables;kCells=s.cells;kForm=s.form;kTerms=s.terms;kDontCare=s.dc;kError=s.error;persistK()}
+    private fun mapSnapshot()=MapSnapshot(kVariables,kNames,kCells,kForm,kTerms,kDontCare,kError)
+    private fun applyMap(s:MapSnapshot){kVariables=s.variables;kNames=s.names;kCells=s.cells;kForm=s.form;kTerms=s.terms;kDontCare=s.dc;kError=s.error;persistK()}
     private fun syncMapHistory(){mapCanUndo=mapHistory.canUndo;mapCanRedo=mapHistory.canRedo}
     private fun editMap(action:()->Unit){val before=mapSnapshot();action();mapHistory.record(before,mapSnapshot());syncMapHistory()}
     internal fun undoMap(){mapHistory.undo(mapSnapshot())?.let(::applyMap);syncMapHistory()}
     internal fun redoMap(){mapHistory.redo(mapSnapshot())?.let(::applyMap);syncMapHistory()}
-    internal fun backupText()=StudyData.encode(StudyBackup(saved.map{StudySaved(it.id,it.input,it.base)},sessions,practiceProgress,StudyMap(kVariables,kCells,kForm.name),expression,representation,StudySettings(haptics,largeControls),StudyConverter(number,sourceBase,customBase,bitValue,dark)))
+    internal fun backupText()=StudyData.encode(StudyBackup(saved.map{StudySaved(it.id,it.input,it.base)},sessions,practiceProgress,StudyMap(kVariables,kCells,kForm.name,kNames),expression,representation,StudySettings(haptics,largeControls),StudyConverter(number,sourceBase,customBase,bitValue,dark),savedExpressions,conversionHistory))
     internal fun restoreBackup(b:StudyBackup){
         // Validate once more before any preference/state mutation; draft expressions may remain invalid editing states.
         val checked=StudyData.decode(StudyData.encode(b))
-        saved=checked.saved.map{SavedNumber(it.id,it.input,it.base)};sessions=checked.sessions;practiceProgress=checked.progress
-        kVariables=checked.kmap.variables;kCells=checked.kmap.cells;kForm=KMapEngine.Form.valueOf(checked.kmap.form);syncKInputs()
+        saved=checked.saved.map{SavedNumber(it.id,it.input,it.base)};sessions=checked.sessions;savedExpressions=checked.savedExpressions;conversionHistory=checked.conversionHistory;practiceProgress=checked.progress
+        kVariables=checked.kmap.variables;kNames=checked.kmap.names;kCells=checked.kmap.cells;kForm=KMapEngine.Form.valueOf(checked.kmap.form);syncKInputs()
         setExpression(checked.expression);setRepresentation(checked.representation);haptics=checked.settings.haptics;largeControls=checked.settings.largeControls
         number=checked.converter.number;sourceBase=checked.converter.base;customBase=checked.converter.custom;bitValue=checked.converter.bits;dark=checked.converter.dark;themeMode=if(dark)0 else 1
         prefs.edit{putString("number",number);putInt("source_base",sourceBase);putInt("custom_base",customBase?:0);putBoolean("dark",dark);putInt("bit_value",bitValue)}
@@ -282,9 +321,7 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
         private set
     internal fun setThemeMode(mode:Int,systemDark:Boolean){themeMode=mode.coerceIn(0,2);dark=when(themeMode){0->true;1->false;else->systemDark};prefs.edit{putInt("theme_mode",themeMode);putBoolean("dark",dark)}}
     internal fun applySystemTheme(systemDark:Boolean){if(themeMode==2&&dark!=systemDark){dark=systemDark;prefs.edit{putBoolean("dark",dark)}}}
-    internal var language by mutableStateOf(prefs.getString("app_language","en")?.takeIf{it in listOf("en","fr","es")}?:"en")
-        private set
-    internal fun setLanguage(value:String){language=if(value in listOf("fr","es"))value else "en";prefs.edit{putString("app_language",language)}}
+    internal val effectiveLanguage:String get()=AppStrings.systemLanguage()
     internal var notifEnabled by mutableStateOf(prefs.getBoolean("notif_enabled",false))
         private set
     internal var notifHour by mutableIntStateOf(prefs.getInt("notif_hour",19).coerceIn(0,23))
@@ -328,7 +365,7 @@ class RadixViewModel(application: Application) : AndroidViewModel(application) {
         gameProfiles=gameProfiles.mapIndexed{i,p->if(i==gameActive)p.copy(xp=p.xp+gain)else p};persistGame()
         val after=gameLevel
         lastAward=if(after>before)"Level $after ${GameEngine.levelName(after)}! +$gain XP" else "+$gain XP"
-        if(after>before)pushInbox(if(language=="fr")"Niveau $after !" else if(language=="es")"¡Nivel $after!" else "Level $after!",if(language=="fr")"${GameEngine.levelName(after)} : +$gain XP pour cette carte." else if(language=="es")"${GameEngine.levelName(after)}: +$gain XP por esta tarjeta." else "${GameEngine.levelName(after)} — +$gain XP for that card.")
+        if(after>before)pushInbox(when(effectiveLanguage){"fr"->"Niveau $after !";"es"->"¡Nivel $after!";"pt"->"Nível $after!";else->"Level $after!"},when(effectiveLanguage){"fr"->"${GameEngine.levelName(after)} : +$gain XP pour cette carte.";"es"->"${GameEngine.levelName(after)}: +$gain XP por esta tarjeta.";"pt"->"${GameEngine.levelName(after)}: +$gain XP por esta questão.";else->"${GameEngine.levelName(after)} — +$gain XP for that card."})
     }
     internal fun clearAward(){lastAward=null}
     internal fun addProfile(name:String){val clean=GameEngine.cleanName(name);require(gameProfiles.size<8){"Leaderboard holds 8 players."};require(gameProfiles.none{it.name.equals(clean,true)}){"That name is taken."};gameProfiles=gameProfiles+GameEngine.Profile(clean,0);gameActive=gameProfiles.lastIndex;persistGame()}

@@ -29,7 +29,8 @@ internal object ShareCards {
     private fun footer(c:Canvas,context:Context,h:Int){c.drawText("Radix · offline learning · no ads, no accounts",72f,h-72f,paint(context,FAINT,30f,false))}
     fun renderScore(context:Context,name:String,xp:Int,mastered:Int,total:Int,streak:Int):Bitmap{
         val (b,c)=card(1080,1350);header(c,context,"SCORE CARD")
-        val lines=GameEngine.scoreLines(name,xp,mastered,total,streak)
+        val language=AppStrings.systemLanguage(context.resources.configuration.locales)
+        val lines=GameEngine.scoreLines(name,xp,mastered,total,streak).map{AppStrings.translate(it,language)}
         c.drawText(name,72f,380f,paint(context,PAPER,84f,true))
         c.drawText(lines[0].substringAfter("· ").trim(),72f,470f,paint(context,LIME,48f,true))
         var y=620f
@@ -45,12 +46,14 @@ internal object ShareCards {
         footer(c,context,1350);return b
     }
     fun renderKMap(context:Context,title:String,variables:Int,cells:List<Int>,form:String,expression:String,note:String):Bitmap{
-        require(variables in 2..4&&cells.size==(1 shl variables))
-        val (b,c)=card(1080,1560);header(c,context,"K-MAP SOLUTION · $form")
+        require(variables in 2..6&&cells.size==(1 shl variables)&&cells.all{it in 0..2}&&form in listOf("SOP","POS"))
+        val height=if(variables==6)1980 else 1560
+        val (b,c)=card(1080,height);header(c,context,"K-MAP SOLUTION · $form")
         c.drawText(title.take(34),72f,360f,paint(context,PAPER,56f,true))
         c.drawText("F(${KMapEngine.names(variables)}) = $expression",72f,440f,paint(context,LIME,44f,false))
+        c.drawText("Indices 0–${(1 shl variables)-1} · A is MSB · Gray-coded axes",72f,485f,paint(context,FAINT,27f,false))
         val rows=KMapEngine.gray(KMapEngine.rowBits(variables));val cols=KMapEngine.gray(KMapEngine.columnBits(variables))
-        val gx0=72f;val gy0=520f;val cell=936f/cols.size;val mono=paint(context,PAPER,40f,false)
+        val gx0=72f;val gy0=520f;val cell=936f/cols.size;val mono=paint(context,PAPER,40f,false);val indexPaint=paint(context,FAINT,19f,false,true)
         rows.forEachIndexed{r,_->
             cols.forEachIndexed{ci,_->
                 val index=KMapEngine.cellAt(variables,r,ci);val v=cells[index]
@@ -58,12 +61,13 @@ internal object ShareCards {
                 Paint().apply{color=PANEL}.also{c.drawRoundRect(rect,18f,18f,it)}
                 Paint().apply{color=when(v){1->LIME;2->SKY;else->FAINT};style=Paint.Style.STROKE;strokeWidth=4f}.also{c.drawRoundRect(rect,18f,18f,it)}
                 mono.color=when(v){1->LIME;2->SKY;else->PAPER}
-                c.drawText(if(v==2)"X"else v.toString(),rect.centerX()-14f,rect.centerY()+16f,mono)
+                c.drawText(index.toString(),rect.centerX()-indexPaint.measureText(index.toString())/2,rect.centerY()-4f,indexPaint)
+                c.drawText(if(v==2)"X"else v.toString(),rect.centerX()-14f,rect.centerY()+34f,mono)
             }
         }
         val ny=gy0+rows.size*cell+80f
         note.chunked(44).take(4).forEachIndexed{i,line->c.drawText(line,72f,ny+i*52f,paint(context,FAINT,32f,false))}
-        footer(c,context,1560);return b
+        footer(c,context,height);return b
     }
     fun share(context:Context,bitmap:Bitmap,fileName:String){
         val dir=File(context.cacheDir,"share").apply{mkdirs()}

@@ -70,7 +70,6 @@ internal object BaseArithmetic {
                 }
             }
             '*','×'->{
-                require(vb!=BigInteger.ZERO||true){"x"}
                 if(a.digits=="0"||b.digits=="0")return Report(normA,normB,base,'×',"0",null,null,listOf("Anything times zero is zero → 0."))
                 steps+="Multiply each digit of the second number by the whole first number, shifting left each row."
                 val partials=b.digits.reversed().mapIndexed{i,ch->

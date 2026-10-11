@@ -1,0 +1,2 @@
+# Browser UI regression suites (tools/test-*-ui.py)
+playwright==1.63.0
