@@ -2,8 +2,10 @@
 package com.radix.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -31,8 +33,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 
-internal const val APP_VERSION_CODE = 6
-internal const val APP_VERSION_NAME = "6.0"
+internal const val APP_VERSION_CODE = 7
+internal const val APP_VERSION_NAME = "7.0"
 
 @Composable internal fun SplashScreen() {
     val s = LocalStrings.current
@@ -109,7 +111,7 @@ private data class TourPage(val title: String, val body: String)
                     else -> Surface(shape = RoundedCornerShape(16.dp), color = panel(), border = BorderStroke(1.dp, outline())) {
                         Column(Modifier.padding(16.dp)) {
                             Text("19:00", fontFamily = Mono, fontSize = 34.sp, fontWeight = FontWeight.Bold, color = accent())
-                            Text("One gentle reminder a day, at your hour. Silent, offline, deletable.", color = muted(), fontSize = 12.sp, lineHeight = 19.sp, modifier = Modifier.padding(top = 6.dp))
+                            Text(s.reminderIntro, color = muted(), fontSize = 12.sp, lineHeight = 19.sp, modifier = Modifier.padding(top = 6.dp))
                         }
                     }
                 }
@@ -164,19 +166,6 @@ private data class TourPage(val title: String, val body: String)
     LaunchedEffect(systemDark) { if (vm.themeMode == 2) vm.setThemeMode(2, systemDark) }
 }
 
-@Composable internal fun LanguageSection(vm: RadixViewModel) {
-    val s = LocalStrings.current
-    Text(s.languageTitle, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("en" to s.languageEn, "fr" to s.languageFr, "es" to s.languageEs).forEach { (code, label) ->
-            OutlinedButton(onClick = { vm.setLanguage(code) }, modifier = Modifier.weight(1f).heightIn(min = 52.dp),
-                border = BorderStroke(if (vm.language == code) 2.dp else 1.dp, if (vm.language == code) accent() else outline()),
-                shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(horizontal = 4.dp)) { Text(label, fontSize = 11.sp, maxLines = 1) }
-        }
-    }
-    Text(s.languageNote, color = muted(), fontSize = 11.sp, lineHeight = 18.sp)
-}
-
 @Composable internal fun ReminderSection(vm: RadixViewModel, notify: (String) -> Unit) {
     val s = LocalStrings.current
     val context = LocalContext.current
@@ -197,6 +186,20 @@ private data class TourPage(val title: String, val body: String)
     }
     OutlinedButton(onClick = { picker = true }, enabled = vm.notifEnabled, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), shape = RoundedCornerShape(12.dp)) {
         Text(s.reminderTime(vm.notifHour, vm.notifMinute), fontFamily = Mono, fontSize = 14.sp)
+    }
+    Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick={
+            if(StudyReminder.notificationsAllowed(context)){StudyReminder.preview(context);notify(s.reminderPreviewToast)}else notify(s.reminderBlockedToast)
+        },modifier=Modifier.weight(1f).heightIn(min=52.dp),shape=RoundedCornerShape(12.dp),contentPadding=PaddingValues(horizontal=6.dp)) {
+            Text(s.reminderPreview,fontSize=10.sp,lineHeight=13.sp,maxLines=2)
+        }
+        OutlinedButton(onClick={
+            StudyReminder.prepareChannel(context)
+            val channelIntent=Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE,context.packageName).putExtra(Settings.EXTRA_CHANNEL_ID,StudyReminder.CHANNEL)
+            runCatching{context.startActivity(channelIntent)}.onFailure{context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE,context.packageName))}
+        },modifier=Modifier.weight(1f).heightIn(min=52.dp),shape=RoundedCornerShape(12.dp),contentPadding=PaddingValues(horizontal=6.dp)) {
+            Text(s.reminderSettings,fontSize=10.sp,lineHeight=13.sp,maxLines=2)
+        }
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) { Text(s.reminderStreak, fontSize = 13.sp) }

@@ -78,7 +78,8 @@ import kotlinx.coroutines.delay
     }
 }
 @Composable private fun LessonLines(lines:List<String>){lines.forEach {Text(it,color=muted(),fontSize=12.sp,lineHeight=20.sp,modifier=Modifier.padding(top=10.dp))}}
-@Composable private fun CopyTable(text:String,notify:(String)->Unit){val clipboard=LocalClipboardManager.current;TextButton(onClick={clipboard.setText(AnnotatedString(text));notify("Complete truth/state table copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Copy complete table",fontSize=12.sp)}}
+private fun localizedTable(text:String,language:String)=text.split('\n').joinToString("\n"){line->line.split('\t').joinToString("\t"){AppStrings.translate(it,language)}}
+@Composable private fun CopyTable(text:String,notify:(String)->Unit){val clipboard=LocalClipboardManager.current;val language=LocalStrings.current.languageCode;TextButton(onClick={clipboard.setText(AnnotatedString(localizedTable(text,language)));notify("Complete truth/state table copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Copy complete table",fontSize=12.sp)}}
 @Composable private fun TruthGrid(headers:List<String>,rows:List<List<String>>,current:Int,source:String){
     var page by remember(source){mutableIntStateOf(if(current>=0)current/16 else 0)}
     val pages=maxOf(1,(rows.size+15)/16)
@@ -118,13 +119,93 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
         if(n in 2..4)TextButton(onClick={vm.logicToKMap(n,rows.map{it.last().toInt()})},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Simplify this gate in K-maps",fontSize=12.sp)}
     }
 }
+@Composable private fun PagedCircuitTruthTable(c: LogicEngine.Circuit, currentInputs: List<Boolean>, notify: (String) -> Unit) {
+    val headers = c.inputs + c.outputs.keys
+    val current = LogicEngine.code(currentInputs)
+    val total = 1 shl c.inputs.size
+    var page by remember(c.id) { mutableIntStateOf(0) }
+    val pages = maxOf(1, (total + 15) / 16)
+    LaunchedEffect(current) { page = current / 16 }
+    val rows = remember(c.id, page) {
+        (page * 16 until minOf(total, page * 16 + 16)).map { code ->
+            val bits = LogicEngine.bits(code, c.inputs.size)
+            bits.map { if (it) "1" else "0" } +
+                LogicEngine.evaluate(c, bits).outputs.values.map { if (it) "1" else "0" }
+        }
+    }
+
+    Column(Modifier.fillMaxWidth().guideAnchor("logic-table")) {
+        Text(
+            "${total} ROWS · SHOWING 16 AT A TIME",
+            fontSize = 9.sp,
+            letterSpacing = .7.sp,
+            color = muted(),
+            modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)
+        )
+        Column(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
+            Row {
+                headers.forEach { header ->
+                    Text(
+                        header,
+                        fontFamily = Mono,
+                        fontSize = 10.sp,
+                        color = muted(),
+                        modifier = Modifier.width(if (header.length > 4) 58.dp else 42.dp).padding(vertical = 9.dp)
+                    )
+                }
+            }
+            rows.forEachIndexed { index, row ->
+                val active = current == page * 16 + index
+                Surface(
+                    color = if (active) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Row {
+                        row.forEachIndexed { column, value ->
+                            Text(
+                                value,
+                                fontFamily = Mono,
+                                fontSize = 11.sp,
+                                color = if (active) accent() else MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.width(if (headers[column].length > 4) 58.dp else 42.dp)
+                                    .padding(vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        if (pages > 1) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = { page-- }, enabled = page > 0) { Text("Previous", fontSize = 11.sp) }
+                Text("${page + 1}/$pages", fontFamily = Mono, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                TextButton(onClick = { page++ }, enabled = page < pages - 1) { Text("Next", fontSize = 11.sp) }
+            }
+        }
+        TextButton(
+            onClick = { page = current / 16 },
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+        ) { Text("Show current input row ($current)", fontSize = 11.sp) }
+    }
+
+    val text = tableText("${c.title} · rows ${page * 16}–${minOf(total - 1, page * 16 + 15)}", headers, rows)
+    val clipboard = LocalClipboardManager.current
+    val language = LocalStrings.current.languageCode
+    TextButton(
+        onClick = { clipboard.setText(AnnotatedString(localizedTable(text,language))); notify("Visible truth-table page copied.") },
+        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+    ) { Text("Copy this page (${rows.size} rows)", fontSize = 12.sp) }
+}
 @Composable private fun CombinationalPanel(vm:RadixViewModel,notify:(String)->Unit){
+    val strings=LocalStrings.current
     val c=LogicCatalog.circuits.first{it.id==vm.circuitId};val result=remember(c,vm.circuitInputs){LogicEngine.evaluate(c,vm.circuitInputs)}
     var expanded by remember(c.id){mutableStateOf(true)};var output by remember(c.id){mutableStateOf(c.outputs.keys.first())}
     val headers=c.inputs+c.outputs.keys
-    val rows=remember(c.id){(0 until(1 shl c.inputs.size)).map{code->val i=LogicEngine.bits(code,c.inputs.size);i.map{if(it)"1"else"0"}+LogicEngine.evaluate(c,i).outputs.values.map{if(it)"1"else"0"}}}
+    val paged=c.inputs.size>12
+    val rows=remember(c.id){if(paged)emptyList()else (0 until(1 shl c.inputs.size)).map{code->val i=LogicEngine.bits(code,c.inputs.size);i.map{if(it)"1"else"0"}+LogicEngine.evaluate(c,i).outputs.values.map{if(it)"1"else"0"}}}
     LogicCard {
         Text("No memory: outputs follow the current inputs.",color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(bottom=12.dp))
+        if(c.inputs.size>=12)Text(strings.landscapeCircuitHint,fontSize=10.sp,color=muted(),lineHeight=16.sp,modifier=Modifier.padding(bottom=10.dp))
         BitControls(c.inputs,vm.circuitInputs,vm::toggleCircuitInput);LogicOutputs(c.outputs.keys.toList(),result.outputs.values.map{if(it)1 else 0})
         TextButton(onClick={expanded=!expanded},modifier=Modifier.heightIn(min=48.dp)){Text(if(expanded)"Switch to phone-friendly block view"else"Explore the gate-level diagram",fontSize=11.sp)}
         Box(Modifier.fillMaxWidth().guideAnchor("logic-diagram")){CircuitDiagram(c,result,expanded)}
@@ -133,12 +214,14 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
     }
     LogicCard {
         Text("Truth table",fontSize=20.sp,fontWeight=FontWeight.Bold)
-        TruthGrid(headers,rows,LogicEngine.code(vm.circuitInputs),c.id);CopyTable(tableText(c.title,headers,rows),notify)
-        if(c.inputs.size in 2..4){
+        if(paged)PagedCircuitTruthTable(c,vm.circuitInputs,notify) else {
+            TruthGrid(headers,rows,LogicEngine.code(vm.circuitInputs),c.id);CopyTable(tableText(c.title,headers,rows),notify)
+        }
+        if(c.inputs.size in 2..6){
             Text("K-map variables: ${c.inputs.mapIndexed{i,name->"${'A'+i}=$name"}.joinToString(", ")}",fontSize=10.sp,color=muted())
             Row(Modifier.horizontalScroll(rememberScrollState())){c.outputs.keys.forEach{name->FilterChip(selected=name==output,onClick={output=name},label={Text(name,fontSize=11.sp)},modifier=Modifier.padding(end=6.dp))}}
             TextButton(onClick={val index=c.outputs.keys.indexOf(output);vm.logicToKMap(c.inputs.size,rows.map{it[c.inputs.size+index].toInt()})},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Open $output in K-maps",fontSize=12.sp)}
-        }else Text("This circuit has more than four inputs; K-maps support up to four variables.",fontSize=10.sp,color=muted(),lineHeight=17.sp)
+        }else Text("This circuit has more than six input variables; K-maps support up to six variables.",fontSize=10.sp,color=muted(),lineHeight=17.sp)
     }
 }
 @Composable private fun SequentialPanel(vm:RadixViewModel,notify:(String)->Unit){
@@ -205,18 +288,20 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=24.dp)){
         Hero("A little extra.","A lot to explore.","YOUR LEARNING TOOLBOX","Everything offline. Everything within a tap.")
         val entries=listOf(
-            Triple("Circuit builder","Drag gates, wire them, simulate with delays",{vm.tab=13}),
+            Triple("Settings, reminders & backup","Theme, automatic system language, haptics, notifications and portable study data",{vm.tab=10}),
+            Triple("Learning path & progress","${vm.practiceProgress.size} of ${PracticeCatalog.questions.size} checks mastered · 7 steps from number systems to sequential logic",{vm.tab=16}),
+            Triple("Conversion history","${vm.conversionHistory.size} recent local conversions",{vm.tab=17}),
+            Triple("Saved conversions","${vm.saved.size} saved numbers",{vm.tab=1}),
+            Triple("Boolean expression lab","Solve, verify, derive SOP/POS and inspect a live gate diagram",{vm.tab=6}),
+            Triple("Logic practice hub","${PracticeCatalog.questions.size} leveled objective cards + written self-checks",{vm.tab=8}),
+            Triple("Circuit builder","Drag gates, wire them, simulate and inspect a truth table",{vm.tab=13}),
             Triple("IEEE-754 float lab","Sign, exponent, fraction — every float decoded",{vm.tab=14}),
             Triple("Leaderboard & rewards","Level ${vm.gameLevel} · ${vm.gameXp} XP · ${vm.gameProfiles.size} players",{vm.tab=15}),
-            Triple("Boolean expression lab","Tables, SOP/POS and expression equivalence",{vm.tab=6}),
             Triple("Boolean laws lab","Every law verified live on every row",{vm.tab=11}),
             Triple("Base arithmetic lab","+ − × ÷ in any base, with column working",{vm.tab=12}),
             Triple("Number representations","One’s & two’s complement, widths, Gray and BCD",{vm.tab=7}),
-            Triple("Logic practice hub","${PracticeCatalog.questions.size} leveled cards · ${vm.practiceProgress.size} mastered",{vm.tab=8}),
             Triple("Circuit checkpoints","${vm.sessions.size} named inputs/clock/memory sessions",{vm.tab=9}),
-            Triple("Saved conversions","${vm.saved.size} saved numbers",{vm.tab=1}),
             Triple("The 8-bit playground","Build a byte, one switch at a time",{vm.tab=2}),
-            Triple("Settings, reminders & backup","Theme, language, notifications and portable study data",{vm.tab=10}),
             Triple("Visual helper & app tour","Illustrated lessons and replayable highlights",help)
         )
         BoxWithConstraints(Modifier.fillMaxWidth()){
@@ -229,6 +314,6 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
             if(wide)entries.withIndex().chunked(2).forEach{row->Row(horizontalArrangement=Arrangement.spacedBy(12.dp)){row.forEach{(i,e)->card(i,e.first,e.second,e.third,Modifier.weight(1f))};if(row.size<2)Spacer(Modifier.weight(1f))}}
             else entries.forEachIndexed{i,(title,detail,action)->card(i,title,detail,action,Modifier.fillMaxWidth())}
         }
-        Text("Radix 6.0 · no ads, accounts or Internet permission",color=muted(),fontSize=11.sp,modifier=Modifier.padding(top=12.dp))
+        Text("Radix 7.0 · no ads, accounts or Internet permission",color=muted(),fontSize=11.sp,modifier=Modifier.padding(top=12.dp))
     }
 }

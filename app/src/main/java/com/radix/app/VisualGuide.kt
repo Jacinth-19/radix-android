@@ -46,7 +46,7 @@ internal val guideSteps=listOf(
     GuideStep(3,null,"kmap","Make a bigger group.","Tap cells through 0 → 1 → X. Gray-code neighbors include opposite edges. Use powers of two; diagonal-only pairs are not groups."),
     GuideStep(4,0,"logic-choice","Meet every standard gate.","Change the gate to AND, OR, NOT, NAND, NOR, XOR, XNOR or BUFFER. Multi-input gates support 2–4 inputs."),
     GuideStep(4,0,"logic-inputs","Your finger is the switch.","Tap a labeled input to flip 0/1. Highlighted wires carry 1; the output and truth table follow immediately."),
-    GuideStep(4,0,"logic-table","A table tells the whole story.","Every input combination is listed. The current row is highlighted. Copy the full table or send a 2–4-input function to K-maps."),
+    GuideStep(4,0,"logic-table","A table tells the whole story.","Every input combination is listed. The current row is highlighted. Copy the full table or send a function with up to six inputs to K-maps."),
     GuideStep(4,1,"logic-diagram","Build ideas from gates.","Explore adders, subtractors, selectors, encoders and comparators. Block view fits phones; gate-level view scrolls locally so labels stay readable."),
     GuideStep(4,2,"logic-outputs","Now, give the circuit memory.","Latches respond to levels; flip-flops capture on rising edges. Q is stored state. X means unknown, not a disguised zero."),
     GuideStep(4,2,"logic-clock","A rising edge is the moment.","Clocked models have Rise, Fall and Pulse controls. A pulse captures once. Holding CLK high is not another rising edge. Latches have no clock controls."),
@@ -84,7 +84,7 @@ internal val guideSteps=listOf(
     ModalBottomSheet(onDismissRequest=dismiss,containerColor=panel(),sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)){
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=28.dp)){
             Text("A little help.\nA lot of aha.",fontFamily=Grotesk,fontSize=29.sp,lineHeight=32.sp,fontWeight=FontWeight.Bold)
-            Text("See how to use every part of Radix. This helper is built in—not an online chat or a network service.",color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(vertical=12.dp))
+            Text("Take a guided tour of the core tools. This helper is built in—not an online chat or a network service. Some advanced lesson screens are still English-only.",color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(vertical=12.dp))
             Button(onClick=start,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp),shape=RoundedCornerShape(14.dp)){Text("Start the visual app tour")}
             HelpCard("01","Convert without waiting","Choose a source base, type your number, then read or copy a result. Try decimal 255 → hexadecimal FF."){
                 Row(Modifier.fillMaxWidth().padding(vertical=15.dp),horizontalArrangement=Arrangement.SpaceEvenly){Text("255₁₀",fontFamily=Mono,fontSize=25.sp,color=accent());Text("→",fontSize=25.sp);Text("FF₁₆",fontFamily=Mono,fontSize=25.sp,color=MaterialTheme.colorScheme.secondary)}
@@ -92,7 +92,7 @@ internal val guideSteps=listOf(
             HelpCard("02","Show the working","Open the sheet under the results. Divide the integer part; read remainders bottom-to-top. Fractional digits stay top-to-bottom."){
                 Text("13 ÷ 2 = 6, r1\n 6 ÷ 2 = 3, r0\n 3 ÷ 2 = 1, r1\n 1 ÷ 2 = 0, r1\n↑ read upward → 1101₂",fontFamily=Mono,fontSize=12.sp,lineHeight=22.sp,color=accent(),modifier=Modifier.padding(14.dp))
             }
-            HelpCard("03","K-maps are neighbor puzzles","Choose 2/3/4 variables and SOP/POS. X is optional. Use Check your own group, then try a challenge and reveal its explanation.") {
+            HelpCard("03","K-maps are neighbor puzzles","Choose 2–6 distinct A–Z variables. Enter F(A.B.C.D.E.F)=Σm(...) or ΠM(...); SOP groups 1s and POS groups 0s. Toggle group outlines and indices, then tap a term-labelled G button to highlight its cells and prime implicant/implicate explanation. Copy all working or save the minimized formula to Saved Boolean solutions.") {
                 Column(Modifier.padding(12.dp)) {
                     listOf(listOf("0","1"),listOf("1","1")).forEach { row ->
                         Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
@@ -106,19 +106,19 @@ internal val guideSteps=listOf(
                 }
             }
             HelpCard("04","Gates are switches with rules","Open Logic → Gates. Tap an input; follow the colored wire and the highlighted truth-table row. NOT bubbles invert the result."){GateDiagram(LogicEngine.Gate.AND,listOf(true,false),false)}
-            HelpCard("05","Combine gates into useful circuits","Choose Combinational. Adders, multiplexers and comparators follow current inputs with no stored memory. Use block view on a small screen; swipe gate view for the implementation."){
+            HelpCard("05","Combine gates into useful circuits","Choose Combinational. Explore MUX/DEMUX, encoders, decoders, comparators, parity and BCD circuits. Use block view on a small screen; swipe gate view for the implementation. Rotate the device to landscape for the full circuit lab and widest models."){
                 val c=LogicCatalog.circuits.first{it.id=="full-adder"};CircuitDiagram(c,LogicEngine.evaluate(c,listOf(true,true,true)),false)
             }
             HelpCard("06","Give logic a memory","Choose Sequential. Latches follow levels; flip-flops capture only ↑CLK. Try Rise/Fall/Pulse and watch the action trace. A forbidden SR condition creates indeterminate memory—not zero."){
                 BlockDiagram("D flip-flop",listOf("D"),listOf("Q","Q′"),listOf(1),listOf(0,1),true,false)
             }
-            HelpCard("07","Keep, replay and explore","More opens Saved, the eight-bit playground and this helper. Theme, numbers, K-maps and library choices stay local. Simulation traces are teaching sessions, not hardware measurements."){
-                Row(Modifier.fillMaxWidth().padding(vertical=14.dp),horizontalArrangement=Arrangement.SpaceEvenly){listOf("Saved","Bit Lab","Help").forEach{Text(it,color=accent(),fontFamily=Mono,fontSize=14.sp)}}
+            HelpCard("07","Keep, replay and explore","Settings is the first card in More (and the gear is always in the top bar). Conversion history, the learning path and progress are also in More. Saved items, preferences and drafts stay on this device. Simulation traces are teaching sessions, not hardware measurements."){
+                Row(Modifier.fillMaxWidth().padding(vertical=14.dp),horizontalArrangement=Arrangement.SpaceEvenly){listOf("Settings","History","Progress").forEach{Text(it,color=accent(),fontFamily=Mono,fontSize=14.sp)}}
             }
-            HelpCard("08","Write logic, then prove it","More → Boolean expression lab accepts A–D, 0/1, NOT/AND/OR/XOR and inversion. Inspect every row, compare another expression and send SOP or POS to K-maps.") {Text("A′B + AB′  ≡  A XOR B\n00→0  01→1  10→1  11→0",fontFamily=Mono,fontSize=12.sp,lineHeight=23.sp,color=accent(),modifier=Modifier.padding(vertical=14.dp))}
+            HelpCard("08","Write logic, then prove it","More → Boolean expression lab accepts A–Z (up to 6 distinct inputs). Type apostrophe/prime or ! for NOT, + for OR, . or adjacency for AND, XOR/^/⊕, XNOR/⊙ and parentheses; buttons are optional shortcuts. Solve or verify a second expression; inspect rule-by-rule steps, all 2ⁿ rows, SOP/POS and Σm/ΠM. Save the expression/form or copy the active tab.") {Text("A′B + AB′  ≡  A XOR B\n3 inputs → 8 rows (0–7)\n4 inputs → 16 rows (0–15)",fontFamily=Mono,fontSize=12.sp,lineHeight=23.sp,color=accent(),modifier=Modifier.padding(vertical=14.dp))}
             HelpCard("09","A width changes the meaning","More → Number representations is separate from ordinary signed-magnitude conversion. Select a width, decimal/binary/Gray input and signed interpretation. Gray and BCD are codes, not ordinary positional binary.") {Text("−13 at 8 bits\n00001101 → invert → +1\n11110011 = unsigned 243",fontFamily=Mono,fontSize=12.sp,lineHeight=23.sp,color=accent(),modifier=Modifier.padding(vertical=14.dp))}
             HelpCard("10","Try, hint, check, understand","More → Logic practice has ${PracticeCatalog.questions.size} cards across Easy, Intermediate and Advanced. Choose an answer, check it, use a hint or reveal the explanation. Correct checks save mastery; revealing does not. Streaks celebrate practice days and never punish a missed day.") {Row(Modifier.fillMaxWidth().padding(vertical=14.dp),horizontalArrangement=Arrangement.SpaceEvenly){Text("Try",color=accent());Text("→ Hint",color=accent());Text("→ Check",color=accent())}}
-            HelpCard("11","Keep a safe checkpoint","Logic has Undo/Redo and Save session. More → Circuit checkpoints restores inputs, clock and memory with a fresh trace. Preferences & backup validates portable JSON before replacing local data; keys/passwords are excluded.") {Text("Undo ↶  •  Save  •  Restore ↷\nExport → Validate → Confirm",fontFamily=Mono,fontSize=12.sp,lineHeight=24.sp,color=accent(),modifier=Modifier.padding(vertical=14.dp))}
+            HelpCard("11","Keep a safe checkpoint","Logic has Undo/Redo and Save session. More → Circuit checkpoints restores inputs, clock and memory with a fresh trace. Settings lets you control haptics, larger study controls, daily reminders, streak celebrations and reminder tips. Portable backups are validated before replacing data; keys/passwords are excluded.") {Text("Undo ↶  •  Save  •  Restore ↷\nExport → Validate → Confirm",fontFamily=Mono,fontSize=12.sp,lineHeight=24.sp,color=accent(),modifier=Modifier.padding(vertical=14.dp))}
             TextButton(onClick=dismiss,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Ready to explore")}
         }
     }

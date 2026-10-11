@@ -1,6 +1,6 @@
-# Radix 4.0 — beginner workbook
+# Radix 7.0 — learner workbook
 
-Open **Convert → Show the working**, or **K-maps → 24 examples**. All exercises run offline. The new **Logic** tab contains gates, combinational/sequential circuits and timing traces. Tap **?** for eleven illustrated cards and a twelve-step tour. The separate **Radix-Logic-Reference.html** supplies every logic model, diagram and complete table.
+Open **Convert → Show the working**, or **K-maps → 24 examples**. All exercises run offline. The **Logic** tab contains 8 gates, 23 combinational circuits (MUX/DEMUX, encoders, decoders, comparators, parity and BCD) and 11 sequential models; very wide tables are generated in pages. Rotate Android to landscape for the full circuit lab and widest models. Tap **?** for eleven illustrated cards and a twelve-step tour. The separate **DIGITAL-LOGIC-REFERENCE.html** supplies every logic model, diagram and bounded truth-table sample.
 
 ## Conversion answers
 
@@ -70,7 +70,7 @@ Indices are ordinary binary minterm numbers with A as the MSB. Gray-code labels 
 ### What to remember
 
 - Row/column order is **00, 01, 11, 10**, not 00, 01, 10, 11.
-- Choose rectangles of **1, 2, 4, 8 or 16** cells; never diagonal-only pairs or groups of 3/6.
+- Choose rectangles of **1, 2, 4, 8, 16, 32 or 64** cells; never diagonal-only pairs or groups of 3/6.
 - Opposite edges touch. Four corners may be one wrapped group.
 - Overlap is allowed. Xs are optional; an all-X group covers no required output.
 - SOP groups **1s**: fixed 0 contributes a complemented literal; fixed 1 contributes an uncomplemented literal.
@@ -682,14 +682,14 @@ Answer: 0.000022222222222222221211… (base 3) — approximate
 ## Inputs that should fail, not produce an answer
 
 - `2` in base 2, `G` in base 16, two points such as `1.2.3`, and empty source input.
-- K-map indices outside 0–3 / 0–7 / 0–15, negative indices, ranges such as `1-3`, or a required cell also listed as X.
+- K-map indices outside 0–(2^n−1) (the six-variable maximum is 0–63), negative indices, ranges such as `1-3`, or a required cell also listed as X.
 - A group containing the opposite output, a diagonal-only pair, a group of three/six, or only Xs.
 
 See `design/VERIFICATION.md` for automated coverage and the distinction between browser QA and Android runtime testing.
 
 ## Boolean expression lab
 
-More → Expression Lab supports 2–4 variables. NOT/prime precedes AND/NAND, then XOR/XNOR, then OR/NOR; binary operations at each level associate left-to-right. Parenthesize mixed NAND/NOR. These examples are generated from the same verified engine:
+More → Expression Lab accepts any A–Z variable labels, with 2–6 input lines and no more distinct variables than selected inputs. Variables follow first-appearance order; unused input lines are filled from the remaining letters. Apostrophe/prime or `!` means NOT, `+` means OR, `.` or adjacency means AND; XOR, `^` or ⊕ and XNOR or ⊙ are accepted. The keypad buttons are optional shortcuts. Precedence is NOT, AND/NAND, XOR/XNOR, then OR/NOR; binary operations at each level associate left-to-right. Parenthesize mixed NAND/NOR. The truth table always has 2ⁿ rows (8 for 3 inputs; 16 for 4). The notation `F(A.B.C)=Σm(...)` or `ΠM(...)` is supported in K-maps. These examples are generated from the same verified engine:
 
 | Expression | Variables | Minimum SOP | Minimum POS |
 |---|---|---|---|
@@ -697,6 +697,8 @@ More → Expression Lab supports 2–4 variables. NOT/prime precedes AND/NAND, t
 | `!(AB)` | 2 | `A' + B'` | `(A' + B')` |
 | `A(B+C)` | 3 | `AB + AC` | `(A)(B + C)` |
 | `A XOR D` | 4 | `A'D + AD'` | `(A + D)(A' + D')` |
+| `A XOR E` | 5 | `A'E + AE'` | `(A + E)(A' + E')` |
+| `A XOR F` | 6 | `A'F + AF'` | `(A + F)(A' + F')` |
 | `1+AB` | 2 | `1` | `1` |
 
 **Equivalence:** `AB` versus `A+B` differs at input rows **01** and **10**. `!(AB)` versus `A′+B′` is equivalent in every row. A SOP/POS K-map handoff keeps the underlying truth table unchanged.
@@ -716,7 +718,7 @@ More → Representations. Overflow is rejected, never silently wrapped. A short 
 
 Two’s-complement width w has range −2^(w−1) through 2^(w−1)−1; unsigned range is 0 through 2^w−1. BCD gives each **decimal digit** a separate 4-bit nibble. Gray is a code, not positional binary.
 
-## 36 practice cards — answer key
+## 108 practice cards — answer key
 
 Try More → Practice before reading these answers. Hints/checks/reveals are available. Only a correct check creates local mastery; a reveal does not.
 
@@ -1007,6 +1009,582 @@ Simplify 1 OR (A AND B).
 **Answer:** 1
 
 **Why:** Every truth-table row is 1. Both SOP and POS reduce to constant 1.
+
+### 37. Number bases · Weights, not digits
+
+Binary 1011 equals which decimal?
+
+**Answer:** 11
+
+**Why:** 1×8 + 0×4 + 1×2 + 1×1 = 11.
+
+### 38. Number bases · Letters are digits too
+
+Hex digit C equals which decimal?
+
+**Answer:** 12
+
+**Why:** C is the third letter-digit: 12.
+
+### 39. Number bases · Three bits at a time
+
+Binary 101110 equals which octal?
+
+**Answer:** 56
+
+**Why:** 101₂=5 and 110₂=6, so the answer is 56₈.
+
+### 40. Number bases · Four bits at a time
+
+Binary 1111011 equals which hex?
+
+**Answer:** 7B
+
+**Why:** 0111₂=7 and 1011₂=B, so the answer is 7B₁₆.
+
+### 41. Number bases · Halves, quarters, eighths
+
+Binary 0.101 equals which decimal?
+
+**Answer:** 0.625
+
+**Why:** 0.5 + 0 + 0.125 = 0.625.
+
+### 42. Number bases · Oranges at Makola
+
+Adwoa sells 12 oranges at 2 cedis each. The total in binary is?
+
+**Answer:** 11000
+
+**Why:** 24₁₀ = 16 + 8 = 11000₂.
+
+### 43. Number bases · Free seats
+
+A trotro has 18 seats and 9 are taken. Free seats in octal?
+
+**Answer:** 11
+
+**Why:** 9₁₀ = 1×8 + 1 = 11₈.
+
+### 44. Number bases · The byte boundary
+
+Decimal 255 in hexadecimal?
+
+**Answer:** FF
+
+**Why:** 255 = 15×16 + 15, so FF₁₆.
+
+### 45. Number bases · Why hex exists
+
+Why do programmers write FF instead of 11111111?
+
+**Answer:** Shorter, same bits
+
+**Why:** One hex digit packs exactly 4 bits, so FF is 11111111 written compactly.
+
+### 46. Number bases · Spot the wrong row
+
+Which DEC/OCT/HEX row is wrong?
+
+**Answer:** 12 / 14 / D
+
+**Why:** 12₁₀ = 14₈ but C₁₆. D₁₆ is 13₁₀, so the last row is wrong.
+
+### 47. Arithmetic · Carry the one
+
+1011₂ + 0111₂ = ?
+
+**Answer:** 10010
+
+**Why:** 18₁₀ = 10010₂. The leftmost 1 is the final carry.
+
+### 48. Arithmetic · Borrow with care
+
+1011₂ − 0111₂ = ?
+
+**Answer:** 0100
+
+**Why:** 4₁₀ = 0100₂.
+
+### 49. Arithmetic · Letters add too
+
+2A₁₆ + 15₁₆ = ?
+
+**Answer:** 3F
+
+**Why:** 42 + 21 = 63 = 3F₁₆.
+
+### 50. Arithmetic · Borrow an eight
+
+52₈ − 27₈ = ?
+
+**Answer:** 23
+
+**Why:** 19₁₀ = 23₈.
+
+### 51. Arithmetic · Shift and add
+
+101₂ × 11₂ = ?
+
+**Answer:** 1111
+
+**Why:** 15₁₀ = 1111₂.
+
+### 52. Arithmetic · Divide the magnitudes
+
+1100₂ ÷ 100₂ = ?
+
+**Answer:** 11 rem 0
+
+**Why:** 3₁₀ = 11₂ with remainder 0.
+
+### 53. Arithmetic · Change in binary
+
+Kwame pays 45 cedis with 18 cedis spent. Change in binary?
+
+**Answer:** 11011
+
+**Why:** 27₁₀ = 16+8+2+1 = 11011₂.
+
+### 54. Arithmetic · One plus one
+
+1 + 1 in binary = ?
+
+**Answer:** 10
+
+**Why:** 1 + 1 = 10₂: write 0, carry 1.
+
+### 55. Arithmetic · The famous overflow
+
+FF₁₆ + 1 = ?
+
+**Answer:** 100
+
+**Why:** 256₁₀ = 100₁₆.
+
+### 56. Arithmetic · Borrow across zeros
+
+1000₂ − 0001₂ = ?
+
+**Answer:** 0111
+
+**Why:** 7₁₀ = 0111₂.
+
+### 57. Laws · Add nothing
+
+A + 0 = ?
+
+**Answer:** A
+
+**Why:** Identity: A + 0 = A.
+
+### 58. Laws · Multiply by nothing
+
+A · 0 = ?
+
+**Answer:** 0
+
+**Why:** Null law: A · 0 = 0.
+
+### 59. Laws · Same twice
+
+A + A = ?
+
+**Answer:** A
+
+**Why:** Idempotent: A + A = A.
+
+### 60. Laws · Cover everything
+
+A + A′ = ?
+
+**Answer:** 1
+
+**Why:** Complement: A + A′ = 1.
+
+### 61. Laws · The vanishing term
+
+A + AB = ?
+
+**Answer:** A
+
+**Why:** Absorption: A + AB = A.
+
+### 62. Laws · Absorb the other way
+
+A(A + B) = ?
+
+**Answer:** A
+
+**Why:** AA + AB = A + AB = A.
+
+### 63. Laws · Break the bar
+
+(A + B)′ = ?
+
+**Answer:** A′B′
+
+**Why:** (A + B)′ = A′ · B′.
+
+### 64. Laws · Break the other bar
+
+(AB)′ = ?
+
+**Answer:** A′+B′
+
+**Why:** (AB)′ = A′ + B′.
+
+### 65. Laws · Factor like algebra
+
+A(B + C) = ?
+
+**Answer:** AB+AC
+
+**Why:** A(B + C) = AB + AC.
+
+### 66. Laws · Factor, then collapse
+
+Simplify A′B + AB.
+
+**Answer:** B
+
+**Why:** B(A′ + A) = B · 1 = B.
+
+### 67. K-maps · Neighbors differ once
+
+Correct 2-bit Gray order?
+
+**Answer:** 00, 01, 11, 10
+
+**Why:** 00→01→11→10 changes one bit each step.
+
+### 68. K-maps · Powers of two
+
+Legal K-map group sizes on maps up to 6 variables?
+
+**Answer:** 1, 2, 4, 8, 16, 32, 64
+
+**Why:** Only powers of two from 1 through 64 are legal on maps up to six variables.
+
+### 69. K-maps · The map is a torus
+
+Left and right edges of a K-map…
+
+**Answer:** touch (wrap around)
+
+**Why:** Opposite edges are neighbors, so groups may wrap around.
+
+### 70. K-maps · Keep the fixed literal
+
+SOP group of four with B=1 fixed, rest varying. Term?
+
+**Answer:** B
+
+**Why:** Only B stays 1 everywhere in the group: term = B.
+
+### 71. K-maps · POS flips the rule
+
+POS group of two zeroes with A=0 fixed. Clause?
+
+**Answer:** A
+
+**Why:** Only A stays 0 on the zeroes: clause = (A).
+
+### 72. K-maps · The checkerboard
+
+2-var map with 1s at m1, m2 simplifies to?
+
+**Answer:** A⊕B
+
+**Why:** A′B + AB′ = A ⊕ B.
+
+### 73. K-maps · Xs are helpers
+
+Don’t-care cells…
+
+**Answer:** may join groups but need no cover
+
+**Why:** Use Xs to enlarge groups; uncovered Xs are fine.
+
+### 74. K-maps · Why this group stays
+
+A group is essential when…
+
+**Answer:** it alone covers some required cell
+
+**Why:** Essential groups cover a required cell no other maximal group covers.
+
+### 75. Representations · Flip, do not add
+
+One’s complement of 00001101 (8-bit)?
+
+**Answer:** 11110010
+
+**Why:** Flipping all bits gives 11110010. Adding 1 would make two’s complement.
+
+### 76. Representations · Two zeroes
+
+8-bit one’s complement: what is 11111111 worth?
+
+**Answer:** -0
+
+**Why:** Inverting gives 00000000 with the sign bit set: negative zero, −0.
+
+### 77. Representations · Spot the +1
+
+One’s vs two’s complement of +5 (4-bit)?
+
+**Answer:** 1010 vs 1011
+
+**Why:** One’s: 1010. Two’s: 1010 + 1 = 1011.
+
+### 78. Representations · Bars on a phone
+
+Signal bars 0–3 stored in 2 bits. How many patterns?
+
+**Answer:** 4
+
+**Why:** 2 bits hold 2² = 4 patterns: 00, 01, 10, 11.
+
+### 79. Representations · Signed limits
+
+8-bit two’s complement range?
+
+**Answer:** −128…+127
+
+**Why:** −2⁷ … +(2⁷−1) = −128 … +127.
+
+### 80. Gates · Sensors at the junction
+
+NAND with A=1, B=0 (traffic sensors). Y?
+
+**Answer:** 1
+
+**Why:** AND gives 0; NAND inverts to 1.
+
+### 81. Circuits · Build XOR from a MUX
+
+2:1 MUX for F=A′B+AB′. Choose S, D0, D1.
+
+**Answer:** S=A, D0=B, D1=B′
+
+**Why:** With S=A: A′B + AB′ needs D0=B and D1=B′.
+
+### 82. Memory · Count the states
+
+How many states in a 3-bit binary counter?
+
+**Answer:** 8
+
+**Why:** 2³ = 8 states.
+
+### 83. Memory · Set, not toggle
+
+JK: Q=0, J=1, K=0 at a rising edge. Q next?
+
+**Answer:** 1
+
+**Why:** JK=10 sets Q to 1.
+
+### 84. Expressions · Count the ones
+
+F=(A+B)′ has how many 1s in its 2-var table?
+
+**Answer:** 1
+
+**Why:** Only row 00 gives 1: a single one.
+
+### 85. Floats · Three fields
+
+A 32-bit float splits into sign, exponent and fraction. How many bits each?
+
+**Answer:** 1, 8, 23
+
+**Why:** Sign 1 + exponent 8 + fraction 23 = 32 bits. (1, 11, 52) is the 64-bit double.
+
+### 86. Floats · All quiet
+
+All 32 bits of a float are 0. The value is?
+
+**Answer:** +0
+
+**Why:** All-zero bits mean +0.0.
+
+### 87. Floats · The first bit
+
+A float whose sign bit is 1 is…?
+
+**Answer:** negative
+
+**Why:** Sign 1 means negative (or −0).
+
+### 88. Builder · Nothing is instant
+
+Propagation delay means…?
+
+**Answer:** outputs change a little after inputs
+
+**Why:** Every gate output follows its inputs after a small delay.
+
+### 89. Builder · One driver
+
+In the builder, a wire connects…?
+
+**Answer:** one output to input pins
+
+**Why:** Each wire carries one output signal into input pins; the probe only observes.
+
+### 90. Arithmetic · Derby goals
+
+Hearts score 2, Kotoko score 1. Total goals in binary?
+
+**Answer:** 11
+
+**Why:** 3₁₀ = 11₂.
+
+### 91. K-maps · Count the cells
+
+A 3-variable K-map has how many cells?
+
+**Answer:** 8
+
+**Why:** 2³ = 8 cells.
+
+### 92. Representations · Half a byte
+
+A nibble is…?
+
+**Answer:** 4 bits
+
+**Why:** A nibble is 4 bits — exactly one hex digit.
+
+### 93. Floats · Shifted by 127
+
+Single-precision exponent bias is…?
+
+**Answer:** 127
+
+**Why:** Bias 127 centers the 1…254 range around 2^0.
+
+### 94. Floats · All ones, empty tail
+
+Exponent all 1s, fraction all 0s means…?
+
+**Answer:** Infinity
+
+**Why:** That pattern is ±Infinity (the sign bit picks which).
+
+### 95. Floats · All ones, busy tail
+
+Exponent all 1s, fraction nonzero means…?
+
+**Answer:** NaN
+
+**Why:** That pattern is NaN — the result of 0.0/0.0 or ∞−∞.
+
+### 96. Floats · One, exactly
+
+1.0 as single-precision hex is…?
+
+**Answer:** 3F800000
+
+**Why:** 0 01111111 000…0 = 0x3F800000.
+
+### 97. Floats · Bigger bias
+
+Double-precision (64-bit) exponent bias is…?
+
+**Answer:** 1023
+
+**Why:** Bias 1023 centers the 11-bit exponent range.
+
+### 98. Builder · A flicker of wrong
+
+A glitch is…?
+
+**Answer:** a brief wrong pulse from uneven path delays
+
+**Why:** When paths disagree briefly, the output flickers before settling.
+
+### 99. Circuits · One gate to rule
+
+NAND is called universal because…?
+
+**Answer:** NOT, AND and OR can all be built from NANDs
+
+**Why:** NOT, AND and OR each have a NAND-only construction.
+
+### 100. Builder · What builds XOR?
+
+Which gate set can build an XOR?
+
+**Answer:** AND, OR and NOT
+
+**Why:** A′B + AB′ uses AND, OR and NOT — e.g. the 4-NAND build.
+
+### 101. K-maps · Kofi shades four
+
+Kofi shades 4 cells in a straight row on a 4-var map. How many literals stay?
+
+**Answer:** 2
+
+**Why:** 4 variables − 2 eliminated = a 2-literal term.
+
+### 102. Arithmetic · Keep the change
+
+Trotro fare is 15 cedis; Ama pays 20. Change in binary?
+
+**Answer:** 101
+
+**Why:** 5₁₀ = 101₂.
+
+### 103. Floats · Ama checks 0.1 + 0.2
+
+Ama’s phone shows 0.1 + 0.2 = 0.30000000000000004. Why?
+
+**Answer:** binary floats round 0.1 and 0.2
+
+**Why:** 0.1 and 0.2 are stored as nearest floats; their sum shows the rounding.
+
+### 104. Floats · The famous comparison
+
+In floating point, is 0.1 + 0.2 == 0.3?
+
+**Answer:** No — rounding breaks it
+
+**Why:** Both round on input, so the sum differs from the rounded 0.3.
+
+### 105. Builder · Neck and neck
+
+A race condition means…?
+
+**Answer:** the result depends on which signal arrives first
+
+**Why:** If the answer changes with arrival order, the circuit has a race.
+
+### 106. K-maps · Eight cells, one literal
+
+A group of 8 on a 4-variable map eliminates…?
+
+**Answer:** 3 variables
+
+**Why:** Three varying variables drop out, leaving a single literal.
+
+### 107. Arithmetic · Seven plus one
+
+4-bit two’s complement: 0111 + 0001 = ?
+
+**Answer:** 1000 — that is −8, overflow!
+
+**Why:** Bit result 1000 reads as −8: adding positives gave a negative, so it overflowed.
+
+### 108. Memory · Stable before the edge
+
+Setup time means data must be stable…?
+
+**Answer:** before the clock edge
+
+**Why:** D must hold still for the setup window before the capturing edge.
 
 ## Keep a learning checkpoint
 

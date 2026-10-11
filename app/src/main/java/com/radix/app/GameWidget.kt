@@ -20,10 +20,14 @@ class GameWidget:AppWidgetProvider(){
             val streak=prefs.getInt("streak_days",0)
             val questions=PracticeCatalog.questions
             val q=questions[GameEngine.dailyIndex(LocalDate.now().toEpochDay(),questions.size)]
+            val language=AppStrings.systemLanguage(context.resources.configuration.locales)
             val views=RemoteViews(context.packageName,R.layout.widget_daily)
-            views.setTextViewText(R.id.widget_title,"Today · ${q.title}")
-            views.setTextViewText(R.id.widget_prompt,q.prompt.take(140))
-            views.setTextViewText(R.id.widget_meta,"${listOf("Easy","Intermediate","Advanced")[q.tier]} · $mastered/${questions.size} mastered · ${if(streak>0)"🔥 $streak-day streak"else"start your streak"}")
+            views.setTextViewText(R.id.widget_title,"${context.getString(R.string.widget_title_default)} · ${AppStrings.translate(q.title,language)}")
+            views.setTextViewText(R.id.widget_prompt,AppStrings.translate(q.prompt,language).take(140))
+            val tier=AppStrings.translate(listOf("Easy","Intermediate","Advanced")[q.tier],language)
+            val progress=AppStrings.translate("$mastered/${questions.size} mastered",language)
+            val streakLabel=AppStrings.translate(if(streak>0)"🔥 $streak-day streak"else"start your streak",language)
+            views.setTextViewText(R.id.widget_meta,"$tier · $progress · $streakLabel")
             val open=PendingIntent.getActivity(context,0,Intent(context,MainActivity::class.java),PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             views.setOnClickPendingIntent(R.id.widget_root,open)
             manager.updateAppWidget(id,views)

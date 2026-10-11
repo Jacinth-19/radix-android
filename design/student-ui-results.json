@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "checks": 33,
+  "checks": 35,
   "tests": [
     "Integer working exposes correct place values, divisions and reverse remainder order",
     "Working target selector supports every base from 2 to 36",
@@ -12,7 +12,7 @@
     "Bit-grouping shortcut pads integer left and fraction right",
     "Long working stays locally scrollable with expandable steps",
     "Invalid source disables working and cannot open a plausible worksheet",
-    "Default K-map rewards immediately and clearly shows legal overlap",
+    "Group buttons identify their terms, and group/index visibility toggles work",
     "Switching SOP/POS preserves the truth table and recalculates the target list",
     "Three-variable Gray order and horizontal wrap produce a correct explanation",
     "Truth-table view independently exposes every specified output",
@@ -28,8 +28,10 @@
     "Four-variable POS zero-corner grouping uses the reversed complement rule",
     "Optional Xs enlarge an octet and truth-table display distinguishes them",
     "K-map values, dimensions, form and don\u2019t-cares persist locally across reload",
+    "Six-variable 8\u00d78 K-map supports arbitrary A\u2013Z labels, preserves input order and interprets the leftmost input as MSB",
     "All 24 challenges load, hide the answer, reveal the correct result and show the lesson",
     "K-map copy includes expression, grouping working and truth table",
+    "Standalone K-map saves its minimized formula into the shared offline Boolean-solution library",
     "K-map UI has no page overflow on phone, keyboard-height and tablet viewports",
     "Working sheet is readable and contained at 320px width",
     "Clipboard denial keeps a selectable multi-line report inside the open dialog",

@@ -83,7 +83,7 @@ q('law-distributive','Laws',2,'Factor like algebra','A(B + C) = ?',['AB+AC','(A+
 q('exam-law-simplify','Laws',2,'Factor, then collapse','Simplify A′B + AB.',['B','A',"A′",'1'],0,'Factor out B first.','B(A′ + A) = B · 1 = B.')
 # ---- K-maps ----
 q('kmap-gray','K-maps',0,'Neighbors differ once','Correct 2-bit Gray order?',['00, 01, 11, 10','00, 01, 10, 11','00, 11, 01, 10','00, 10, 01, 11'],0,'Only one bit may change per step.','00→01→11→10 changes one bit each step.')
-q('kmap-group-size','K-maps',0,'Powers of two','Legal K-map group sizes?',['1, 2, 4, 8, 16','Any even count','Multiples of 3','Any count'],0,'Groups must be powers of two.','Only 1, 2, 4, 8 or 16 cells form a valid group.')
+q('kmap-group-size','K-maps',0,'Powers of two','Legal K-map group sizes on maps up to 6 variables?',['1, 2, 4, 8, 16, 32, 64','Any even count','Multiples of 3','Any count'],0,'A map has at most 64 cells; legal groups stay powers of two.','Only powers of two from 1 through 64 are legal on maps up to six variables.')
 q('kmap-edges','K-maps',1,'The map is a torus','Left and right edges of a K-map…',['touch (wrap around)','never touch','touch only in POS','touch only in 4-var'],0,'Gray code makes the edges adjacent.','Opposite edges are neighbors, so groups may wrap around.')
 q('kmap-sop-term','K-maps',1,'Keep the fixed literal','SOP group of four with B=1 fixed, rest varying. Term?',['B',"B′",'1','A'],0,'Fixed 1 becomes the plain literal.','Only B stays 1 everywhere in the group: term = B.')
 q('kmap-pos-term','K-maps',2,'POS flips the rule','POS group of two zeroes with A=0 fixed. Clause?',['A',"A′",'0','A+B'],0,'In POS, fixed 0 becomes the plain literal.','Only A stays 0 on the zeroes: clause = (A).')

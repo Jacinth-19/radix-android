@@ -1,0 +1,95 @@
+name: Android compile and test
+
+on:
+  push:
+    branches:
+      - arena/1469181a-radix-android
+    paths:
+      - '.github/workflows/android.yml'
+      - 'app/**'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/android.yml'
+      - 'app/**'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compile, unit test, lint and package unsigned APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK (API 36)
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+
+      - name: Set up Gradle caching
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Run Android unit tests, lint and debug/release builds
+        shell: bash
+        run: |
+          set +e
+          ./gradlew --no-daemon --stacktrace \
+            testDebugUnitTest testReleaseUnitTest \
+            lintDebug lintRelease \
+            assembleDebug assembleRelease 2>&1 | tee android-build.log
+          gradle_status=${PIPESTATUS[0]}
+          if [ "$gradle_status" -ne 0 ]; then
+            python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          lines = Path("android-build.log").read_text(errors="replace").splitlines()
+          failure_start = max((i for i, line in enumerate(lines) if line.startswith("FAILURE:")), default=-1)
+          focus = lines[failure_start:] if failure_start >= 0 else lines[-600:]
+          focus = [line for line in focus if line.strip() and not re.match(r"^\s*(at\s+|\.\.\.\s+\d+\s+more$)", line)]
+          context = [line for line in lines[-800:] if re.search(r"(^e: |^> Task .*FAILED|failed tests|tests completed, \d+ failed|AssertionError|No matching variant|Could not resolve|Could not find)", line, re.I)]
+          details = "\n".join(dict.fromkeys(context[-35:] + focus[:60]))[:3200]
+          details = details.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          print(f"::error title=Android Gradle failure::{details or 'Gradle exited nonzero; see android-build.log artifact.'}")
+          PY
+          fi
+          exit "$gradle_status"
+
+      - name: Upload APKs and Android reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: radix-android-${{ github.sha }}
+          if-no-files-found: warn
+          path: |
+            android-build.log
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
+            app/build/reports/tests/testDebugUnitTest/**
+            app/build/reports/tests/testReleaseUnitTest/**
+            app/build/reports/lint-results-*.html

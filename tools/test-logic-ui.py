@@ -48,14 +48,26 @@ with sync_playwright() as p:
     page.locator('.topnav [data-tab="logic"]').click();section('combinational')
     circuits=page.evaluate('RadixLogic.catalog.circuits.map(c=>({id:c.id,inputs:c.inputs.length}))')
     for c in circuits:
-        choose(c['id']);rows=copied_rows();assert len(rows)==2**c['inputs'],c
+        choose(c['id']);total=2**c['inputs'];rows=copied_rows();assert len(rows)==min(16,total),c
         expect(page.locator('#logic-diagram svg')).to_have_attribute('role','img')
+        if total>16:
+            expect(page.locator('.table-pager .mono')).to_have_text(f'1/{(total+15)//16}')
+            page.locator('[data-logic="next"]').click();expect(page.locator('.table-pager .mono')).to_have_text(f'2/{(total+15)//16}')
+            next_page=copied_rows();assert len(next_page)==16,c
+            assert next_page[0].split('\t')[:c['inputs']]==list(f'{16:0{c["inputs"]}b}'),c
+            expect(page.locator('[data-logic="copy"]')).to_contain_text('Copy visible page')
+            page.locator('[data-logic="previous"]').click();expect(page.locator('.table-pager .mono')).to_have_text(f'1/{(total+15)//16}')
+        else:expect(page.locator('[data-logic="copy"]')).to_contain_text('Copy complete table')
         page.locator('[data-logic="diagram"]').click()
         expect(page.locator('#logic-diagram')).to_have_class('diagram-pan expanded')
         assert 'gate-level' in page.locator('#logic-diagram svg').get_attribute('aria-label')
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
         page.locator('[data-logic="diagram"]').click()
-    passed('All 12 combinational circuits show complete tables, block views and gate-level netlists')
+    passed('All 23 combinational circuits show correct 16-row page copies, block views and gate-level netlists')
+    choose('mux-16');expect(page.locator('.base-label')).to_contain_text('1,048,576 ROWS · 16 PER PAGE')
+    expect(page.locator('.table-pager .mono')).to_have_text('1/65536');expect(page.locator('.logic-subnote').filter(has_text='landscape')).to_have_count(1)
+    page.locator('[data-logic="next"]').click();expect(page.locator('.table-pager .mono')).to_have_text('2/65536');assert len(copied_rows())==16
+    passed('The 16:1 MUX keeps its 1,048,576-row table bounded, paginated and landscape-guided')
     choose('full-adder');inputs([1,1,1]);assert vals()==['1','1']
     choose('full-subtractor');inputs([0,1,1]);assert vals()==['0','1']
     passed('Carry and borrow outputs correctly represent three-input arithmetic')
@@ -69,10 +81,16 @@ with sync_playwright() as p:
     passed('Enable, one-hot decoding, encoder priority and Valid distinction work correctly')
     choose('compare-2');inputs([1,0,0,1]);assert vals()==['0','0','1'];inputs([1,0,1,0]);assert vals()==['0','1','0']
     passed('Magnitude comparator honors MSB priority and produces mutually exclusive results')
+    choose('even-parity-gen-3');inputs([0,0,0]);assert vals()==['0'];inputs([1,1,1]);assert vals()==['1']
+    choose('even-parity-check-4');inputs([1,0,1,0]);assert vals()==['1','0'];inputs([1,0,1,1]);assert vals()==['0','1']
+    passed('Dedicated even-parity generator and checker identify correct bits/errors')
+    choose('bcd-7seg');inputs([0,0,0,0]);assert vals()==['1','1','1','1','1','1','0'];inputs([1,0,0,1]);assert vals()==['1','1','1','1','0','1','1'];inputs([1,0,1,0]);assert vals()==['0','0','0','0','0','0','0']
+    passed('BCD-to-seven-segment displays decimal digits and blanks invalid BCD inputs')
     choose('ripple-4');inputs([1,1,1,1,0,0,0,1,1]);assert vals()==['0','0','0','1','1']
-    assert len(copied_rows())==512
-    expect(page.locator('.table-pager .mono')).to_contain_text('/32')
-    page.locator('[data-logic="next"]').click();page.locator('[data-logic="previous"]').click()
+    assert len(copied_rows())==16
+    expect(page.locator('.table-pager .mono')).to_have_text('31/32')
+    page.locator('[data-logic="next"]').click();expect(page.locator('.table-pager .mono')).to_have_text('32/32');assert len(copied_rows())==16
+    page.locator('[data-logic="previous"]').click();expect(page.locator('.table-pager .mono')).to_have_text('31/32')
     page.locator('[data-logic="diagram"]').click()
     assert page.locator('#logic-diagram').evaluate('(el)=>el.scrollWidth>el.clientWidth')
     page.screenshot(path=str(root/'design/logic-ripple-desktop.png'),full_page=True)
@@ -85,11 +103,16 @@ with sync_playwright() as p:
     page.locator('.topnav [data-tab="logic"]').click();section('sequential')
     models=page.evaluate('RadixLogic.catalog.sequential.map(s=>({id:s.id,clocked:s.clocked,rows:2**(s.inputs.length+s.width)}))')
     for c in models:
-        choose(c['id']);assert len(copied_rows())==c['rows'],c
+        choose(c['id']);pages=(c['rows']+15)//16
+        for page_number in range(pages):
+            if pages>1:expect(page.locator('.table-pager .mono')).to_have_text(f'{page_number+1}/{pages}')
+            assert len(copied_rows())==min(16,c['rows']-16*page_number),c
+            if page_number+1<pages:page.locator('[data-logic="next"]').click()
+        for _ in range(pages-1):page.locator('[data-logic="previous"]').click()
         expect(page.locator('#logic-clock')).to_have_count(1 if c['clocked'] else 0)
         expect(page.locator('#logic-timing svg')).to_have_attribute('aria-label','Discrete timing trace')
         expect(page.locator('#logic-diagram svg')).to_have_attribute('role','img')
-    passed('All 11 sequential models expose complete next-state tables, appropriate clocks and timing diagrams')
+    passed('All 11 sequential models expose complete 16-row next-state paging, appropriate clocks and timing diagrams')
     choose('D_FF');assert vals()==['0','1'];page.locator('[data-logic="rise"]').click();assert vals()==['1','0']
     inputs([0]);assert vals()==['1','0'];page.locator('[data-logic="fall"]').click();assert vals()==['1','0'];page.locator('[data-logic="rise"]').click();assert vals()==['0','1']
     expect(page.locator('[data-logic="rise"]')).to_be_disabled()
@@ -128,6 +151,8 @@ with sync_playwright() as p:
     passed('Library choices persist across reload while simulation restarts in a documented teaching state')
     page.locator('#visual-help-button').click();expect(page.locator('.helper-card')).to_have_count(11)
     assert page.locator('.helper-card svg').count()>=3
+    expect(page.locator('.helper-card').nth(4)).to_contain_text('MUX/DEMUX')
+    expect(page.locator('.helper-card').nth(4)).to_contain_text('rotate to landscape')
     page.screenshot(path=str(root/'design/logic-helper-desktop.png'))
     page.locator('[data-action="close-dialog"]').click()
     passed('Illustrated helper visually explains conversions, K-maps, gates, circuits and memory')

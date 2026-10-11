@@ -38,7 +38,6 @@ internal object FloatLab {
         require(width==32||width==64){"Width must be 32 or 64."}
         val clean=text.trim().lowercase()
         val value=when(clean){"+inf","inf","infinity","+infinity"->Double.POSITIVE_INFINITY;"-inf","-infinity"->Double.NEGATIVE_INFINITY;"nan","+nan","-nan"->Double.NaN;else->clean.toDoubleOrNull()?:throw IllegalArgumentException("Type a decimal number, or inf / −inf / nan.")}
-        require(value.isFinite()||!value.isNaN()||true){"Unreachable."}
         val word=if(width==32)java.lang.Float.floatToRawIntBits(value.toFloat()).toLong() and 0xFFFFFFFFL else java.lang.Double.doubleToRawLongBits(value)
         val r=decode(word,width)
         val note=when{value.isNaN()->"NaN has many bit patterns; this is the canonical quiet NaN the platform produces.";width==32&&value.isFinite()&&value.toFloat().isInfinite()->"The magnitude overflows single precision, so it rounds to infinity.";width==32&&value.isFinite()&&value.toFloat().toDouble()!=value->"Nearest single-precision neighbor: ${value.toFloat()}. The missing tail is rounding error.";else->"Exactly representable at this width (within the parsed decimal)."}

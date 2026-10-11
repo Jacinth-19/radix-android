@@ -1,1 +1,82 @@
-{"format":"radix-study","version":1,"appVersion":"6.0.0","saved":[{"id":1,"input":"FF","base":16}],"sessions":[{"id":"session-1","name":"D memory","kind":"sequential","model":"D_FF","width":1,"inputs":[false],"bits":1,"clock":true}],"progress":["gate-and"],"kmap":{"variables":3,"cells":[0,1,2,0,1,0,0,1],"form":"POS"},"expression":{"variables":2,"left":"A'B+AB'","right":"A XOR B"},"representation":{"width":8,"signed":true,"mode":"decimal","input":"-13"},"settings":{"haptics":true,"largeControls":false},"converter":{"number":"255","base":10,"custom":16,"bits":42,"dark":true}}
+{
+  "format": "radix-study",
+  "version": 1,
+  "appVersion": "7.0.0",
+  "savedExpressions": [
+    {
+      "id": 2,
+      "variables": 2,
+      "expression": "A XOR B",
+      "form": "POS"
+    }
+  ],
+  "conversionHistory": [
+    {
+      "id": 3,
+      "input": "FF",
+      "base": 16
+    }
+  ],
+  "saved": [
+    {
+      "id": 1,
+      "input": "FF",
+      "base": 16
+    }
+  ],
+  "sessions": [
+    {
+      "id": "session-1",
+      "name": "D memory",
+      "kind": "sequential",
+      "model": "D_FF",
+      "width": 1,
+      "inputs": [
+        false
+      ],
+      "bits": 1,
+      "clock": true
+    }
+  ],
+  "progress": [
+    "gate-and"
+  ],
+  "kmap": {
+    "variables": 3,
+    "cells": [
+      0,
+      1,
+      2,
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    "form": "POS",
+    "names": "ZBC"
+  },
+  "expression": {
+    "variables": 2,
+    "left": "A'B+AB'",
+    "right": "A XOR B",
+    "form": "POS"
+  },
+  "representation": {
+    "width": 8,
+    "signed": true,
+    "mode": "decimal",
+    "input": "-13"
+  },
+  "settings": {
+    "haptics": true,
+    "largeControls": false
+  },
+  "converter": {
+    "number": "255",
+    "base": 10,
+    "custom": 16,
+    "bits": 42,
+    "dark": true
+  }
+}

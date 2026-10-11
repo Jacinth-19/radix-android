@@ -51,13 +51,14 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
 }
 
 @Composable internal fun BuilderScreen(vm:RadixViewModel,notify:(String)->Unit){
-    val haptic=LocalHapticFeedback.current;val clipboard=LocalClipboardManager.current
+    val haptic=LocalHapticFeedback.current;val clipboard=LocalClipboardManager.current;val strings=LocalStrings.current
     val board=vm.builderBoard
     val problems=remember(board){BuilderEngine.validate(board)}
     val eval=remember(board){runCatching{BuilderEngine.evaluate(board)}.getOrNull()}
     var pulse by remember(board.gates,board.wires,board.ext){mutableStateOf<Int?>(null)}
     val settle=pulse?.let{runCatching{LiveSim.settle(board,it)}.getOrNull()}
     LabPage("Place gates.","Wire the idea.","THE CIRCUIT BUILDER","Drag, connect, simulate — feedback-free, always explainable."){
+        LabNote(strings.landscapeBuilderHint)
         LabCard("Start from a working build"){
             BuilderEngine.presets().forEachIndexed{i,(name,_)->
                 OutlinedButton(onClick={vm.builderLoadPreset(i);pulse=null;haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),border=BorderStroke(if(vm.builderPreset==i)2.dp else 1.dp,if(vm.builderPreset==i)accent()else outline()),shape=RoundedCornerShape(12.dp)){Text(name,fontSize=12.sp)}
@@ -110,7 +111,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
                 else{
                     Text("${table.rows.size} rows over ${table.inputs.joinToString{BuilderEngine.inputName(it)}}",fontFamily=Mono,fontSize=11.sp,color=muted())
                     Column(Modifier.horizontalScroll(rememberScrollState())){table.rows.forEach{(ins,out)->Text(ins.joinToString("  "){if(it)"1"else"0"}+"   →   ${if(out)1 else 0}",fontFamily=Mono,fontSize=12.sp,lineHeight=20.sp)}}
-                    TextButton(onClick={clipboard.setText(AnnotatedString("Builder truth table\n"+table.inputs.joinToString("\t"){BuilderEngine.inputName(it)}+"\tY\n"+table.rows.joinToString("\n"){(ins,out)->ins.joinToString("\t"){if(it)"1"else"0"}+"\t${if(out)1 else 0}"}));notify("Truth table copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Copy table",fontSize=12.sp)}
+                    TextButton(onClick={clipboard.setText(AnnotatedString(AppStrings.translateBlock("Builder truth table\n"+table.inputs.joinToString("\t"){BuilderEngine.inputName(it)}+"\tY\n"+table.rows.joinToString("\n"){(ins,out)->ins.joinToString("\t"){if(it)"1"else"0"}+"\t${if(out)1 else 0}"},strings.languageCode)));notify("Truth table copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Copy table",fontSize=12.sp)}
                 }
             }
         }
@@ -203,6 +204,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
 // ---------------- IEEE-754 float lab ----------------
 @Composable internal fun FloatScreen(vm:RadixViewModel,notify:(String)->Unit){
     val clipboard=LocalClipboardManager.current
+    val language=LocalStrings.current.languageCode
     val report=remember(vm.floatInput,vm.floatWidth,vm.floatMode){runCatching{
         when(vm.floatMode){"dec"->FloatLab.encode(vm.floatInput,vm.floatWidth);"bits"->FloatLab.decode(FloatLab.parseBits(vm.floatInput,vm.floatWidth),vm.floatWidth);else->FloatLab.decode(FloatLab.parseHex(vm.floatInput,vm.floatWidth),vm.floatWidth)}
     }}
@@ -222,7 +224,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
                 Box(Modifier.horizontalScroll(rememberScrollState())){Text(r.bits.chunked(4).joinToString(" "),fontFamily=Mono,fontSize=13.sp,lineHeight=22.sp)}
             }
             LabCard("Show the working"){r.steps.forEachIndexed{i,s->LabNote("${i+1}. $s")}
-                TextButton(onClick={clipboard.setText(AnnotatedString("${r.width}-bit float\nInput: ${vm.floatInput}\nBits: ${r.bits}\nHex: ${r.hex}\n${r.kind} = ${r.valueText}\n"+r.steps.joinToString("\n")));notify("Float working copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Copy working",fontSize=12.sp)}
+                TextButton(onClick={clipboard.setText(AnnotatedString(AppStrings.translateBlock("${r.width}-bit float\nInput: ${vm.floatInput}\nBits: ${r.bits}\nHex: ${r.hex}\n${r.kind} = ${r.valueText}\n"+r.steps.joinToString("\n"),language)));notify("Float working copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Copy working",fontSize=12.sp)}
             }
         }
         LabNote("Why 0.1 + 0.2 ≠ 0.3: most decimal fractions repeat forever in binary, so the nearest float is stored, not the exact value.")

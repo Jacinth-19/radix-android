@@ -18,13 +18,27 @@ class LogicEngineTest {
             "decoder-2" -> List(4){if(n("EN")==1&&it==2*a+b)1 else 0}
             "encoder-4" -> {val highest=(3 downTo 0).firstOrNull{n("D$it")==1};listOf((highest?:0)/2,(highest?:0)%2,if(highest==null)0 else 1)}
             "compare-1" -> listOf(if(a<b)1 else 0,if(a==b)1 else 0,if(a>b)1 else 0)
-            "compare-2" -> {val aa=2*n("A1")+n("A0");val bb=2*n("B1")+n("B0");listOf(if(aa<bb)1 else 0,if(aa==bb)1 else 0,if(aa>bb)1 else 0)}
+            "compare-2","compare-4" -> {val width=if(c.id=="compare-2")2 else 4;val aa=(width-1 downTo 0).fold(0){x,j->(x shl 1) or n("A$j")};val bb=(width-1 downTo 0).fold(0){x,j->(x shl 1) or n("B$j")};listOf(if(aa<bb)1 else 0,if(aa==bb)1 else 0,if(aa>bb)1 else 0)}
             "ripple-4" -> {val aa=(0..3).sumOf{n("A$it")*(1 shl it)};val bb=(0..3).sumOf{n("B$it")*(1 shl it)};val sum=aa+bb+n("Cin");(3 downTo 0).map{(sum shr it)and 1}+listOf(sum/16)}
+            "mux-8","mux-16" -> {val selects=c.inputs.filter{it.startsWith("S")}.sortedByDescending{it.drop(1).toInt()};val address=selects.fold(0){x,name->(x shl 1) or n(name)};listOf(n("D$address"))}
+            "demux-4","demux-8","demux-16" -> {val selects=c.inputs.filter{it.startsWith("S")}.sortedByDescending{it.drop(1).toInt()};val address=selects.fold(0){x,name->(x shl 1) or n(name)};c.outputs.keys.mapIndexed{index,_->if(index==address&&n("D")==1)1 else 0}}
+            "decoder-3-8","decoder-4-16" -> {val address=c.inputs.filter{it.startsWith("A")}.sortedByDescending{it.drop(1).toInt()}.fold(0){x,name->(x shl 1) or n(name)};c.outputs.keys.mapIndexed{index,_->if(index==address)1 else 0}}
+            "even-parity-gen-3" -> listOf((n("A")+n("B")+n("C"))%2)
+            "even-parity-check-4" -> {val odd=(n("A")+n("B")+n("C")+n("P"))%2;listOf(1-odd,odd)}
+            "bcd-7seg" -> {val digit=8*n("A")+4*n("B")+2*n("C")+n("D");val segments=mapOf("a" to setOf(0,2,3,5,6,7,8,9),"b" to setOf(0,1,2,3,4,7,8,9),"c" to setOf(0,1,3,4,5,6,7,8,9),"d" to setOf(0,2,3,5,6,8,9),"e" to setOf(0,2,6,8),"f" to setOf(0,4,5,6,8,9),"g" to setOf(2,3,4,5,6,8,9));c.outputs.keys.map{if(digit in segments.getValue(it))1 else 0}}
             else -> error(c.id)
         }
         return output.map{it==1}
     }
     private fun nIf(v:Map<String,Int>,name:String)=v[name]?:0
+    private fun verificationCodes(c:LogicEngine.Circuit):List<Int> {
+        val total=1 shl c.inputs.size
+        if(c.inputs.size<=12)return (0 until total).toList()
+        val codes=linkedSetOf(0,total-1)
+        for(bit in c.inputs.indices){codes+=1 shl bit;codes+=total-1-(1 shl bit)}
+        if(c.id=="mux-16") {for(address in 0..15){for(data in 0..15)codes+=(1 shl (19-data)) or address;codes+=(0xA55A shl 4) or address}}
+        return codes.toList()
+    }
     @Test fun everyGateTruthTableAndArity() {
         var rows=0
         for(g in LogicEngine.Gate.entries)for(n in if(g in listOf(LogicEngine.Gate.NOT,LogicEngine.Gate.BUFFER))listOf(1)else listOf(2,3,4))for(code in 0 until(1 shl n)){
@@ -34,11 +48,11 @@ class LogicEngineTest {
         };assertEquals(172,rows)
     }
     @Test fun allCombinationalTablesUseIndependentArithmeticOracle(){
-        var rows=0;assertEquals(12,LogicCatalog.circuits.size)
-        LogicCatalog.circuits.forEach { c ->for(code in 0 until(1 shl c.inputs.size)){
+        var rows=0;assertEquals(23,LogicCatalog.circuits.size)
+        LogicCatalog.circuits.forEach { c ->for(code in verificationCodes(c)){
             val i=LogicEngine.bits(code,c.inputs.size);val result=LogicEngine.evaluate(c,i)
             assertEquals("${c.id} $code",expectedCircuit(c,i),result.outputs.values.toList());rows++
-        }};assertEquals(656,rows)
+        }};assertTrue(rows>3000);assertTrue(rows<4000)
     }
     @Test fun decoderComparatorEncoderProperties(){
         for(id in listOf("compare-1","compare-2")){val c=LogicCatalog.circuits.first{it.id==id};for(code in 0 until(1 shl c.inputs.size))assertEquals(1,LogicEngine.evaluate(c,LogicEngine.bits(code,c.inputs.size)).outputs.values.count{it})}
@@ -119,6 +133,8 @@ class LogicEngineTest {
         assertThrows(IllegalArgumentException::class.java){LogicEngine.gate(LogicEngine.Gate.NOT,listOf(true,false))}
         assertThrows(IllegalArgumentException::class.java){LogicEngine.gate(LogicEngine.Gate.AND,listOf(true))}
         assertThrows(IllegalArgumentException::class.java){LogicEngine.bits(512,9)}
+        assertEquals((1 shl 20)-1,LogicEngine.code(LogicEngine.bits((1 shl 20)-1,20)))
+        assertThrows(IllegalArgumentException::class.java){LogicEngine.bits(0,21)}
         val c=LogicCatalog.circuits.first()
         assertThrows(IllegalArgumentException::class.java){LogicEngine.evaluate(c,listOf(true))}
         assertThrows(IllegalStateException::class.java){LogicEngine.evaluate(c.copy(nodes=listOf(LogicEngine.Node("x",LogicEngine.Gate.NOT,listOf("missing")))),listOf(false,false))}

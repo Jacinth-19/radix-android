@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Radix</string>
+    <string name="widget_receiver_name">Défi quotidien Radix</string>
+    <string name="widget_desc">Défi quotidien Radix avec votre série et votre progression.</string>
+    <string name="widget_brand">rₓ  radix · défi du jour</string>
+    <string name="widget_title_default">Aujourd’hui</string>
+    <string name="widget_prompt_default">Ouvrir Radix</string>
+    <string name="widget_meta_default">Entraînement</string>
+</resources>

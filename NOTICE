@@ -2,3 +2,4 @@ Radix project source is provided under the MIT license.
 Space Grotesk and JetBrains Mono fonts are provided under the SIL Open Font License.
 The outline icon geometry follows/adapts Lucide icon patterns; the upstream ISC/MIT notices are included in licenses/lucide-license.txt.
 Third-party AndroidX, Kotlin, Android and Gradle components retain their respective upstream licenses.
+The optional offline study-reminder chime is Kenney Interface Sounds (CC0 1.0); see licenses/KENNEY-INTERFACE-SOUNDS-CC0.txt and design/ASSET-LICENSES.md.

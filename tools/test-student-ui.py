@@ -92,10 +92,15 @@ with sync_playwright() as p:
     expect(page.locator('#k-expression')).to_have_text('A + B')
     expect(page.locator('#k-grid [data-index="3"] .k-outline')).to_have_count(2)
     expect(page.locator('#k-grid [data-index="3"] .k-members')).to_have_text('G1 G2')
-    passed('Default K-map rewards immediately and clearly shows legal overlap')
+    expect(page.locator('.group-pill').first).to_contain_text('G1 ·')
+    expect(page.locator('.prime-heading')).to_contain_text('SELECTED PRIME IMPLICANTS')
+    page.locator('[data-student="toggle-indices"]').click();expect(page.locator('#k-grid .k-index')).to_have_count(0);page.locator('[data-student="toggle-indices"]').click();expect(page.locator('#k-grid .k-index')).to_have_count(4)
+    page.locator('[data-student="toggle-groups"]').click();expect(page.locator('#k-grid .k-outline')).to_have_count(0);page.locator('[data-student="toggle-groups"]').click();expect(page.locator('#k-grid .k-outline')).to_have_count(4)
+    passed('Group buttons identify their terms, and group/index visibility toggles work')
     original=cells();form('POS')
     eq_expression='(A + B)'
     expect(page.locator('#k-expression')).to_have_text(eq_expression)
+    expect(page.locator('.prime-heading')).to_contain_text('SELECTED PRIME IMPLICATES')
     assert cells()==original
     expect(page.locator('#k-terms')).to_have_value('0')
     passed('Switching SOP/POS preserves the truth table and recalculates the target list')
@@ -167,6 +172,14 @@ with sync_playwright() as p:
     expect(page.locator('#k-dc')).to_have_value('5, 9, 13')
     passed('K-map values, dimensions, form and don’t-cares persist locally across reload')
 
+    vars(6);expect(page.locator('#k-grid .k-cell')).to_have_count(64);expect(page.locator('.kmap-panel')).to_contain_text('rotate your device to landscape')
+    page.locator('.k-inputs summary').click();page.locator('#k-notation').fill('F(A,B,C,D,E,F)=Σm(63)');page.locator('[data-student="notation"]').click()
+    notation_rows=page.locator('#k-grid .k-cell').evaluate_all('(els)=>els.map(e=>[Number(e.dataset.index),e.querySelector("strong").textContent])')
+    assert len(notation_rows)==64 and sum(value=='1' for _,value in notation_rows)==1 and dict(notation_rows)[63]=='1'
+    page.locator('.k-inputs summary').click();page.locator('#k-notation').fill('F(Z,A,Q,B,Y,C)=Σm(32)');page.locator('[data-student="notation"]').click()
+    shuffled=page.evaluate('JSON.parse(localStorage.getItem("radix-kmap-v2"))');assert shuffled['variables']==6 and shuffled['names']=='ZAQBYC' and shuffled['form']=='SOP' and len(shuffled['cells'])==64 and shuffled['cells'][32]==1 and sum(value==1 for value in shuffled['cells'])==1
+    passed('Six-variable 8×8 K-map supports arbitrary A–Z labels, preserves input order and interprets the leftmost input as MSB')
+
     for i in range(24):
         page.locator('[data-student="examples"]').click()
         expect(page.locator('.example-list button')).to_have_count(24)
@@ -181,8 +194,11 @@ with sync_playwright() as p:
     passed('All 24 challenges load, hide the answer, reveal the correct result and show the lesson')
     page.locator('[data-student="copy-kmap"]').click()
     text=page.evaluate('navigator.clipboard.readText()')
-    assert 'Truth table:' in text and 'Gray order:' in text
+    assert 'Truth table:' in text and 'Gray order:' in text and 'Selected prime ' in text
     passed('K-map copy includes expression, grouping working and truth table')
+    page.locator('[data-student="save-kmap"]').click();saved=page.evaluate('JSON.parse(localStorage.getItem("radix-study-v4")).savedExpressions');assert len(saved)==1 and saved[0]['form'] in ('SOP','POS')
+    page.locator('.topnav [data-tab="more"]').click();page.locator('.more-card[data-tab="expression"]').click();page.locator('[data-study="expr-saved"]').click();expect(page.locator('#dialog-body')).to_contain_text(saved[0]['expression']);close()
+    passed('Standalone K-map saves its minimized formula into the shared offline Boolean-solution library')
 
     # Independent phone state; small widths, short viewport, both palettes.
     phone_ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True)
@@ -199,7 +215,7 @@ with sync_playwright() as p:
         assert phone.evaluate('document.documentElement.scrollWidth<=innerWidth'),(width,height)
     passed('K-map UI has no page overflow on phone, keyboard-height and tablet viewports')
     phone.set_viewport_size({'width':320,'height':640})
-    phone.locator('.mobile-nav [data-tab="convert"]').click();phone.locator('#number-input').fill('0.625')
+    phone.locator('.mobile-nav [data-tab="convert"]').click();phone.locator('.base-chip[data-base="10"]').click();phone.locator('#number-input').fill('0.625')
     phone.locator('#show-working').click()
     expect(phone.locator('.work-answer .mono')).to_have_text('0.101')
     assert phone.locator('#base-dialog').evaluate('(el)=>el.scrollWidth<=el.clientWidth')

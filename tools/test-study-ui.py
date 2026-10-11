@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Radix 4 new-feature regressions; real browser companion, NOT Android UI."""
+"""Radix 7 companion regressions; NOT Android UI."""
 from pathlib import Path
 import html,json
 from playwright.sync_api import sync_playwright,expect
@@ -42,24 +42,38 @@ with sync_playwright() as p:
     passed('Expression defaults show XOR, both minimum forms and the complete live truth table')
     page.locator('#expr-left').fill('AB');page.locator('#expr-right').fill('A OR B');expect(page.locator('#expr-comparison')).to_contain_text('01, 10')
     page.locator('#expr-left').fill('NOT (A B)');page.locator('#expr-right').fill('A′ + B′');expect(page.locator('#expr-comparison')).to_contain_text('Equivalent')
-    passed('Live expression aliases/equivalence and explicit counterexample rows update correctly')
+    page.locator('#expr-left').fill('A^B');page.locator('#expr-right').fill('A XOR B');expect(page.locator('#expr-comparison')).to_contain_text('Equivalent in EVERY row')
+    passed('Live expression aliases/equivalence, caret XOR and explicit counterexample rows update correctly')
     page.locator('#expr-left').fill('A+');expect(page.locator('#expr-error')).not_to_be_empty();expect(page.locator('#expr-results')).to_be_empty()
     page.reload();nav('expression');expect(page.locator('#expr-left')).to_have_value('A+');expect(page.locator('#expr-results')).to_be_empty()
     page.locator('#expr-left').fill('A XOR B');page.locator('#expr-right').fill('A XOR B')
     passed('Invalid expression drafts persist honestly without stale table/results and recover on editing')
     expect(page.locator('[data-study="expr-token"][data-token="C"]')).to_be_disabled()
     page.locator('[data-study="expr-vars"][data-n="3"]').click();page.locator('#expr-left').fill('A(B+C)');expect(page.locator('#expr-truth tbody tr')).to_have_count(8)
-    expect(page.locator('[data-study="expr-token"][data-token="C"]')).to_be_enabled();page.locator('[data-study="expr-bit"][data-index="1"]').click();expect(page.locator('#expr-live strong')).to_have_text('1')
+    expect(page.locator('[data-study="expr-token"][data-token="C"]')).to_be_enabled();expect(page.locator('[data-study="expr-token"][data-token="D"]')).to_be_disabled();page.locator('#expr-left').fill('AXORB');expect(page.locator('[data-study="expr-token"][data-token="C"]')).to_be_enabled();page.locator('#expr-left').fill('A(B+C)');page.locator('[data-study="expr-bit"][data-index="1"]').click();expect(page.locator('#expr-live strong')).to_have_text('1')
     page.locator('[data-study="expr-token"][data-token=" + "]').click();page.locator('[data-study="expr-token"][data-token="1"]').click();expect(page.locator('#expr-left')).to_have_value('A(B+C) + 1')
     passed('Variable/keypad availability, implicit AND and input switches update the highlighted row')
-    page.locator('#expr-left').fill('A(B+C)');page.locator('[data-study="expr-kmap"][data-form="SOP"]').click();m=map_state();assert m['variables']==3 and m['form']=='SOP' and m['cells']==[0,0,0,0,0,1,1,1]
+    page.locator('#expr-left').fill('A XOR B');page.locator('[data-study="expr-save"][data-form="SOP"]').click();saved=study_state()['savedExpressions'];assert len(saved)==1 and saved[0]['expression']=='A XOR B' and saved[0]['form']=='SOP'
+    page.locator('[data-study="expr-saved"]').click();expect(page.locator('#dialog-body')).to_contain_text('A XOR B');page.locator('[data-study="saved-open"]').click();expect(page.locator('#expr-left')).to_have_value('A XOR B')
+    page.locator('[data-study="expr-saved"]').click();page.locator('[data-study="saved-delete"]').click();assert study_state()['savedExpressions']==[];close()
+    passed('Expression SOP/POS save controls, saved-solution list, open and delete persist correctly')
+    page.locator('#expr-left').fill('A(B+C)');page.locator('[data-study="expr-kmap"][data-form="SOP"]').click();m=map_state();assert m['variables']==3 and m['form']=='SOP' and m['cells']==[0,0,0,0,0,1,1,1];expect(page.locator('.prime-heading')).to_contain_text('IMPLICANTS')
     page.locator('[data-student="undo"]').click();expect(page.locator('#k-grid .k-cell')).to_have_count(4)
     passed('SOP expression handoff is a single reversible K-map edit')
-    nav('expression');page.locator('[data-study="expr-vars"][data-n="4"]').click();page.locator('#expr-left').fill('A XOR D');page.locator('[data-study="expr-kmap"][data-form="POS"]').click();m=map_state();assert m['variables']==4 and m['form']=='POS' and m['cells']==[int(bool(c&8)!=bool(c&1)) for c in range(16)]
+    nav('expression');page.locator('[data-study="expr-vars"][data-n="4"]').click();page.locator('#expr-left').fill('A XOR D');expect(page.locator('#expr-truth tbody tr')).to_have_count(16);page.locator('[data-study="expr-kmap"][data-form="POS"]').click();m=map_state();assert m['variables']==4 and m['form']=='POS' and m['cells']==[int(bool(c&8)!=bool(c&4)) for c in range(16)];expect(page.locator('.prime-heading')).to_contain_text('IMPLICATES')
     page.locator('[data-student="undo"]').click();expect(page.locator('#k-grid .k-cell')).to_have_count(4)
     passed('POS handoff preserves all four-variable outputs rather than complementing the function')
-    nav('expression');action('expr-copy');text=page.evaluate('navigator.clipboard.readText()');assert 'POS:' in text and 'SOP:' in text and len(text.splitlines())==21
+    nav('expression');page.locator('#expr-right').fill('');page.locator('[data-study="expr-vars"][data-n="5"]').click();page.locator('#expr-left').fill('A XOR B XOR C XOR D XOR E XOR F');expect(page.locator('#expr-error')).to_contain_text('uses 6 different variables');expect(page.locator('#expr-results')).to_be_empty()
+    page.locator('[data-study="expr-vars"][data-n="6"]').click();page.locator('#expr-left').fill('A XOR B XOR C XOR D XOR E XOR F');expect(page.locator('#expr-truth tbody tr')).to_have_count(64);expect(page.locator('#expr-truth thead th')).to_have_count(7);
+    page.locator('#expr-right').fill('A⊕B⊕C⊕D⊕E⊕F');expect(page.locator('#expr-comparison')).to_contain_text('Equivalent in EVERY row')
+    page.locator('[data-study="expr-kmap"][data-form="POS"]').click();m=map_state();assert m['variables']==6 and m['names']=='ABCDEF' and m['form']=='POS' and len(m['cells'])==64 and m['cells']==[bin(c).count('1')%2 for c in range(64)]
+    expect(page.locator('#k-grid .k-cell')).to_have_count(64);expect(page.locator('.kmap-panel')).to_contain_text('rotate your device to landscape')
+    page.locator('[data-student="undo"]').click();expect(page.locator('#k-grid .k-cell')).to_have_count(4)
+    passed('Six-variable expressions evaluate 64 rows, enforce the selected input count, compare exactly and hand off all rows to POS K-maps')
+    nav('expression');page.locator('[data-study="expr-vars"][data-n="6"]').click();page.locator('#expr-left').fill('A XOR F');action('expr-copy');text=page.evaluate('navigator.clipboard.readText()');assert 'POS:' in text and 'SOP:' in text and 'A\tF\tB\tC\tD\tE\tY' in text and len(text.splitlines())==71
     passed('Expression copy includes both forms and every selected truth-table row')
+    nav('expression');page.locator('[data-study="expr-vars"][data-n="3"]').click();page.locator('#expr-left').fill('Z XOR B');page.locator('#expr-right').fill("Z'B + ZB'");expect(page.locator('#expr-comparison')).to_contain_text('Equivalent in EVERY row');assert [page.locator('#expr-truth thead th').nth(i).inner_text() for i in range(3)]==['Z','B','A'];page.locator('[data-study="expr-kmap"][data-form="SOP"]').click();m=map_state();assert m['names']=='ZBA' and m['cells']==[0,0,1,1,1,1,0,0];expect(page.locator('#k-answer')).to_contain_text('Z');page.locator('[data-student="undo"]').click()
+    passed('Custom A–Z inputs keep a consistent first-appearance order through expression verification and K-map handoff')
     # Fixed-width representations.
     nav('representation');expect(page.locator('#rep-results')).to_contain_text('1111 0011');expect(page.locator('#rep-results')).to_contain_text('243');expect(page.locator('#rep-results')).to_contain_text('Invert every bit')
     passed('Representation default shows signed −13 and unsigned 243 with encoding working')
@@ -129,6 +143,10 @@ with sync_playwright() as p:
     passed('Unbroken 40-character session names wrap inside phone cards and confirmation dialogs')
     nav('sessions');count=len(study_state()['sessions']);page.locator('[data-study="session-delete"]').first.click();close();assert len(study_state()['sessions'])==count;page.locator('[data-study="session-delete"]').first.click();action('session-confirm-delete');assert len(study_state()['sessions'])==count-1
     passed('Session names are validated and deletion explicitly confirms without changing the active circuit')
+    # Six-variable textbook notation, axis order and map history.
+    nav('kmap');page.locator('[data-student="variables"][data-n="6"]').click();page.locator('.k-inputs summary').click();page.locator('#k-notation').fill('F(A,B,C,D,E,F)=Σm(63)');page.locator('[data-student="notation"]').click();m=map_state();assert m['variables']==6 and m['form']=='SOP' and len(m['cells'])==64 and m['cells'][63]==1 and sum(m['cells'])==1;expect(page.locator('#k-grid .k-cell')).to_have_count(64)
+    page.locator('.k-inputs summary').click();page.locator('#k-notation').fill('F(Z,A,Q,B,Y,C)=Σm(32)');page.locator('[data-student="notation"]').click();shuffled=map_state();assert shuffled['variables']==6 and shuffled['names']=='ZAQBYC' and shuffled['form']=='SOP' and len(shuffled['cells'])==64 and shuffled['cells'][32]==1 and sum(shuffled['cells'])==1;expect(page.locator('#k-grid .k-cell')).to_have_count(64)
+    passed('Six-variable Σm notation preserves arbitrary A–Z label order and leftmost-MSB cell indexing')
     # K-map histories, including invalid draft state.
     nav('kmap');page.locator('[data-student="variables"][data-n="2"]').click();page.locator('[data-student="reset"]').click();page.locator('[data-student="cell"][data-index="0"]').click();m1=map_state();page.locator('[data-student="cell"][data-index="0"]').click();assert map_state()['cells'][0]==2;page.locator('[data-student="undo"]').click();assert map_state()==m1;page.locator('[data-student="redo"]').click();assert map_state()['cells'][0]==2
     passed('K-map 0→1→X edits undo/redo with exact cell values')
@@ -138,7 +156,7 @@ with sync_playwright() as p:
     page.locator('[data-student="undo"]').click()
     passed('Invalid K-map draft/error history restores honestly without changing the last valid cells')
     # Backup: export, validation, nonmutation, explicit replacement.
-    nav('preferences');action('backup-copy');export=page.evaluate('navigator.clipboard.readText()');data=json.loads(export);assert data['format']=='radix-study' and data['version']==1 and data['appVersion']=='5.0.0';assert 'history' not in export and 'password' not in export.lower() and 'keystore' not in export.lower()
+    nav('preferences');action('backup-copy');export=page.evaluate('navigator.clipboard.readText()');data=json.loads(export);assert data['format']=='radix-study' and data['version']==1 and data['appVersion']=='7.0.0';assert 'history' not in export and 'password' not in export.lower() and 'keystore' not in export.lower()
     before=storage();validate(export);expect(page.locator('#backup-result')).to_contain_text('Valid:');assert storage()==before;review();close();assert storage()==before
     passed('Portable backup exports only intended study fields; validation/review/cancel never mutate local data')
     with page.expect_download() as download:action('backup-download')
@@ -167,9 +185,9 @@ with sync_playwright() as p:
             prefix='.mobile-nav' if page.locator('.mobile-nav').is_visible() else '.topnav'
             page.locator(prefix+' [data-tab="more"]').click();page.locator('.more-card[data-tab="'+route+'"]').click();assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(route,width,height)
     passed('All five new routes fit 320px phones, keyboard-height/landscape viewports, tablets and desktop without page overflow')
-    page.set_viewport_size({'width':390,'height':844});nav('preferences');page.locator('#pref-large').check();nav('expression');page.locator('[data-study="expr-vars"][data-n="4"]').click();page.locator('#expr-left').fill('A XOR B XOR C XOR D');assert page.locator('[data-study="expr-bit"]').first.bounding_box()['height']>=78;assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');page.screenshot(path=str(root/'design/study-expression-phone.png'),full_page=True);nav('representation');page.screenshot(path=str(root/'design/study-representation-phone.png'),full_page=True);nav('practice');page.screenshot(path=str(root/'design/study-practice-phone.png'),full_page=True);nav('preferences');page.screenshot(path=str(root/'design/study-backup-phone.png'),full_page=True)
+    page.set_viewport_size({'width':390,'height':844});nav('preferences');page.locator('#pref-large').check();nav('expression');page.locator('[data-study="expr-vars"][data-n="6"]').click();page.locator('#expr-left').fill('A XOR B XOR C XOR D XOR E XOR F');assert page.locator('[data-study="expr-bit"]').first.bounding_box()['height']>=78;assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');page.screenshot(path=str(root/'design/study-expression-phone.png'),full_page=True);nav('representation');page.screenshot(path=str(root/'design/study-representation-phone.png'),full_page=True);nav('practice');page.screenshot(path=str(root/'design/study-practice-phone.png'),full_page=True);nav('preferences');page.screenshot(path=str(root/'design/study-backup-phone.png'),full_page=True)
     passed('Large-control mode keeps expression/practice controls touch-sized and contained on phones')
-    page.set_viewport_size({'width':320,'height':640});nav('expression');assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');assert all(b['width']>=64 and b['height']>=78 for b in [x.bounding_box() for x in page.locator('[data-study="expr-bit"]').all()]);page.set_viewport_size({'width':390,'height':844})
+    page.set_viewport_size({'width':320,'height':640});nav('expression');assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');assert len(page.locator('[data-study="expr-bit"]').all())==6 and all(b['width']>=64 and b['height']>=78 for b in [x.bounding_box() for x in page.locator('[data-study="expr-bit"]').all()]);page.set_viewport_size({'width':390,'height':844})
     passed('All four large expression inputs wrap cleanly and stay touch-sized at 320px width')
     page.emulate_media(reduced_motion='reduce');assert page.locator('.mobile-nav button').first.evaluate('(e)=>getComputedStyle(e).transitionDuration') in ['1e-05s','0.00001s','0s']
     passed('Reduced-motion media preference removes decorative animation/transition duration')
@@ -190,4 +208,4 @@ with sync_playwright() as p:
     assert not errors,errors;assert not opaque_errors,opaque_errors;passed('No new-study JavaScript runtime errors in normal or offline sandbox execution')
     browser.close()
 (root/'design/study-ux-checks.json').write_text(json.dumps({'status':'pass','checks':len(results),'passed':results,'androidRuntimeQA':False,'note':'Browser companion at 320/390/768/844/1440 widths; not native Android screenshots or installed-APK testing.'},indent=2)+'\n')
-print('PASS:',len(results),'Radix 4 study UX checks.',flush=True)
+print('PASS:',len(results),'Radix 7 study UX checks.',flush=True)
