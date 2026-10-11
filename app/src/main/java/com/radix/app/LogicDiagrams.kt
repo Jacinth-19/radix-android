@@ -103,8 +103,9 @@ private fun DrawScope.symbol(p:DiagramPaint,g:LogicEngine.Gate,x:Float,y:Float){
     val language=LocalStrings.current.languageCode
     val visualTitle=LogicCatalogTranslations.translate(title,language)?:title
     val visualOutputs=outputs.map{LogicCatalogTranslations.translateOutputName(it,language)}
+    val outputSummary=outputs.zip(ovals).joinToString{(name,value)->"$name=${value?:"unknown"}"}
     val h=maxOf(200,maxOf(inputs.size,outputs.size+(if(clocked)1 else 0))*32+60).toFloat()
-    DiagramSurface(320f,h,"$title block. ${outputs.zip(ovals).joinToString{(name,v)->"$name=${v?:"unknown"}}}"){p->
+    DiagramSurface(320f,h,"$title block. $outputSummary"){p->
         drawRoundRect(p.panel,Offset(122f,24f),Size(91f,h-49),androidx.compose.ui.geometry.CornerRadius(12f))
         drawRoundRect(p.low,Offset(122f,24f),Size(91f,h-49),androidx.compose.ui.geometry.CornerRadius(12f),style=Stroke(1.2f))
         val words=visualTitle.substringBefore(" · ").split(' ')
