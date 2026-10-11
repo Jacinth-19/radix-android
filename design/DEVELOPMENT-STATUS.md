@@ -8,19 +8,20 @@
 
 The current worktree includes six-variable Boolean-expression and Karnaugh-map work, arbitrary A–Z labels, custom-label map handoff/backup, bounded/paged large tables, and revised 7.0 onboarding. Native Android source also contains saved Boolean solutions, local conversion history, guided and written self-assessment flows, an expression gate diagram with live inputs, and direct Settings access. The browser companion now saves minimized K-map formulas into its shared Boolean-solution library, with list/open/delete and backup support, but is not full UI parity: conversion history, the guided path, written self-assessment, the expression gate diagram and native notification workflows remain absent or different in the browser UI. Localization includes Portuguese core chrome/onboarding/reminder copy but remains partial across the app. These are source and browser-test findings, not proof of native Android runtime behavior.
 
-The current feature commit has been pushed to `arena/1469181a-radix-android` after the user explicitly authorized CI compilation. The latest GitHub Actions run [38139631080](https://github.com/Jacinth-19/radix-android/actions/runs/38139631080) failed at `:app:compileDebugKotlin` in `StudyScreens.kt`: missing `Color`/`clip` imports and a missing Material 3 opt-in. These source-level compiler diagnostics have been fixed locally and will be pushed for a fresh CI run; no local Gradle build was run. The earlier passing run [38110656003](https://github.com/Jacinth-19/radix-android/actions/runs/38110656003) passed native debug/release unit tests, lint, and debug/release APK assembly for commit `11584f89708ae73144a299e292fd0707697255df`; it predates the current feature changes and does not validate them. No APK was signed or installed on a device. The checked-in signed APK and `design/VERIFICATION.md` are for version 6.0.0 / versionCode 6 and remain historical evidence only.
+The feature commit has been pushed to `arena/1469181a-radix-android`; after the first workflow [38139631080](https://github.com/Jacinth-19/radix-android/actions/runs/38139631080) exposed missing `Color`/`clip` imports and a Material 3 opt-in in `StudyScreens.kt`, a follow-up fix was pushed. The latest workflow [38139831445](https://github.com/Jacinth-19/radix-android/actions/runs/38139831445) then **passed** debug/release unit tests, lint, and debug/release APK assembly on commit `fe8d1dc750130b121943e62b9e1a361722a099c6`. No local Gradle build was run; CI performed the authorized compile. The unsigned APKs and reports were uploaded as artifact [`radix-android-fe8d1dc750130b121943e62b9e1a361722a099c6`](https://github.com/Jacinth-19/radix-android/actions/runs/38139831445/artifacts/11701424982), 12,808,811 bytes. No APK was signed or installed on a device. The checked-in signed APK and `design/VERIFICATION.md` are for version 6.0.0 / versionCode 6 and remain historical evidence only.
 
 ## GitHub Actions Android validation
 
 | Item | Result |
 |---|---|
-| Latest workflow run | [38139631080](https://github.com/Jacinth-19/radix-android/actions/runs/38139631080) — **failed at Kotlin compilation** on merge commit `8d3d43c`; `StudyScreens.kt` lacked `Color`/`clip` imports and the Material 3 experimental opt-in. Fixes are in the next pushed commit; rerun is pending. |
-| Previous successful workflow | [38110656003](https://github.com/Jacinth-19/radix-android/actions/runs/38110656003) — **passed** on older commit `11584f89708ae73144a299e292fd0707697255df`; not validation of the latest feature source. |
+| Latest workflow run | [38139831445](https://github.com/Jacinth-19/radix-android/actions/runs/38139831445) — **passed** on commit `fe8d1dc750130b121943e62b9e1a361722a099c6`. |
+| Earlier feature workflow | [38139631080](https://github.com/Jacinth-19/radix-android/actions/runs/38139631080) — failed at Kotlin compilation due to missing imports/Material 3 opt-in in `StudyScreens.kt`; fixed in the follow-up commit. |
+| Older successful workflow | [38110656003](https://github.com/Jacinth-19/radix-android/actions/runs/38110656003) — passed on older commit `11584f89708ae73144a299e292fd0707697255df`; not validation of the latest feature source. |
 | Toolchain | JDK 17; Android SDK/API 36. |
 | Native tests | `testDebugUnitTest` and `testReleaseUnitTest` — passed. |
 | Lint | `lintDebug` and `lintRelease` — passed. |
 | APK assembly | `assembleDebug` and `assembleRelease` — passed. Outputs are unsigned; this is not release signing or device validation. |
-| Artifact | [`radix-android-11584f89708ae73144a299e292fd0707697255df`](https://github.com/Jacinth-19/radix-android/actions/runs/38110656003/artifacts/11690449142), 12,671,402 bytes. Includes the configured APK, test/lint report, and Gradle-log paths. |
+| Latest artifact | [`radix-android-fe8d1dc750130b121943e62b9e1a361722a099c6`](https://github.com/Jacinth-19/radix-android/actions/runs/38139831445/artifacts/11701424982), 12,808,811 bytes. Includes unsigned debug/release APKs plus test/lint report and Gradle-log paths. |
 
 The successful run emitted non-blocking notices that Gradle 8.13 is out of date and `ubuntu-latest` will migrate to Ubuntu 26 on 2026-10-19. Neither affected the build.
 
@@ -57,13 +58,13 @@ Results below include Chromium browser automation as well as source/engine/stati
 | `python tools/test-logic-ui.py` | Pass — 34 gates/circuits/sequential/guide browser UX checks, including dedicated parity, BCD seven-segment and landscape-help assertions. |
 | `python tools/test-study-ui.py` | Pass — 52 expression/labs/practice/backup/responsive/sandbox browser UX checks, including caret-XOR syntax and save/list/open/delete of Boolean formulas. |
 | **Current browser UI total** | **137 checks passed** across the four scripts; tests exercise the offline web companion, not native Android UI. |
-| Android validation | The latest GitHub CI run **was run and failed at Kotlin compilation** (see above); source fixes are in the working tree and awaiting a follow-up commit/push and CI rerun. No local Gradle build, device/emulator install, or device QA was performed. |
+| Android validation | Latest GitHub CI **passed** unit tests, lint, and debug/release APK assembly on `fe8d1dc`. No local Gradle build or device/emulator install/QA was performed. |
 
 The browser tests do not exercise Compose, Android notifications, OS upgrades, TalkBack, installed-app permissions, or device-specific landscape behavior. The six-variable notation checks now verify the documented behavior: any distinct A–Z labels are accepted in the written significance order, with the leftmost input as MSB; this replaces stale assertions that incorrectly expected shuffled labels to be rejected. Browser test setup is documented in `README.md`; Playwright is pinned in `tools/requirements-browser.txt`.
 
 ## Remaining verification
 
-1. Push the compile-import/opt-in correction and re-run Android unit tests, lint and debug/release assembly in GitHub Actions; the latest workflow currently failed before those stages. The earlier successful workflow artifact is from an older source commit and is not a current APK.
+1. **Completed:** GitHub Actions now passes unit tests, lint, and debug/release assembly for commit `fe8d1dc`. Device/emulator installation and behavioral QA remain outstanding; the workflow APKs are unsigned.
 2. Install the current build on Android API 26+ devices/emulators and verify system-locale startup/change (English/French/Spanish/Portuguese and unsupported-locale fallback), custom-label six-variable maps, saved-expression/history restore, reminder opt-in/permission handling, notification preview, sound/mute settings, channel migration, and rescheduling after reboot/package replacement.
 3. Check TalkBack, font scaling, keyboard/IME behavior, 5-/6-variable map landscape use, and wide-circuit touch/scroll behavior on device.
 4. Audition the bundled chime and validate volume/timing on device before describing it as pleasant or shipping it. It has **not** been auditioned or device-tested.
