@@ -85,7 +85,7 @@ jobs:
                   if failure is None:
                       failure = case.find("error")
                   if failure is not None:
-                      test_failures.append(f"{root.get('name')}#{case.get('name')}: {failure.get('message', '')}\n{(failure.text or '').strip()}")
+                      test_failures.append(f"{root.get('name')}#{case.get('name')}: {failure.get('message', '')}")
           details = "\n".join(test_failures + list(dict.fromkeys(context[-35:] + focus[:60])))[:3200]
           details = details.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
           print(f"::error title=Android Gradle failure::{details or 'Gradle exited nonzero; see android-build.log artifact.'}")
