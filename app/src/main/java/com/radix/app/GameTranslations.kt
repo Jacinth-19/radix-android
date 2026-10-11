@@ -22,6 +22,8 @@ internal object GameTranslations {
             return if(match==null)translated else "$translated +${match.groupValues[2]}"
         }
         levels[source]?.let {return when(lang) {"fr"->it.first;"es"->it.second;else->it.third}}
+        val levelPlayers=Regex("^Level (\\d+) · (\\d+) XP · (\\d+) players$").matchEntire(source)
+        if(levelPlayers!=null)return when(lang) {"fr"->"Niveau ${levelPlayers.groupValues[1]} · ${levelPlayers.groupValues[2]} XP · ${levelPlayers.groupValues[3]} joueurs";"es"->"Nivel ${levelPlayers.groupValues[1]} · ${levelPlayers.groupValues[2]} XP · ${levelPlayers.groupValues[3]} jugadores";else->"Nível ${levelPlayers.groupValues[1]} · ${levelPlayers.groupValues[2]} XP · ${levelPlayers.groupValues[3]} jogadores"}
         val level=Regex("^Level (\\d+) (.+)$").matchEntire(source)
         if(level!=null)return when(lang) {"fr"->"Niveau ${level.groupValues[1]} ${levelName(level.groupValues[2])}";"es"->"Nivel ${level.groupValues[1]} ${levelName(level.groupValues[2])}";else->"Nível ${level.groupValues[1]} ${levelName(level.groupValues[2])}"}
         val award=Regex("^Level (\\d+)! \\+(\\d+) XP$").matchEntire(source)
@@ -41,8 +43,6 @@ internal object GameTranslations {
         if(xpTotal!=null)return when(lang) {"fr"->"${xpTotal.groupValues[1]} XP · ${xpTotal.groupValues[2]}/${xpTotal.groupValues[3]} avant le niveau ${xpTotal.groupValues[4]}";"es"->"${xpTotal.groupValues[1]} XP · ${xpTotal.groupValues[2]}/${xpTotal.groupValues[3]} para el nivel ${xpTotal.groupValues[4]}";else->"${xpTotal.groupValues[1]} XP · ${xpTotal.groupValues[2]}/${xpTotal.groupValues[3]} para o nível ${xpTotal.groupValues[4]}"}
         val levelRow=Regex("^Level (\\d+) (.+) · (\\d+) XP$").matchEntire(source)
         if(levelRow!=null)return when(lang) {"fr"->"Niveau ${levelRow.groupValues[1]} ${levelName(levelRow.groupValues[2])} · ${levelRow.groupValues[3]} XP";"es"->"Nivel ${levelRow.groupValues[1]} ${levelName(levelRow.groupValues[2])} · ${levelRow.groupValues[3]} XP";else->"Nível ${levelRow.groupValues[1]} ${levelName(levelRow.groupValues[2])} · ${levelRow.groupValues[3]} XP"}
-        val levelPlayers=Regex("^Level (\\d+) · (\\d+) XP · (\\d+) players$").matchEntire(source)
-        if(levelPlayers!=null)return when(lang) {"fr"->"Niveau ${levelPlayers.groupValues[1]} · ${levelPlayers.groupValues[2]} XP · ${levelPlayers.groupValues[3]} joueurs";"es"->"Nivel ${levelPlayers.groupValues[1]} · ${levelPlayers.groupValues[2]} XP · ${levelPlayers.groupValues[3]} jugadores";else->"Nível ${levelPlayers.groupValues[1]} · ${levelPlayers.groupValues[2]} XP · ${levelPlayers.groupValues[3]} jogadores"}
         val activeProgress=Regex("^(\\d+) of (\\d+) mastered · Level (\\d+)$").matchEntire(source)
         if(activeProgress!=null)return when(lang) {"fr"->"${activeProgress.groupValues[1]} sur ${activeProgress.groupValues[2]} maîtrisées · niveau ${activeProgress.groupValues[3]}";"es"->"${activeProgress.groupValues[1]} de ${activeProgress.groupValues[2]} dominadas · nivel ${activeProgress.groupValues[3]}";else->"${activeProgress.groupValues[1]} de ${activeProgress.groupValues[2]} dominadas · nível ${activeProgress.groupValues[3]}"}
         val xpAs=Regex("^(\\d+) XP as (.+) · Easy 10, Intermediate 20, Advanced 30 per card \\+ streak bonus\\.$").matchEntire(source)
