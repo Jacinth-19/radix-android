@@ -131,7 +131,7 @@ class StudyEnginesTest {
             assertEquals(s,StudyData.session(StudyData.sessionMap(s)));count++}
         LogicCatalog.sequential.forEach{c->val s=CircuitSession("s",c.title,"sequential",c.id,c.width,LogicEngine.defaultInputs(c),null,false)
             assertEquals(s,StudyData.session(StudyData.sessionMap(s)));count++}
-        assertEquals(31,count)
+        assertEquals(42,count)
     }
     @Test fun bcdDigitPackingCoversTenThousandDecimalValues(){
         for(v in 0 until 10000){val digits=RepresentationEngine.bcd(BigInteger.valueOf(v.toLong())).split(" ")

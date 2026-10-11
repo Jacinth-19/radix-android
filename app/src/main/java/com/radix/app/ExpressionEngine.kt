@@ -100,7 +100,7 @@ internal object ExpressionEngine {
         private fun atomStarts() = token().type.startsWith("VAR:") || token().type in listOf("0", "1", "(", "NOT")
         private fun bounded(block: () -> Expr): Expr {
             depth++
-            if (depth > 64) fail("Nesting is too deep; use at most 64 levels", token().position)
+            if (depth > 32) fail("Nesting is too deep; use at most 32 levels", token().position)
             val value = block(); depth--; return value
         }
         fun parse(): Expr { val e = or(); if (token().type != "END") fail("Unexpected ${token().type}; check operators/parentheses", token().position); return e }
