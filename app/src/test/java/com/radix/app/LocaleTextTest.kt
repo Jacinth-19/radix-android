@@ -34,7 +34,7 @@ class LocaleTextTest {
         assertEquals("Systèmes numériques et conversion de base", AppStrings.forLang("fr").text("Number systems & base conversion"))
         assertEquals("IDENTIDAD OR", AppStrings.forLang("es").text("IDENTITY OR"))
         assertEquals("Paires qui se chevauchent", AppStrings.forLang("fr").text("Overlapping pairs"))
-        assertEquals("A permanece en 0 → conserva A′.", AppStrings.forLang("es").text("A stays 0 → A'."))
+        assertEquals("A permanece en 0 → conserva A'.", AppStrings.forLang("es").text("A stays 0 → A'."))
         assertEquals("Grupo válido de 2 células → A. As bordas opostas são adjacentes. Ele já é um grupo maximal.", AppStrings.forLang("pt").text("Valid 2-cell group → A. Opposite edges are adjacent. It is already a maximal group."))
         assertEquals("2 variáveis · SOP · condições indiferentes", AppStrings.forLang("pt").text("2 variables · SOP · don't-cares"))
         assertEquals("Niveau 3 Apprenti", AppStrings.forLang("fr").text("Level 3 Apprentice"))
