@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -129,6 +130,8 @@ private fun RadixApp(vm: RadixViewModel) {
         val anchors=remember{mutableStateMapOf<String,androidx.compose.ui.geometry.Rect>()}
         var splash by remember{mutableStateOf(true)}
         var whatsNew by remember{mutableStateOf(false)}
+        val systemLanguage=AppStrings.systemLanguage(LocalConfiguration.current.locales)
+        LaunchedEffect(systemLanguage,vm.notifEnabled){if(vm.notifEnabled)StudyReminder.prepareChannel(context)}
         val systemDark=isSystemInDarkTheme()
         LaunchedEffect(systemDark,vm.themeMode){vm.applySystemTheme(systemDark)}
         LaunchedEffect(Unit){vm.markOpened();delay(1100);splash=false}
@@ -136,10 +139,10 @@ private fun RadixApp(vm: RadixViewModel) {
         LaunchedEffect(splash,vm.onboardingDone,vm.lastSeenCode){whatsNew=!splash&&!showOnboarding&&vm.lastSeenCode<APP_VERSION_CODE}
         fun closeTour(){tourIndex=-1;vm.tab=previousTab;vm.logicSection=previousSection;vm.persistLogic()}
         LaunchedEffect(tourIndex){if(tourIndex>=0){keyboard?.hide();val step=guideSteps[tourIndex];vm.tab=step.tab;step.section?.let{vm.logicSection=it}}}
-        BackHandler(enabled=vm.tab!=0&&tourIndex<0){vm.tab=if(vm.tab in listOf(1,2,6,7,8,9,10,11,12,13,14,15))5 else 0}
+        BackHandler(enabled=vm.tab!=0&&tourIndex<0){vm.tab=if(vm.tab in listOf(1,2,6,7,8,9,10,11,12,13,14,15,16,17))5 else 0}
         val physicalHaptics=LocalHapticFeedback.current
         val hapticPolicy=remember(physicalHaptics,vm.haptics){object:HapticFeedback{override fun performHapticFeedback(hapticFeedbackType:HapticFeedbackType){if(vm.haptics)physicalHaptics.performHapticFeedback(hapticFeedbackType)}}}
-        CompositionLocalProvider(LocalHapticFeedback provides hapticPolicy,LocalLargeStudyControls provides vm.largeControls,LocalGuideAnchors provides anchors,LocalGuideTarget provides if(tourIndex>=0)guideSteps[tourIndex].anchor else null,LocalStrings provides AppStrings.forLang(vm.language)){
+        CompositionLocalProvider(LocalHapticFeedback provides hapticPolicy,LocalLargeStudyControls provides vm.largeControls,LocalGuideAnchors provides anchors,LocalGuideTarget provides if(tourIndex>=0)guideSteps[tourIndex].anchor else null,LocalStrings provides AppStrings.forLang(systemLanguage)){
             Box(Modifier.fillMaxSize()){
                 Scaffold(
                     containerColor = scheme.background,
@@ -153,7 +156,7 @@ private fun RadixApp(vm: RadixViewModel) {
                             showOnboarding -> OnboardingScreen(vm)
                             else -> {
                                 BrandHeader(vm){keyboard?.hide();helpOpen=true}
-                                if(vm.tab in listOf(1,2,6,7,8,9,10,11,12,13,14,15))TextButton(onClick={vm.tab=5},modifier=Modifier.padding(horizontal=16.dp).heightIn(min=48.dp)){Text("← More",fontSize=12.sp)}
+                                if(vm.tab in listOf(1,2,6,7,8,9,10,11,12,13,14,15,16,17))TextButton(onClick={vm.tab=5},modifier=Modifier.padding(horizontal=16.dp).heightIn(min=48.dp)){Text("← More",fontSize=12.sp)}
                                 when (vm.tab) {
                                     0 -> ConverterScreen(vm, notify, { sourcePicker = true }, { outputPicker = true }, { workTarget = it })
                                     1 -> SavedScreen(vm, notify)
@@ -170,6 +173,8 @@ private fun RadixApp(vm: RadixViewModel) {
                                     13 -> BuilderScreen(vm,notify)
                                     14 -> FloatScreen(vm,notify)
                                     15 -> LeaderboardScreen(vm,notify)
+                                    16 -> LearningPathScreen(vm)
+                                    17 -> ConversionHistoryScreen(vm,notify)
                                     else -> MoreScreen(vm){helpOpen=true}
                                 }
                             }
@@ -199,7 +204,11 @@ private fun BrandHeader(vm: RadixViewModel, help:()->Unit) {
         IconButton(onClick=help,modifier=Modifier.size(48.dp).border(if(vm.tourSeen)1.dp else 2.dp,if(vm.tourSeen)outline()else accent(),CircleShape)){
             Text("?",fontFamily=Mono,fontSize=22.sp,color=accent(),modifier=Modifier.semantics{contentDescription="Open visual helper and app tour"})
         }
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(6.dp))
+        IconButton(onClick={vm.tab=10},modifier=Modifier.size(48.dp).border(if(vm.tab==10)2.dp else 1.dp,if(vm.tab==10)accent()else outline(),CircleShape)){
+            Text("⚙",fontSize=20.sp,color=accent(),modifier=Modifier.semantics{contentDescription="Open settings"})
+        }
+        Spacer(Modifier.width(6.dp))
         IconButton(onClick = vm::toggleTheme, modifier = Modifier.size(48.dp).border(1.dp, outline(), CircleShape)) {
             Icon(if (vm.dark) ImageVector.vectorResource(R.drawable.ic_sun) else ImageVector.vectorResource(R.drawable.ic_moon),
                 contentDescription = if (vm.dark) "Switch to light theme" else "Switch to dark theme", modifier = Modifier.size(20.dp))
@@ -224,6 +233,7 @@ internal fun Hero(first: String, second: String, eyebrow: String, subtitle: Stri
 @Composable
 private fun ConverterScreen(vm: RadixViewModel, notify: (String) -> Unit, chooseSource: () -> Unit, chooseOutput: () -> Unit, showWorking: (Int) -> Unit) {
     val parsed = remember(vm.number, vm.sourceBase) { BaseConverter.parse(vm.number, vm.sourceBase) }
+    LaunchedEffect(vm.number,vm.sourceBase){if(parsed is BaseConverter.Parsed.Valid){delay(800);vm.recordConversionHistory(vm.number,vm.sourceBase)}}
     var workingMode by remember { mutableStateOf(false) }
     val compact = workingMode && with(LocalDensity.current){LocalWindowInfo.current.containerSize.width.toDp()} < 840.dp
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 20.dp)) {
@@ -357,8 +367,9 @@ private fun SourceCard(vm: RadixViewModel, parsed: BaseConverter.Parsed, notify:
                     Text("  Paste", fontSize = 12.sp)
                 }
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = vm::surprise, modifier = Modifier.size(48.dp)) {
-                    Icon(ImageVector.vectorResource(R.drawable.ic_dice), "Try a different example", tint = muted(), modifier = Modifier.size(19.dp))
+                TextButton(onClick = vm::surprise,contentPadding=PaddingValues(horizontal=5.dp),modifier=Modifier.heightIn(min=48.dp)) {
+                    Icon(ImageVector.vectorResource(R.drawable.ic_dice), null, tint = muted(), modifier = Modifier.size(17.dp))
+                    Text("  ${LocalStrings.current.convertRandomize}",fontSize=10.sp,maxLines=1)
                 }
                 TextButton(onClick = {
                     if (vm.save()) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); notify("Saved. A good number to keep.") }
@@ -474,7 +485,7 @@ private fun BottomBar(vm: RadixViewModel) {
             HorizontalDivider(color = outline())
             Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                 listOf(0 to LocalStrings.current.tabConvert, 4 to LocalStrings.current.tabLogic, 3 to LocalStrings.current.tabKmaps, 5 to LocalStrings.current.tabMore).forEach { (index, label) ->
-                    val active = (if(vm.tab in listOf(1,2,6,7,8,9,10,11,12,13,14,15))5 else vm.tab) == index
+                    val active = (if(vm.tab in listOf(1,2,6,7,8,9,10,11,12,13,14,15,16,17))5 else vm.tab) == index
                     val icon = when (index) { 0 -> ImageVector.vectorResource(R.drawable.ic_swap); 4 -> ImageVector.vectorResource(R.drawable.ic_sparkle); 3 -> ImageVector.vectorResource(R.drawable.ic_grid); else -> ImageVector.vectorResource(R.drawable.ic_more) }
                     Surface(onClick = { vm.tab = index }, modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                         color = if (active) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,

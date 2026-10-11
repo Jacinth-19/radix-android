@@ -1,116 +1,67 @@
-# Radix 4.0
+# Radix 7.0 — source tree
 
 **One number. Every base. A digital-logic studio that keeps your learning.**
 
-Offline native Android app, built with **Kotlin + Jetpack Compose**, with a self-contained offline HTML companion. Android **8.0/API 26+**, compile/target API 36. No Internet permission, accounts, ads, tracking, cloud or dangerous permissions.
+This repository contains an offline-first Kotlin/Jetpack Compose Android app and a self-contained HTML companion. Android source targets API 26+, compiles against API 36, and intentionally has no `INTERNET` permission. The current source release metadata is **7.0.0 / versionCode 7**; it has not been compiled or packaged in this work session. The checked-in signed APK and `design/VERIFICATION.md` describe the prior **6.0.0 / versionCode 6** artifact and are historical evidence, not verification of current source.
 
-## Seven upgrades in 4.0
+## Current learning tools
 
-| Upgrade | What you can do |
+| Area | What it does |
 |---|---|
-| Boolean expression lab | Write expressions with 2–4 variables; inspect the live output/full truth table, minimum SOP and POS; prove equivalence or see counterexample rows; send either form to K-maps. |
-| Number representations | Encode/decode 4/8/16/32/64-bit words as unsigned or two’s complement. See exact ranges, hex, Gray and per-decimal-digit BCD with working. Overflow is rejected, never silently wrapped. |
-| Practice and progress | 36 cards: 8 gates, 8 circuits, 12 memory, 4 representations, 4 expressions. Hints, checks, reveals and explanations. Correct checks record local mastery; revealing does not. |
-| Named circuit sessions | Save up to 24 checkpoints from Logic and restore the exact model, inputs, clock and nullable memory. A restored sequential session starts a fresh one-sample timing trace. |
-| Undo/redo | The latest 32 circuit and K-map edits are reversible. A pulse and simultaneous SR release are each one action. New edits clear redo. |
-| Offline backup/restore | Export versioned JSON. Import a file or paste text, validate its contents, review a summary, then explicitly confirm replacement. No accounts or cloud. |
-| Mobile/accessibility | Larger learning controls, optional haptic feedback, reduced motion in the companion, eleven illustrated lessons and the replayable 12-step spotlight tour. |
+| Number converter | Exact signed integers, fractions and repeating expansions in bases 2–36; conversion working, a random-value action, up to 50 saved values, recent local conversion history, and an 8-bit playground. |
+| Boolean expression lab | Parse and compare bounded expressions using any A–Z labels (2–6 distinct variables, in first-appearance order); show all 2ⁿ rows (8 for 3 inputs, 16 for 4); accept apostrophe/!/prime NOT, + OR, . or adjacency AND, XOR/^/⊕, XNOR/⊙ and parentheses; provide SOP/POS minima, Σm/ΠM, counterexamples and rule-by-rule steps, copyable learning views, a live gate-level diagram with editable inputs, K-map handoff and up to 50 saved solutions. |
+| Karnaugh maps | 2–6 variables with custom A–Z labels, SOP/POS, minterm/maxterm and don't-care lists, textbook notation, exact minimum grouping, term-labelled selected-prime-implicant/implicate buttons and highlighting, optional cell-index/outlines, manual group checks, copy-all working and save-minimized-formula to the shared Boolean-solution library, undo/redo, truth tables and 24 guided examples. The active map is included in portable backups; formulas save to the shared library, not to a separately named-map collection. |
+| Digital logic | 8 gates, 23 combinational circuits and 11 sequential models; includes MUX/DEMUX, priority encoders, decoders, magnitude comparators, parity and BCD-to-seven-segment models. Live inputs, diagrams, next-state/logic tables, clock controls, memory, history and K-map bridges where the input count permits. Rotate Android to landscape for the full circuit lab and widest models. The 16:1 MUX table contains 1,048,576 rows and is generated 16 rows per page. |
+| Builder and representations | Interactive gate/circuit builder with teaching delay/glitch simulation; fixed-width unsigned/two's-complement, Gray and BCD labs; base arithmetic and Boolean laws. |
+| Practice and progress | 108 leveled objective cards with optional hints, checks and explanations, plus three written short-answer self-checks that are compared with model answers rather than automatically graded. Includes local mastery, a guided topic path, streaks, XP, up to 8 profiles, score sharing and a daily-challenge widget. A reveal alone never counts as mastery. |
+| Checkpoints and privacy | Up to 24 named circuit sessions; bounded undo/redo; saved Boolean solutions, conversion history, local reminders and inbox; validated portable JSON backup/restore with explicit replacement. JSON is unencrypted. |
+| Settings and help | A direct top-bar Settings shortcut and first card in More. Android core chrome, onboarding and reminders automatically follow English, French, Spanish or Portuguese from the device locale (no in-app language toggle); the browser companion is English-only. Themes, larger controls, optional haptics, reminder scheduling/tips, eleven illustrated lessons and a replayable twelve-step tour are included. Localization remains partial: many study, circuit and technical-lesson screens are still English-only. |
 
-All seven groups exist in **both** the native app and companion. The mobile navigation remains **Convert · Logic · K-maps · More**. More holds Expression Lab, Representations, Practice, Sessions, Saved, Bit Lab, Preferences/Backup and Visual Helper.
+The separate offline logic reference is generated at `design/DIGITAL-LOGIC-REFERENCE.html`; the learner workbook is `design/STUDENT-WORKBOOK.md`. Source and bundled third-party asset notices, including the optional CC0 notification chime, are in `design/ASSET-LICENSES.md`.
 
-## Existing features preserved
+## Notification sound and offline behavior
 
-- Instant conversion in **all bases 2–36**; arbitrary-precision signed integers, fractions and exact recurring notation using rational arithmetic, not floating point.
-- Binary/octal/decimal/hex cards, optional custom output, raw copy/paste, 50 saved conversions, dark/light themes and eight-bit playground.
-- Complete conversion working: positional weights, repeated division, fraction multiplication, repeating-tail geometric series, cycle detection, sign restoration and bit-grouping shortcuts. Copy the whole worksheet.
-- **2-, 3-, 4-variable SOP/POS K-maps**: Gray order, 0/1/X edits, minterm/maxterm/don’t-care lists, minimum forms, colored groups, wrapping/overlap explanations, manual grouping checker, full truth table and 24 beginner challenges.
-- **8 gates**: AND, OR, NOT, NAND, NOR, XOR, XNOR, BUFFER. Variable-input gates support 2–4 inputs; XOR/XNOR use odd/even parity.
-- **12 combinational circuits**: half/full adders and subtractors, MUXes, DEMUX, enabled decoder, priority encoder with Valid, comparators and ripple-carry adder.
-- **11 sequential models**: NOR/NAND SR latches, D latch, D/SR/JK/T flip-flops, counter, shift register, ring counter and Johnson counter.
-- Phone-fit block views, locally pannable gate-level schematics, live wires, complete truth/next-state tables, clock controls, bounded 12-sample timing traces and combinational-to-K-map bridge.
-- Offline diagram/table reference and student workbook. Immediate useful defaults: **255**, **F=A+B**, XOR equivalence and **8-bit signed −13**.
+The study reminder uses a short bundled confirmation sound from Kenney's Interface Sounds collection, licensed CC0 1.0; it is packaged in the app, not streamed. Source 7.0 includes an in-app notification preview and a direct link to Android's channel controls. Android's channel controls remain authoritative: a user can silence or replace the sound. When upgrading, the app carries forward an existing channel's muted/low-importance state or a custom/silent sound before creating the new sound-capable channel. The selected 0.295-second clip was not auditioned or device-tested during this source update. The app keeps its no-Internet-permission posture.
 
-## Install/update
+## Source validation and current work status
 
-The packaged **`Radix.apk` is 4.0.0/code 4**, a non-debuggable, R8/resource-shrunk release signed with the **unchanged RSA-4096 Radix 2.0/3.0 certificate**. Open it on a trusted Android phone, or:
+Current scope, non-compiling test results and known limits are tracked in [`design/DEVELOPMENT-STATUS.md`](design/DEVELOPMENT-STATUS.md). This session is intentionally **not compiling** the Android app, at the user's direction. The historical native APK audit is version-6-specific and must not be presented as a version-7 build/audit.
 
-```sh
-adb devices
-adb install -r Radix.apk
-```
-
-**If you have signed 2.0 or 3.0, update over it; do not uninstall.** The unchanged package/key and higher versionCode satisfy the static update prerequisites. Installed Android upgrade/data-retention testing has **not** been performed here. Export a study backup before future updates when possible.
-
-Only the original **1.0 debug-signed** build needs uninstalling first; its different key cannot update in place, and uninstalling deletes local data. Never regenerate the release key for another update. The encrypted key archive/password handoff remains separate from this source archive.
-
-This is a sideloadable release, not a Google Play publication or endorsement. Native device QA and publisher setup remain necessary before public distribution.
-
-## Use the new tools
-
-### Expression Lab
-
-More → Expression Lab. Choose 2–4 variables, edit F/G, toggle inputs and inspect every truth-table row. Examples: `A'B + AB'`, `A XOR B`, `!(A B)`, `A(B+C)`. Constants 0/1 and A–D only; no scripting is evaluated.
-
-**Precedence:** NOT/prefix/postfix prime → AND/NAND (including adjacency) → XOR/XNOR → OR/NOR. Binary operators at each level are left-associative. Use parentheses when mixing NAND/NOR. `+`, `·`, adjacency and `'` are supported; `'`, `′`, `’` all mean NOT. Drafts may be invalid while editing; stale results are hidden. SOP/POS handoff keeps the same truth table, not its complement.
-
-### Representations
-
-More → Representations. Select width, signed/unsigned interpretation and Decimal/Binary word/Gray mode. For 8-bit signed −13: word **11110011**, unsigned **243**, hex **F3**, Gray **10001010**; BCD is unavailable for negative selected values. For unsigned decimal 12, BCD is **0001 0010**, not ordinary binary 1100.
-
-Short binary/Gray input is **zero-padded, not sign-extended**. `1111` is −1 at signed width 4 but +15 at signed width 8. The Convert tab still represents negative values with an ordinary sign; fixed-width two’s complement belongs in this lab.
-
-### Practice/checkpoints/history
-
-More → Practice. Choose a category/card, try an answer, ask for a hint, then check or reveal. No punitive streaks, account or score penalties. Resetting mastery requires confirmation.
-
-Logic → Save session → name it. More → Sessions → Restore. Library deletion confirms separately; library actions are not circuit undo entries. Restoring a session is a reversible circuit action. Clocked models capture on rising edges; forbidden SR conditions retain **X/unknown**, never a fabricated zero. Timing shows actions, not real time or analog behavior.
-
-Undo/redo is in Logic and K-maps. History lasts for the current app/browser session, is bounded, and is intentionally absent from backups. K-map undo preserves invalid list drafts/errors within that session; portable backup includes valid cells/form, not transient manual selections or invalid index-list text.
-
-### Preferences/backup
-
-More → Preferences & Backup. Choose comfort settings, then Save backup file or Copy backup text. Native file access uses Android’s document picker; no broad storage permission is requested. The companion exposes selectable text if embedded previews block downloads or clipboard access.
-
-JSON is **plain, unencrypted data**. Keep it private. It includes saved conversions, circuit checkpoints, mastered card IDs, current K-map, expression/representation drafts, comfort preferences and converter settings. It excludes traces, history, credentials and signing material. Limit: **256 KiB UTF-8**, schema `radix-study` version 1. Duplicate keys, unknown models/IDs, invalid saved numbers, wrong dimensions, inconsistent sessions and unsafe numeric fields are rejected.
-
-Restore **replaces**, not merges. Validation and Cancel do not change data. Confirmation replaces the listed study domains and clears histories; the active circuit remains unchanged. Export current data first. Browser storage-denied previews are explicitly session-only; export a backup to keep changes.
-
-## Build and verify
-
-```sh
-chmod +x gradlew tools/*.sh
-./tools/bootstrap-android.sh
-source /home/user/.cache/radix-toolchain/env.sh
-./tools/validate-native.sh
-```
-
-The script stages JVM tests, APK assembly/R8 and each lint variant in separate no-daemon invocations to fit a 2 GB workspace. Do **not** run Chromium concurrently. Release assembly defers vital lint; the subsequent **full debug/release lint** must pass before signing/packaging.
+The non-compiling validation commands are:
 
 ```sh
 node tools/test-engine.js
 node tools/test-student-engines.js
 node tools/test-logic-engine.js
 node tools/test-study-engines.js
+python tools/test-notification-assets.py
 python tools/build-preview.py
-python -m http.server 3000 --bind 0.0.0.0 --directory web
-# In a separate terminal, with Playwright and Chromium installed:
 python tools/test-ui.py
 python tools/test-student-ui.py
 python tools/test-logic-ui.py
 python tools/test-study-ui.py
 ```
 
-Keep keys outside the project. `tools/sign-release.sh`, `tools/audit-release.py` and `tools/package-release.py` sign/audit/package an already built release without creating keys. The audit compares the archived signed 3.0 APK. Read `design/VERIFICATION.md` for exact evidence and limits.
+For reproducible browser UI tests, create an isolated environment and install the pinned Playwright version:
 
-**Testing scope:** native engine/data JVM tests, compilation, R8, lint and static signature/APK audit; browser UX on phone/landscape/tablet/desktop and offline sandbox. **No installed native UI, device, emulator or upgrade-runtime QA**: this host cannot boot the emulator with its available RAM. Browser screenshots are not native screenshots.
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r tools/requirements-browser.txt
+.venv/bin/python -m playwright install chromium
+python3 -m http.server 3000 --bind 127.0.0.1 --directory web  # separate terminal
+.venv/bin/python tools/test-ui.py
+.venv/bin/python tools/test-student-ui.py
+.venv/bin/python tools/test-logic-ui.py
+.venv/bin/python tools/test-study-ui.py
+```
 
-## Project map
+These suites do not prove native Android runtime behavior. Native JVM tests, Android assembly/R8/lint, signed APK audit, TalkBack/font-scaling, device behavior and upgrade/data-retention checks remain separate evidence requirements. **Do not compile until the user authorizes it.**
 
-- `app/src/main/java/com/radix/app/`: Compose screens, ViewModel, exact math/logic/study engines, bounded JSON/backup codec, practice catalog and visual guide.
-- `app/src/test/java/com/radix/app/`: native JVM engine/data regressions.
-- `web/`: modular offline companion; `index.html` embeds all dependencies/fonts/icons.
-- `tools/`: shared catalog/reference/preview generators, tests, toolchain/bootstrap, staged native validation, release tools.
-- `design/`: release notes, workbook, reference, verification evidence and **browser** screenshots.
-- `licenses/` and `NOTICE`: locally bundled font/icon notices.
+## Repository map
 
-No circuit builder, floating-point/IEEE-754 lab, live analog simulation or cloud sync is claimed in 4.0.
+- `app/src/main/java/com/radix/app/` — Compose UI, ViewModel, exact math/logic/study engines, reminders and bounded backup codec.
+- `app/src/test/java/com/radix/app/` — native JVM tests (not run as part of the non-compiling browser/engine suites).
+- `web/` — modular offline companion sources; `web/index.html` is regenerated by `tools/build-preview.py`.
+- `tools/` — workbook/logic-reference/preview generators, independent engines and browser regression suites.
+- `design/` — current learning references and status plus historical release/audit evidence. Versioned APK evidence is labeled by release.
+- `licenses/` and `NOTICE` — existing bundled font/icon notices; the notification sound notice is in `design/ASSET-LICENSES.md`.

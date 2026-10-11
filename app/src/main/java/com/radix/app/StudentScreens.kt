@@ -110,14 +110,18 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
 }
 
 @Composable internal fun KMapScreen(vm: RadixViewModel,notify:(String)->Unit) {
-    val clipboard=LocalClipboardManager.current;val haptic=LocalHapticFeedback.current;val context=LocalContext.current
-    val solution=remember(vm.kVariables,vm.kCells,vm.kForm,vm.kError) {if(vm.kError==null)KMapEngine.solve(vm.kVariables,vm.kCells,vm.kForm)else null}
+    val clipboard=LocalClipboardManager.current;val haptic=LocalHapticFeedback.current;val context=LocalContext.current;val strings=LocalStrings.current
+    var notation by remember {mutableStateOf("")};var notationError by remember {mutableStateOf<String?>(null)}
+    val solution=remember(vm.kVariables,vm.kNames,vm.kCells,vm.kForm,vm.kError) {if(vm.kError==null)KMapEngine.solve(vm.kVariables,vm.kCells,vm.kForm,vm.kNames)else null}
     var highlight by remember {mutableIntStateOf(-1)}
     var manual by remember {mutableStateOf(false)}
     var selected by remember {mutableStateOf(setOf<Int>())}
     var groupCheck by remember {mutableStateOf<KMapEngine.GroupCheck?>(null)}
     var showInputs by remember {mutableStateOf(false)}
     var showTruth by remember {mutableStateOf(false)}
+    var showGroups by remember {mutableStateOf(true)}
+    var showIndices by remember {mutableStateOf(true)}
+    var savedOpen by remember {mutableStateOf(false)}
     var examples by remember {mutableStateOf(false)}
     var exercise by remember {mutableStateOf<KMapEngine.Exercise?>(null)}
     var revealed by remember {mutableStateOf(true)}
@@ -132,12 +136,39 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     Text("YOUR LOGIC PLAYGROUND",fontSize=9.sp,letterSpacing=1.sp,color=muted(),modifier=Modifier.weight(1f))
                     TextButton(onClick={examples=true}) {Text("24 examples",fontSize=11.sp)}
                 }
-                Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {(2..4).forEach {n->StudentChip("$n variables",vm.kVariables==n,{vm.selectKVariables(n);fresh()},Modifier.weight(1f))}}
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {(2..6).forEach {n->StudentChip("$n variables",vm.kVariables==n,{vm.selectKVariables(n);fresh()},Modifier.width(78.dp))}}
+                if(vm.kVariables>=5)Text(strings.landscapeKmapHint,fontSize=10.sp,color=muted(),lineHeight=16.sp,modifier=Modifier.padding(top=6.dp))
                 Row(Modifier.padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                     listOf(Triple("XOR · 2-var",2,"1,2"),Triple("Majority · 3-var",3,"3,5,6,7"),Triple("Primes · 4-var",4,"2,3,5,7,11,13")).forEach{(name,n,terms)->
                         StudentChip(name,false,{vm.selectKVariables(n);vm.updateKTerms(terms);vm.updateKDontCare("");fresh()},Modifier.weight(1f))}
                 }
-                Row(Modifier.padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {KMapEngine.Form.entries.forEach {form->StudentChip(form.name,vm.kForm==form,{vm.selectKForm(form);fresh()},Modifier.weight(1f))}}
+                Row(Modifier.padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    listOf(KMapEngine.Form.SOP to "SOP · 1s",KMapEngine.Form.POS to "POS · 0s").forEach {(form,label)->StudentChip(label,vm.kForm==form,{vm.selectKForm(form);fresh()},Modifier.weight(1f))}
+                }
+                Row(Modifier.padding(top=6.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    StudentChip(if(showGroups)"Groups · on"else"Show groups",showGroups,{showGroups=!showGroups},Modifier.weight(1f))
+                    StudentChip(if(showIndices)"Indices · on"else"Show indices",showIndices,{showIndices=!showIndices},Modifier.weight(1f))
+                }
+                OutlinedTextField(value=notation,onValueChange={notation=it.take(512);notationError=null},label={Text("Example: F(A.B.C.D.E.F)=Σm(1,3,5,7) or ΠM(...)")},modifier=Modifier.fillMaxWidth().padding(top=10.dp),textStyle=LocalTextStyle.current.copy(fontFamily=Mono),minLines=1,maxLines=2)
+                notationError?.let{Text(it,color=MaterialTheme.colorScheme.error,fontSize=11.sp,lineHeight=17.sp)}
+                OutlinedButton(
+                    onClick = {
+                        val result = runCatching {
+                            KMapEngine.fromNotation(notation)
+                        }
+                        result.onSuccess { parsed ->
+                            vm.logicToKMap(parsed.variables, parsed.cells, parsed.form, parsed.names)
+                            notation = ""
+                            notationError = null
+                            fresh()
+                            notify("${parsed.form} function opened in K-maps.")
+                        }.onFailure { failure ->
+                            notationError = failure.message ?: "Check function notation."
+                        }
+                    },
+                    enabled = notation.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                ) { Text("Load Σm / ΠM function", fontSize = 12.sp) }
                 Text(if(vm.kForm==KMapEngine.Form.SOP) "Group 1s. Xs may enlarge groups." else "Group 0s. Fixed literals use the opposite complement rule.",fontSize=12.sp,color=muted(),modifier=Modifier.padding(top=12.dp))
                 TextButton(onClick={showInputs=!showInputs},modifier=Modifier.fillMaxWidth()) {Text(if(showInputs)"Hide input lists" else "Edit ${if(vm.kForm==KMapEngine.Form.SOP)"minterms (1s)" else "maxterms (0s)"} and don't-cares",fontSize=11.sp)}
                 if(showInputs) {
@@ -153,14 +184,14 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                 else {
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("F(${KMapEngine.names(vm.kVariables).toList().joinToString(", ")}) · ${vm.kForm}",fontSize=10.sp,color=muted())
+                            Text("F(${vm.kNames.toList().joinToString(", ")}) · ${vm.kForm}",fontSize=10.sp,color=muted())
                             Text(solution.expression.replace("'","′"),fontFamily=Mono,fontSize=28.sp,color=accent(),modifier=Modifier.padding(top=8.dp).horizontalScroll(rememberScrollState()))
                         }
                         IconButton(onClick={clipboard.setText(AnnotatedString(solution.expression));notify("Simplified expression copied.")}) {Icon(ImageVector.vectorResource(R.drawable.ic_copy),"Copy simplified expression",modifier=Modifier.size(18.dp))}
                     }
                     Text("${solution.groups.size} ${if(vm.kForm==KMapEngine.Form.SOP)"product terms" else "sum clauses"} · ${solution.literalCount} literals · exact minimum",fontSize=10.sp,color=muted(),modifier=Modifier.padding(top=8.dp,bottom=16.dp))
                 }
-                KMapGrid(vm,visible,highlight,manual,selected) { index ->
+                KMapGrid(vm,visible,highlight,manual,selected,showGroups,showIndices) { index ->
                     if(manual) {selected=if(index in selected)selected-index else selected+index;groupCheck=null}
                     else {vm.cycleKCell(index);exercise=null;revealed=true;highlight=-1}
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -171,7 +202,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     OutlinedButton(onClick={showTruth=!showTruth},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)) {Text("Truth table",fontSize=11.sp)}
                 }
                 if(manual) {
-                    Text("Select 1, 2, 4, 8 or 16 adjacent cells, then check your group.",fontSize=12.sp,color=muted(),lineHeight=18.sp,modifier=Modifier.padding(top=12.dp))
+                    Text("Select an adjacent power-of-two group (1–${1 shl vm.kVariables} cells), then check it.",fontSize=12.sp,color=muted(),lineHeight=18.sp,modifier=Modifier.padding(top=12.dp))
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text("${selected.size} selected",fontFamily=Mono,fontSize=11.sp,modifier=Modifier.weight(1f))
                         TextButton(onClick={selected=emptySet();groupCheck=null}) {Text("Clear",fontSize=11.sp)}
@@ -181,7 +212,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                 }
                 if(showTruth) {
                     HorizontalDivider(color=outline(),modifier=Modifier.padding(vertical=14.dp))
-                    Text("${KMapEngine.names(vm.kVariables)}   index   input   simplified",fontFamily=Mono,fontSize=11.sp,color=muted())
+                    Text("${vm.kNames}   index   input   simplified",fontFamily=Mono,fontSize=11.sp,color=muted())
                     vm.kCells.forEachIndexed {i,value->Text("${KMapEngine.binary(i,vm.kVariables)}     ${i.toString().padStart(2)}      ${if(value==2)"X"else value}      ${visible?.evaluate(i)?.let {if(it)1 else 0}?:"—"}${if(value==2)" (optional)"else""}",fontFamily=Mono,fontSize=11.sp,lineHeight=21.sp)}
                     Text("Only specified 0/1 cells must match. Xs impose no output requirement.",color=muted(),fontSize=10.sp,lineHeight=16.sp,modifier=Modifier.padding(top=8.dp))
                 }
@@ -201,23 +232,36 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
             Text("WHY THIS ANSWER WORKS",color=muted(),fontSize=10.sp,letterSpacing=1.2.sp,modifier=Modifier.padding(top=24.dp,bottom=10.dp))
             Text(answer.note,color=muted(),fontSize=12.sp,lineHeight=18.sp)
             if(answer.groups.isNotEmpty()) {
-                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top=12.dp),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                Text("SELECTED PRIME ${if(vm.kForm==KMapEngine.Form.SOP)"IMPLICANTS"else"IMPLICATES"} · ${answer.groups.size}",color=muted(),fontSize=10.sp,letterSpacing=1.sp,modifier=Modifier.padding(top=12.dp))
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                     TextButton(onClick={highlight=-1}) {Text("All groups",fontSize=11.sp)}
-                    answer.groups.forEachIndexed {i,_->OutlinedButton(onClick={highlight=if(highlight==i)-1 else i},border=BorderStroke(if(highlight==i)2.dp else 1.dp,groupColors[i%groupColors.size]),shape=RoundedCornerShape(12.dp)) {Text("G${i+1}",fontSize=11.sp)}}
+                    answer.groups.forEachIndexed {i,group->
+                        val groupTerm=(if(vm.kForm==KMapEngine.Form.POS)"(${group.term})"else group.term).replace("'","′")
+                        OutlinedButton(onClick={highlight=if(highlight==i)-1 else i},border=BorderStroke(if(highlight==i)2.dp else 1.dp,groupColors[i%groupColors.size]),shape=RoundedCornerShape(12.dp)) {Text("G${i+1} · $groupTerm",fontFamily=Mono,fontSize=10.sp,maxLines=1)}
+                    }
                 }
                 answer.groups.forEachIndexed {i,group->
                     Surface(shape=RoundedCornerShape(18.dp),color=panel(),border=BorderStroke(1.dp,groupColors[i%groupColors.size].copy(alpha=0.7f)),modifier=Modifier.padding(top=10.dp)) {
                         Column(Modifier.fillMaxWidth().padding(16.dp)) {
                             Text("G${i+1}   ${(if(vm.kForm==KMapEngine.Form.POS)"(${group.term})"else group.term).replace("'","′")}",fontFamily=Mono,fontSize=17.sp,fontWeight=FontWeight.Bold)
-                            Text("Cells ${group.cube.indices(1 shl vm.kVariables).joinToString(", ")} · ${Integer.bitCount(group.cube.members)} cells${if(group.wraps)" · edge wrap"else""}${if(group.essential)" · essential"else""}",color=muted(),fontSize=10.sp,lineHeight=16.sp,modifier=Modifier.padding(top=8.dp))
+                            Text("Cells ${group.cube.indices(1 shl vm.kVariables).joinToString(", ")} · ${java.lang.Long.bitCount(group.cube.members)} cells${if(group.wraps)" · edge wrap"else""}${if(group.essential)" · essential"else""}",color=muted(),fontSize=10.sp,lineHeight=16.sp,modifier=Modifier.padding(top=8.dp))
                             group.explanation.forEach {Text(it,color=muted(),fontSize=12.sp,lineHeight=20.sp,modifier=Modifier.padding(top=4.dp))}
                             Text(if(group.essential)"At least one required cell has no other maximal covering group."else"Chosen to finish a minimum cover. Overlap is allowed.",color=muted(),fontSize=10.sp,lineHeight=16.sp,modifier=Modifier.padding(top=8.dp))
                         }
                     }
                 }
             } else Text("No groups are needed for this constant function.",color=muted(),fontSize=12.sp,modifier=Modifier.padding(top=12.dp))
-            TextButton(onClick={clipboard.setText(AnnotatedString(kWorking(vm,answer)));notify("K-map working copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {Icon(ImageVector.vectorResource(R.drawable.ic_copy),null,modifier=Modifier.size(16.dp));Text("  Copy all K-map working")}
-            OutlinedButton(onClick={ShareCards.shareKMap(context,"F(${KMapEngine.names(vm.kVariables)})",vm.kVariables,vm.kCells,vm.kForm.name,answer.expression.replace("'","′"),answer.note);notify("K-map solution shared as an image.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)) {Text("Share solution image",fontSize=12.sp)}
+            val savedDuplicate=vm.savedExpressions.any{it.variables==vm.kVariables&&it.expression==answer.expression.trim()&&it.form==vm.kForm.name}
+            Row(horizontalArrangement=Arrangement.spacedBy(8.dp),modifier=Modifier.fillMaxWidth().padding(top=12.dp)) {
+                OutlinedButton(onClick={clipboard.setText(AnnotatedString(kWorking(vm,answer)));notify("K-map working copied.")},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)) {Icon(ImageVector.vectorResource(R.drawable.ic_copy),null,modifier=Modifier.size(16.dp));Text("  Copy working",fontSize=11.sp)}
+                Button(onClick={
+                    val added=runCatching{vm.saveExpressionSolution(StudyExpression(vm.kVariables,answer.expression,"",vm.kForm.name),vm.kForm)}.getOrElse{notify(it.message?:"Could not save this solution.");null}
+                    if(added!=null)notify(if(added)"K-map formula saved in Boolean solutions and backups."else"That formula was already saved; it was moved to the top.")
+                },enabled=vm.savedExpressions.size<50||savedDuplicate,modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)){Text("Save solution",fontSize=11.sp)}
+            }
+            TextButton(onClick={savedOpen=true},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Saved Boolean solutions · ${vm.savedExpressions.size}",fontSize=11.sp)}
+            Text("Save keeps the minimized formula and form; Copy working includes the groups, rules and full table.",fontSize=10.sp,color=muted(),lineHeight=16.sp)
+            OutlinedButton(onClick={ShareCards.shareKMap(context,"F(${vm.kNames})",vm.kVariables,vm.kCells,vm.kForm.name,answer.expression.replace("'","′"),answer.note);notify("K-map solution shared as an image.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)) {Text("Share solution image",fontSize=12.sp)}
         }
         Surface(shape=RoundedCornerShape(18.dp),color=panel(),border=BorderStroke(1.dp,outline()),modifier=Modifier.padding(top=18.dp)) {
             Column(Modifier.padding(16.dp)) {
@@ -227,6 +271,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
             }
         }
     }
+    if(savedOpen)SavedExpressionSheet(vm,notify){savedOpen=false}
     if(examples) ModalBottomSheet(onDismissRequest={examples=false},containerColor=panel(),sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)) {
         Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=28.dp)) {
             Text("Little aha moments.",fontFamily=Grotesk,fontSize=27.sp,fontWeight=FontWeight.Bold)
@@ -244,11 +289,14 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
     }
 }
 
-@Composable private fun KMapGrid(vm: RadixViewModel, solution: KMapEngine.Solution?, highlight: Int, manual: Boolean, selected: Set<Int>, action:(Int)->Unit) {
+@Composable private fun KMapGrid(vm: RadixViewModel, solution: KMapEngine.Solution?, highlight: Int, manual: Boolean, selected: Set<Int>, showGroups:Boolean, showIndices:Boolean, action:(Int)->Unit) {
     val n=vm.kVariables;val rows=KMapEngine.gray(KMapEngine.rowBits(n));val cols=KMapEngine.gray(KMapEngine.columnBits(n))
-    Column(Modifier.fillMaxWidth().padding(top=10.dp).guideAnchor("kmap")) {
+    BoxWithConstraints(Modifier.fillMaxWidth().padding(top=10.dp).guideAnchor("kmap")) {
+        val gridWidth=if(n>=5)maxOf(maxWidth,548.dp)else maxWidth
+        Column(Modifier.horizontalScroll(rememberScrollState())) {
+        Column(Modifier.width(gridWidth)) {
         Row(horizontalArrangement=Arrangement.spacedBy(6.dp),verticalAlignment=Alignment.CenterVertically) {
-            Text("${KMapEngine.names(n).take(KMapEngine.rowBits(n))}/${KMapEngine.names(n).drop(KMapEngine.rowBits(n))}",fontFamily=Mono,fontSize=9.sp,color=muted(),modifier=Modifier.width(28.dp))
+            Text("${vm.kNames.take(KMapEngine.rowBits(n))}/${vm.kNames.drop(KMapEngine.rowBits(n))}",fontFamily=Mono,fontSize=9.sp,color=muted(),modifier=Modifier.width(28.dp))
             cols.forEach {label->Box(Modifier.weight(1f).height(26.dp),contentAlignment=Alignment.Center){Text(KMapEngine.binary(label,KMapEngine.columnBits(n)),fontFamily=Mono,fontSize=12.sp,color=muted())}}
         }
         rows.forEachIndexed {r,label->
@@ -256,11 +304,11 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                 Text(KMapEngine.binary(label,KMapEngine.rowBits(n)),fontFamily=Mono,fontSize=12.sp,color=muted(),modifier=Modifier.width(28.dp))
                 cols.forEachIndexed {c,_->
                     val index=KMapEngine.cellAt(n,r,c);val value=vm.kCells[index]
-                    val groups=solution?.groups?.indices?.filter {solution.groups[it].cube.contains(index)&&(highlight<0||highlight==it)}?:emptyList()
+                    val groups=if(showGroups)solution?.groups?.indices?.filter {solution.groups[it].cube.contains(index)&&(highlight<0||highlight==it)}?:emptyList()else emptyList()
                     val marked=index in selected
                     Surface(onClick={action(index)},enabled=vm.kError==null,shape=RoundedCornerShape(12.dp),color=if(marked)Lime.copy(alpha=0.2f)else MaterialTheme.colorScheme.surfaceVariant,
                         modifier=Modifier.weight(1f).heightIn(min=76.dp).semantics {
-                            contentDescription="Cell $index, ${KMapEngine.names(n).mapIndexed {i,ch->"$ch=${KMapEngine.binary(index,n)[i]}"}.joinToString(", ")}, output ${if(value==2)"don't-care"else value}. ${if(manual)"Select group cell"else"Tap to cycle"}"
+                            contentDescription="${if(vm.kForm==KMapEngine.Form.SOP)"Minterm m"else"Maxterm M"}$index, ${vm.kNames.mapIndexed {i,ch->"$ch=${KMapEngine.binary(index,n)[i]}"}.joinToString(", ")}, output ${if(value==2)"don't-care"else value}. ${if(manual)"Select group cell"else"Tap to cycle"}"
                             stateDescription=if(marked)"Selected"else"Not selected"
                         }.drawWithContent {
                             drawContent()
@@ -268,7 +316,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                             strokes.forEachIndexed {i,color->val inset=(2+i*2).dp.toPx();drawRoundRect(color,Offset(inset,inset),Size(size.width-inset*2,size.height-inset*2),CornerRadius(10.dp.toPx()),style=Stroke(1.5.dp.toPx()))}
                         }) {
                         Column(Modifier.padding(vertical=7.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
-                            Text(index.toString(),fontFamily=Mono,fontSize=9.sp,color=muted())
+                            if(showIndices)Text("${if(vm.kForm==KMapEngine.Form.SOP)"m"else"M"}$index",fontFamily=Mono,fontSize=9.sp,color=muted())
                             Text(if(value==2)"X"else value.toString(),fontFamily=Mono,fontSize=25.sp,fontWeight=FontWeight.Bold,color=if(value==1)accent()else if(value==2)MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface)
                             Text(if(groups.isNotEmpty()&&!manual)groups.joinToString(" "){"G${it+1}"}else KMapEngine.binary(index,n),fontFamily=Mono,fontSize=8.sp,color=muted(),maxLines=1)
                         }
@@ -277,13 +325,16 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
             }
         }
     }
+        }
+    }
 }
 private fun kWorking(vm: RadixViewModel, solution: KMapEngine.Solution): String = buildString {
-    appendLine("F(${KMapEngine.names(vm.kVariables)}) = ${solution.expression} · ${vm.kForm}")
-    appendLine("Gray order: 00, 01, 11, 10. A is the most significant bit.")
+    appendLine("F(${vm.kNames}) = ${solution.expression} · ${vm.kForm}")
+    appendLine("Selected prime ${if(vm.kForm==KMapEngine.Form.SOP)"implicants"else"implicates"} (${solution.groups.size})")
+    appendLine("Gray order: 00, 01, 11, 10. The leftmost listed variable is the most significant bit.")
     appendLine("Required ${if(vm.kForm==KMapEngine.Form.SOP)"1s"else"0s"}: ${vm.kTerms}; don't-cares: ${vm.kDontCare}")
     solution.groups.forEachIndexed {i,group->appendLine("G${i+1}: cells ${group.cube.indices(1 shl vm.kVariables).joinToString(",")} → ${group.term}${if(group.wraps)" (edge wrap)"else""}");group.explanation.forEach {appendLine(it)}}
     appendLine(solution.note)
-    appendLine("Truth table: ${KMapEngine.names(vm.kVariables)} / input / simplified")
+    appendLine("Truth table: ${vm.kNames} / input / simplified")
     vm.kCells.forEachIndexed {i,v->appendLine("${KMapEngine.binary(i,vm.kVariables)} / ${if(v==2)"X"else v} / ${if(solution.evaluate(i))1 else 0}${if(v==2)" (optional)"else""}")}
 }

@@ -3,32 +3,35 @@
  'use strict';
  const E = typeof module !== 'undefined' && module.exports ? require('./engine.js') : window.RadixEngine;
  const DIGITS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
- const bitCount = n => { let count=0; while(n) { n &= n-1; count++; } return count; };
- const gray = bits => { if(bits!==1&&bits!==2) throw new RangeError('Use 1 or 2 axis bits'); return Array.from({length:1<<bits},(_,i)=>i^(i>>1)); };
- const rowBits = n => { if(!Number.isInteger(n)||n<2||n>4) throw new RangeError('Use 2–4 variables'); return Math.floor(n/2); };
+ const bitCount = n => { let count=0;if(typeof n==='bigint'){while(n){n&=n-1n;count++;}}else{while(n){n&=n-1;count++;}}return count; };
+ const gray = bits => { if(!Number.isInteger(bits)||bits<1||bits>3) throw new RangeError('Use 1–3 axis bits'); return Array.from({length:1<<bits},(_,i)=>i^(i>>1)); };
+ const rowBits = n => { if(!Number.isInteger(n)||n<2||n>6) throw new RangeError('Use 2–6 variables'); return Math.floor(n/2); };
  const columnBits = n => n-rowBits(n);
  const cellAt = (n,r,c) => { const rows=gray(rowBits(n)),columns=gray(columnBits(n)); if(r<0||r>=rows.length||c<0||c>=columns.length) throw new RangeError('Cell outside map'); return (rows[r]<<columnBits(n))|columns[c]; };
  const binary = (i,n) => i.toString(2).padStart(n,'0');
- const names = n => 'ABCD'.slice(0,n);
- const indices = (cube,n) => Array.from({length:1<<n},(_,i)=>i).filter(i=>cube.members&(1<<i));
+ const names = n => 'ABCDEF'.slice(0,n);
+ const hasCell = (members,index) => (members&(1n<<BigInt(index)))!==0n;
+ const indices = (cube,n) => Array.from({length:1<<n},(_,i)=>i).filter(i=>hasCell(cube.members,i));
  const cubes = {};
- for(let n=2;n<=4;n++) {
+ for(let n=2;n<=6;n++) {
   cubes[n]=[];
   for(let mask=0;mask<(1<<n);mask++) for(let bits=0;bits<(1<<n);bits++) {
    if((bits&mask)!==bits) continue;
-   let members=0; for(let i=0;i<(1<<n);i++) if((i&mask)===bits) members|=1<<i;
+   let members=0n; for(let i=0;i<(1<<n);i++) if((i&mask)===bits) members|=1n<<BigInt(i);
    cubes[n].push({mask,bits,members,literals:bitCount(mask)});
   }
   cubes[n].sort((a,b)=>a.literals-b.literals||a.mask-b.mask||a.bits-b.bits);
  }
- const term = (cube,n,form) => {
+ const labelsValid=(n,labels)=>typeof labels==='string'&&labels.length===n&&/^[A-Z]+$/.test(labels)&&new Set(labels).size===n;
+ const term = (cube,n,form,labels=names(n)) => {
+  if(!labelsValid(n,labels))throw Error('Use distinct uppercase variable labels.');
   const literals=[];
-  for(let i=0;i<n;i++) { const bit=1<<(n-1-i); if(!(cube.mask&bit)) continue; const one=!!(cube.bits&bit); literals.push('ABCD'[i]+(((form==='SOP'&&!one)||(form==='POS'&&one))?"'":'')); }
+  for(let i=0;i<n;i++) { const bit=1<<(n-1-i); if(!(cube.mask&bit)) continue; const one=!!(cube.bits&bit); literals.push(labels[i]+(((form==='SOP'&&!one)||(form==='POS'&&one))?"'":'')); }
   return form==='SOP' ? literals.join('')||'1' : literals.join(' + ')||'0';
  };
  const wraps = (cube,n) => {
   const rows=gray(rowBits(n)),cols=gray(columnBits(n)),rs=new Set(),cs=new Set();
-  rows.forEach((_,r)=>cols.forEach((_,c)=>{if(cube.members&(1<<cellAt(n,r,c))) {rs.add(r);cs.add(c);} }));
+  rows.forEach((_,r)=>cols.forEach((_,c)=>{if(hasCell(cube.members,cellAt(n,r,c))) {rs.add(r);cs.add(c);} }));
   return (rows.length>2&&rs.size<rows.length&&rs.has(0)&&rs.has(rows.length-1))||(cols.length>2&&cs.size<cols.length&&cs.has(0)&&cs.has(cols.length-1));
  };
  function fromLists(n,text,dc,form='SOP') {
@@ -41,18 +44,26 @@
    return {kind:'valid',cells:Array.from({length:1<<n},(_,i)=>ignored.has(i)?2:required.has(i)?target:1-target)};
   } catch(error) { return {kind:'invalid',message:error.message}; }
  }
- function solve(n,cells,form='SOP') {
-  rowBits(n); if(!['SOP','POS'].includes(form)||cells.length!==(1<<n)||cells.some(v=>!Number.isInteger(v)||v<0||v>2)) throw Error('Check dimensions and values.');
-  const target=form==='SOP'?1:0; let required=0,forbidden=0;
-  cells.forEach((v,i)=>{if(v===target) required|=1<<i; if(v===1-target) forbidden|=1<<i;});
+ function fromNotation(source) {
+  if(typeof source!=='string'||source.length>512)throw Error('Keep function notation within 512 characters.');
+  const normalized=source.trim().toUpperCase(),match=/^F\s*\(\s*([A-Z](?:\s*[,·.]\s*[A-Z]){1,5})\s*\)\s*=\s*([Σ∑Π])\s*([MM])\s*\(\s*([^()]*)\s*\)$/.exec(normalized);
+  if(!match)throw Error('Use F(A.B.C)=Σm(1,3,5) or F(A,B,C)=ΠM(0,2). Use 2–6 distinct A–Z labels in input significance order.');
+  const variables=match[1].split(/[,·.\s]+/).join('');if(variables.length<2||variables.length>6||new Set(variables).size!==variables.length)throw Error('List 2–6 different variables in significance order.');
+  const form=match[2]==='Π'?'POS':'SOP',parsed=fromLists(variables.length,match[4],'',form);if(parsed.kind==='invalid')throw Error(parsed.message);
+  return {variables:variables.length,names:variables,form,cells:parsed.cells};
+ }
+ function solve(n,cells,form='SOP',labels=names(n)) {
+  rowBits(n); if(!['SOP','POS'].includes(form)||cells.length!==(1<<n)||cells.some(v=>!Number.isInteger(v)||v<0||v>2)||!labelsValid(n,labels)) throw Error('Check dimensions, labels and values.')
+  const target=form==='SOP'?1:0; let required=0n,forbidden=0n;
+  cells.forEach((v,i)=>{const bit=1n<<BigInt(i);if(v===target) required|=bit; if(v===1-target) forbidden|=bit;});
   const finish=(expression,groups,primeCount,note)=>({variables:n,form,expression,groups,primeCount,requiredMask:required,literalCount:groups.reduce((a,g)=>a+g.cube.literals,0),note,
-   evaluate:i=>{if(!Number.isInteger(i)||i<0||i>=(1<<n)) throw RangeError('Index outside map'); const found=groups.some(g=>g.cube.members&(1<<i)); return form==='SOP'?found:!found;}});
-  if(!required) return finish(form==='SOP'?'0':'1',[],0,cells.every(v=>v===2)?`Every cell is unspecified. ${form==='SOP'?'0':'1'} is a valid simplest choice; the other constant is valid too.`:`There are no required ${target}s. The constant ${form==='SOP'?'0':'1'} satisfies every specified cell.`);
-  const eligible=cubes[n].filter(c=>!(c.members&forbidden)&&(c.members&required));
+   evaluate:i=>{if(!Number.isInteger(i)||i<0||i>=(1<<n)) throw RangeError('Index outside map'); const found=groups.some(g=>hasCell(g.cube.members,i)); return form==='SOP'?found:!found;}});
+  if(required===0n) return finish(form==='SOP'?'0':'1',[],0,cells.every(v=>v===2)?`Every cell is unspecified. ${form==='SOP'?'0':'1'} is a valid simplest choice; the other constant is valid too.`:`There are no required ${target}s. The constant ${form==='SOP'?'0':'1'} satisfies every specified cell.`);
+  const eligible=cubes[n].filter(c=>(c.members&forbidden)===0n&&(c.members&required)!==0n);
   const primes=eligible.filter(c=>!eligible.some(o=>o.members!==c.members&&(o.members&c.members)===c.members));
   const coverage=primes.map(c=>c.members&required);
-  const essential=primes.map((_,p)=>p).filter(p=>cells.some((_,i)=>(required&(1<<i))&&(coverage[p]&(1<<i))&&coverage.filter(c=>c&(1<<i)).length===1));
-  let start=0; essential.forEach(p=>start|=coverage[p]);
+  const essential=primes.map((_,p)=>p).filter(p=>cells.some((_,i)=>{const bit=1n<<BigInt(i);return (required&bit)!==0n&&(coverage[p]&bit)!==0n&&coverage.filter(c=>(c&bit)!==0n).length===1;}));
+  let start=0n; essential.forEach(p=>start|=coverage[p]);
   let best=null,bestLiterals=Infinity; const visited=new Map();
   function search(covered,chosen,literals) {
    if(covered===required) {
@@ -64,30 +75,30 @@
    const old=visited.get(covered); if(old&&(old[0]<chosen.length||(old[0]===chosen.length&&old[1]<=literals))) return;
    visited.set(covered,[chosen.length,literals]); const remaining=required&~covered;
    let options=[],fewest=Infinity;
-   for(let i=0;i<cells.length;i++) if(remaining&(1<<i)) { const p=coverage.map((_,j)=>j).filter(j=>coverage[j]&(1<<i)); if(p.length<fewest) {fewest=p.length;options=p;} }
+   for(let i=0;i<cells.length;i++) if((remaining&(1n<<BigInt(i)))!==0n) { const bit=1n<<BigInt(i),p=coverage.map((_,j)=>j).filter(j=>(coverage[j]&bit)!==0n); if(p.length<fewest) {fewest=p.length;options=p;} }
    options.sort((a,b)=>bitCount(coverage[b]&remaining)-bitCount(coverage[a]&remaining)||primes[a].literals-primes[b].literals||a-b).forEach(p=>search(covered|coverage[p],[...chosen,p],literals+primes[p].literals));
   }
   search(start,essential,essential.reduce((a,p)=>a+primes[p].literals,0));
   if(!best) throw Error('Cover could not be found');
-  const groups=best.map(p=>{const cube=primes[p];return {cube,term:term(cube,n,form),essential:essential.includes(p),wraps:wraps(cube,n),explanation:Array.from({length:n},(_,i)=>{
-   const bit=1<<(n-1-i),letter='ABCD'[i]; if(!(cube.mask&bit)) return `${letter} changes inside the group → remove it.`;
+  const groups=best.map(p=>{const cube=primes[p];return {cube,term:term(cube,n,form,labels),essential:essential.includes(p),wraps:wraps(cube,n),explanation:Array.from({length:n},(_,i)=>{
+   const bit=1<<(n-1-i),letter=labels[i]; if(!(cube.mask&bit)) return `${letter} changes inside the group → remove it.`;
    const fixed=(cube.bits&bit)?1:0,literal=letter+(((form==='SOP'&&fixed===0)||(form==='POS'&&fixed===1))?"'":''); return `${letter} stays ${fixed} → ${literal}.`;
   })};}).sort((a,b)=>a.term<b.term?-1:a.term>b.term?1:0);
   const expression=form==='SOP'?groups.map(g=>g.term).join(' + '):groups.some(g=>g.term==='0')?'0':groups.map(g=>`(${g.term})`).join('');
   return finish(expression,groups,primes.length,`Exact minimum: fewest ${form==='SOP'?'product terms':'sum clauses'}, then fewest literals. Other equally minimal covers may exist.`);
  }
- function checkGroup(n,cells,list,form='SOP') {
-  if(!Number.isInteger(n)||n<2||n>4||cells.length!==(1<<n)||cells.some(v=>!Number.isInteger(v)||v<0||v>2)) return {valid:false,message:'Check the map dimensions and values.'};
+ function checkGroup(n,cells,list,form='SOP',labels=names(n)) {
+  if(!Number.isInteger(n)||n<2||n>6||cells.length!==(1<<n)||cells.some(v=>!Number.isInteger(v)||v<0||v>2)||!['SOP','POS'].includes(form)||!labelsValid(n,labels)) return {valid:false,message:'Check the map dimensions, labels, form and values.'};
   const selected=[...new Set(list)],target=form==='SOP'?1:0;
   if(!selected.length) return {valid:false,message:'Select at least one cell.'};
   if(selected.some(i=>!Number.isInteger(i)||i<0||i>=cells.length)) return {valid:false,message:'A selected index is outside this map.'};
-  if(selected.length&(selected.length-1)) return {valid:false,message:'Groups must have a power-of-two size: 1, 2, 4, 8 or 16.'};
+  if(selected.length&(selected.length-1)) return {valid:false,message:'Groups must have a power-of-two size: 1, 2, 4, 8, 16, 32 or 64.'};
   if(selected.some(i=>cells[i]===1-target)) return {valid:false,message:`${form} groups cannot contain a ${1-target}.`};
   if(!selected.some(i=>cells[i]===target)) return {valid:false,message:`A useful group must cover a required ${target}, not only don't-cares.`};
-  const members=selected.reduce((a,i)=>a|(1<<i),0),cube=cubes[n].find(c=>c.members===members);
+  const members=selected.reduce((a,i)=>a|(1n<<BigInt(i)),0n),cube=cubes[n].find(c=>c.members===members);
   if(!cube) return {valid:false,message:'Use adjacent Gray-code rectangles. Diagonal-only groups are not valid; opposite edges can touch.'};
   const canGrow=cubes[n].some(c=>c.members!==members&&(c.members&members)===members&&indices(c,n).every(i=>cells[i]!==1-target));
-  return {valid:true,cube,message:`Valid ${selected.length}-cell group → ${form==='POS'?'('+term(cube,n,form)+')':term(cube,n,form)}. ${wraps(cube,n)?'Opposite edges are adjacent. ':''}${canGrow?'It can grow into a larger valid group.':'It is already a maximal group.'}`};
+  return {valid:true,cube,message:`Valid ${selected.length}-cell group → ${form==='POS'?'('+term(cube,n,form,labels)+')':term(cube,n,form,labels)}. ${wraps(cube,n)?'Opposite edges are adjacent. ':''}${canGrow?'It can grow into a larger valid group.':'It is already a maximal group.'}`};
  }
  const ex=(id,title,n,ones,dc=[],form='SOP',hint='',lesson='')=>({id,title,variables:n,ones,dc,form,hint,lesson,cells:()=>Array.from({length:1<<n},(_,i)=>dc.includes(i)?2:ones.includes(i)?1:0)});
  const range=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
@@ -157,7 +168,7 @@
    `Answer: ${report.result.display} (base ${to}) — ${report.result.exact?'exact':'approximate'}`
   ].join('\n'); return report;
  }
- const K={solve,fromLists,checkGroup,gray,rowBits,columnBits,cellAt,binary,names,term,indices,exercises,bitCount};
+ const K={solve,fromLists,fromNotation,checkGroup,gray,rowBits,columnBits,cellAt,binary,names,term,indices,hasCell,exercises,bitCount};
  if(typeof module!=='undefined'&&module.exports) module.exports={K,working};
  if(typeof window!=='undefined') {window.RadixKMap=K;window.RadixWorking=working;}
 })();

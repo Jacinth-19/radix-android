@@ -51,13 +51,14 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
 }
 
 @Composable internal fun BuilderScreen(vm:RadixViewModel,notify:(String)->Unit){
-    val haptic=LocalHapticFeedback.current;val clipboard=LocalClipboardManager.current
+    val haptic=LocalHapticFeedback.current;val clipboard=LocalClipboardManager.current;val strings=LocalStrings.current
     val board=vm.builderBoard
     val problems=remember(board){BuilderEngine.validate(board)}
     val eval=remember(board){runCatching{BuilderEngine.evaluate(board)}.getOrNull()}
     var pulse by remember(board.gates,board.wires,board.ext){mutableStateOf<Int?>(null)}
     val settle=pulse?.let{runCatching{LiveSim.settle(board,it)}.getOrNull()}
     LabPage("Place gates.","Wire the idea.","THE CIRCUIT BUILDER","Drag, connect, simulate — feedback-free, always explainable."){
+        LabNote(strings.landscapeBuilderHint)
         LabCard("Start from a working build"){
             BuilderEngine.presets().forEachIndexed{i,(name,_)->
                 OutlinedButton(onClick={vm.builderLoadPreset(i);pulse=null;haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),border=BorderStroke(if(vm.builderPreset==i)2.dp else 1.dp,if(vm.builderPreset==i)accent()else outline()),shape=RoundedCornerShape(12.dp)){Text(name,fontSize=12.sp)}

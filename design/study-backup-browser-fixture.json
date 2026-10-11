@@ -1,7 +1,22 @@
 {
   "format": "radix-study",
   "version": 1,
-  "appVersion": "5.0.0",
+  "appVersion": "7.0.0",
+  "savedExpressions": [
+    {
+      "id": 2,
+      "variables": 2,
+      "expression": "A XOR B",
+      "form": "POS"
+    }
+  ],
+  "conversionHistory": [
+    {
+      "id": 3,
+      "input": "FF",
+      "base": 16
+    }
+  ],
   "saved": [
     {
       "id": 1,
@@ -38,12 +53,14 @@
       0,
       1
     ],
-    "form": "POS"
+    "form": "POS",
+    "names": "ZBC"
   },
   "expression": {
     "variables": 2,
     "left": "A'B+AB'",
-    "right": "A XOR B"
+    "right": "A XOR B",
+    "form": "POS"
   },
   "representation": {
     "width": 8,

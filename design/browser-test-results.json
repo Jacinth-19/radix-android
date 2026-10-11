@@ -1,12 +1,14 @@
 {
   "status": "pass",
-  "checks": 14,
+  "checks": 16,
   "tests": [
     "Default example is immediately useful",
+    "Converter randomizer has an explicit visible label",
     "Results update while typing",
     "Invalid input cannot produce stale results",
     "Negative, fractional and recurring numbers work",
     "Every source base and a custom output can be selected",
+    "Settings is the first, clearly named card in More",
     "Save, restore, reload persistence and delete work",
     "Copy is ungrouped and paste is functional",
     "Bit switches, bulk actions and conversion handoff work",

@@ -20,7 +20,7 @@ internal object LogicEngine {
             Gate.XOR -> inputs.count {it}%2==1; Gate.XNOR -> inputs.count {it}%2==0
         }
     }
-    fun bits(code: Int, width: Int): List<Boolean> { require(width in 1..9 && code in 0 until (1 shl width)); return List(width) { code and (1 shl (width-1-it))!=0 } }
+    fun bits(code: Int, width: Int): List<Boolean> { require(width in 1..20 && code in 0 until (1 shl width)); return List(width) { code and (1 shl (width-1-it))!=0 } }
     fun code(inputs: List<Boolean>): Int = inputs.fold(0) { a,b -> (a shl 1) or if(b)1 else 0 }
     fun binary(value: Int?,width: Int): String = value?.toString(2)?.padStart(width,'0') ?: "X".repeat(width)
     fun evaluate(circuit: Circuit, values: List<Boolean>): CircuitResult {

@@ -24,30 +24,39 @@ class StudyEnginesTest {
         assertTrue(ExpressionEngine.compare("A NAND B NAND C","(A NAND B) NAND C",3).equivalent)
     }
     @Test fun expressionEquivalenceAndCounterexamples(){
-        for(n in 2..4){assertTrue(ExpressionEngine.compare("!(A B)","A'+B'",n).equivalent);assertTrue(ExpressionEngine.compare("A XOR B","A'B+AB'",n).equivalent)}
+        for(n in 2..6){assertTrue(ExpressionEngine.compare("!(A B)","A'+B'",n).equivalent);assertTrue(ExpressionEngine.compare("A XOR B","A'B+AB'",n).equivalent)}
         assertEquals(listOf(1,2),ExpressionEngine.compare("AB","A+B",2).mismatches)
         assertEquals("1",ExpressionEngine.report("1 OR AB",2).sop);assertEquals("0",ExpressionEngine.report("0 AND (A+B)",2).pos)
         assertEquals("(A + B)(A' + B')",ExpressionEngine.report("A XOR B",2).pos)
+        val parity=ExpressionEngine.report("A XOR B",2);assertEquals(listOf(1,2),parity.minterms);assertEquals(listOf(0,3),parity.maxterms);assertEquals("Σm(1,2)",parity.sigmaM);assertEquals("ΠM(0,3)",parity.piM)
+        val six=ExpressionEngine.report("A XOR F",6);assertEquals(64,six.cells.size);assertEquals(32,six.minterms.size);assertEquals(32,six.maxterms.size);assertTrue(ExpressionEngine.compare("A XOR F","A'F+AF'",6).equivalent);assertEquals(listOf('A','F','B','C','D','E'),six.names)
+        val custom=ExpressionEngine.report("Z'B+ZB+ZC",3);assertEquals(listOf('Z','B','C'),custom.names);assertEquals("B + ZC",custom.sop);assertTrue(ExpressionEngine.compare("Z'B+ZB+ZC","B+ZC",3).equivalent);assertTrue(ExpressionEngine.compare("ZB+ZC","Z AND (B OR C)",3).equivalent)
     }
     @Test fun expressionInvalidAndBoundedInputs(){
-        for(s in listOf("","A+","AND A","(A+B","A B)","A, B","E","A;alert(1)","2","NOT"))assertThrows(IllegalArgumentException::class.java){ExpressionEngine.parse(s,2)}
-        assertThrows(IllegalArgumentException::class.java){ExpressionEngine.parse("C",2)}
+        for(s in listOf("","A+","AND A","(A+B","A B)","A, B","A;alert(1)","2","NOT"))assertThrows(IllegalArgumentException::class.java){ExpressionEngine.parse(s,2)}
+        for(n in 2..6)assertThrows(IllegalArgumentException::class.java){ExpressionEngine.parse("A+B+C+D+E+F+G",n)}
         assertThrows(IllegalArgumentException::class.java){ExpressionEngine.parse("A".repeat(257),2)}
         assertThrows(IllegalArgumentException::class.java){ExpressionEngine.parse("(".repeat(33)+"A"+")".repeat(33),2)}
         assertThrows(IllegalArgumentException::class.java){ExpressionEngine.parse("A",1)}
     }
-    private data class Example(val text:String,val eval:(Int)->Boolean)
+    private data class Example(val text:String,val eval:(Int)->Boolean,val variables:List<Char>)
     @Test fun seededExpressionTreesUseIndependentBooleanOracle(){
         val r=Random(401L);var rows=0
-        for(n in 2..4){
+        for(n in 2..6){
             fun example(depth:Int):Example {
-                if(depth==0||r.nextInt(5)==0){val v=r.nextInt(n);return Example(('A'+v).toString()){code->(code shr(n-v-1))%2==1}}
-                val a=example(depth-1);if(r.nextInt(5)==0)return Example("NOT (${a.text})"){!a.eval(it)}
+                if(depth==0||r.nextInt(5)==0){val v=r.nextInt(n);val label='A'+v;return Example(label.toString(),{code->(code shr(n-v-1))%2==1},listOf(label))}
+                val a=example(depth-1);if(r.nextInt(5)==0)return Example("NOT (${a.text})",{!a.eval(it)},a.variables)
                 val b=example(depth-1);val op=r.nextInt(6);val name=listOf("AND","OR","XOR","NAND","NOR","XNOR")[op]
-                return Example("(${a.text} $name ${b.text})"){code->val x=a.eval(code);val y=b.eval(code);when(op){0->x&&y;1->x||y;2->x!=y;3->!(x&&y);4->!(x||y);else->x==y}}
+                return Example("(${a.text} $name ${b.text})",{code->val x=a.eval(code);val y=b.eval(code);when(op){0->x&&y;1->x||y;2->x!=y;3->!(x&&y);4->!(x||y);else->x==y}},(a.variables+b.variables).distinct())
             }
-            repeat(120){val e=example(3);val actual=ExpressionEngine.report(e.text,n).cells;for(code in 0 until(1 shl n)){assertEquals(e.text,if(e.eval(code))1 else 0,actual[code]);rows++}}
-        };assertEquals(3360,rows)
+            repeat(120){val e=example(3);val names=e.variables+('A'..'Z').filterNot{it in e.variables}.take(n-e.variables.size);val actual=ExpressionEngine.report(e.text,n).cells;for(code in 0 until(1 shl n)){
+                val oracleCode=(0 until n).fold(0){value,index->
+                    val label='A'+index;val position=names.indexOf(label)
+                    if(position<0)value else {val bit=(code shr(n-position-1)) and 1;value or (bit shl(n-index-1))}
+                }
+                assertEquals(e.text,if(e.eval(oracleCode))1 else 0,actual[code]);rows++
+            }}
+        };assertEquals(14880,rows)
     }
     @Test fun representationsCoverEverySmallWidthWord(){
         for(width in listOf(4,8,16)){val max=1 shl width;for(v in 0 until max){val r=RepresentationEngine.report(v.toString(),width,false);assertEquals(v.toString(2).padStart(width,'0'),r.word);assertEquals(v.toString(),r.unsigned);assertEquals((if(v>=max/2)v-max else v).toString(),r.signed);assertEquals(v.toString(16).uppercase().padStart(width/4,'0'),r.hex)}}
@@ -87,12 +96,21 @@ class StudyEnginesTest {
         assertEquals(4,h.undo(5));assertEquals(3,h.undo(4));assertEquals(2,h.undo(3));assertNull(h.undo(2))
         assertEquals(3,h.redo(2));h.record(3,7);assertFalse(h.canRedo);assertEquals(3,h.undo(7));assertEquals(7,h.redo(3));h.clear();assertFalse(h.canUndo)
     }
-    private fun fixture()=StudyBackup(listOf(StudySaved(1,"FF",16)),listOf(CircuitSession("session-1","D memory","sequential","D_FF",1,listOf(false),1,true)),setOf("gate-and"),StudyMap(3,listOf(0,1,2,0,1,0,0,1),"POS"),StudyExpression(),StudyRepresentation(),StudySettings(),StudyConverter("255",10,16,42,true))
-    @Test fun backupRoundTripAndCrossPlatformFields(){val b=fixture();assertEquals(b,StudyData.decode(StudyData.encode(b)));assertEquals(b.sessions,StudyData.sessions(StudyData.sessionText(b.sessions)));assertEquals(b.progress,StudyData.progress(StudyJson.write(b.progress.toList())))}
+    private fun fixture()=StudyBackup(listOf(StudySaved(1,"FF",16)),listOf(CircuitSession("session-1","D memory","sequential","D_FF",1,listOf(false),1,true)),setOf("gate-and"),StudyMap(3,listOf(0,1,2,0,1,0,0,1),"POS","ZBC"),StudyExpression(form="POS"),StudyRepresentation(),StudySettings(),StudyConverter("255",10,16,42,true),listOf(StudySavedExpression(2,2,"A XOR B","POS")),listOf(StudyConversionHistory(3,"FF",16)))
+    @Test fun backupRoundTripAndCrossPlatformFields(){val b=fixture();assertEquals(b,StudyData.decode(StudyData.encode(b)));assertEquals(b.sessions,StudyData.sessions(StudyData.sessionText(b.sessions)));assertEquals(b.progress,StudyData.progress(StudyJson.write(b.progress.toList())));val wide=b.copy(kmap=StudyMap(6,List(64){if(it==63)1 else 0},"POS","AZBCDF"),expression=StudyExpression(6,"A XOR F","A XOR F","POS"));assertEquals(wide,StudyData.decode(StudyData.encode(wide)))}
+    @Test fun olderVersionOneBackupsDefaultNewOptionalLibrariesAndLabels(){
+        val root=StudyJson.parse(StudyData.encode(fixture())) as Map<*,*>;val legacy=root.filterKeys{it!="savedExpressions"&&it!="conversionHistory"}.toMutableMap()
+        legacy["kmap"]=(root["kmap"] as Map<*,*>).filterKeys{it!="names"};legacy["expression"]=(root["expression"] as Map<*,*>).filterKeys{it!="form"}
+        val restored=StudyData.decode(StudyJson.write(legacy));assertTrue(restored.savedExpressions.isEmpty());assertTrue(restored.conversionHistory.isEmpty());assertEquals("ABC",restored.kmap.names);assertEquals("SOP",restored.expression.form)
+    }
     @Test fun backupRejectsBadDimensionsModelsAndDuplicates(){
         val b=fixture();assertThrows(IllegalArgumentException::class.java){StudyData.decode(StudyData.encode(b.copy(kmap=StudyMap(4,listOf(0),"SOP"))))}
         assertThrows(IllegalArgumentException::class.java){StudyData.decode(StudyData.encode(b.copy(saved=b.saved+b.saved)))}
         assertThrows(IllegalArgumentException::class.java){StudyData.decode(StudyData.encode(b.copy(progress=setOf("unknown"))))}
+        assertThrows(IllegalArgumentException::class.java){StudyData.decode(StudyData.encode(b.copy(kmap=b.kmap.copy(names="ZZC"))))}
+        assertThrows(IllegalArgumentException::class.java){StudyData.decode(StudyData.encode(b.copy(savedExpressions=b.savedExpressions+b.savedExpressions)))}
+        assertThrows(IllegalArgumentException::class.java){StudyData.decode(StudyData.encode(b.copy(conversionHistory=listOf(StudyConversionHistory(9,"2",2)))))}
+        assertThrows(IllegalArgumentException::class.java){StudyData.decode(StudyData.encode(b.copy(expression=b.expression.copy(form="bad"))))}
         for(s in listOf(b.sessions[0].copy(model="missing"),b.sessions[0].copy(bits=2),b.sessions[0].copy(inputs=listOf(true,false)),b.sessions[0].copy(name="bad\nname"),CircuitSession("s","Bad","sequential","SR_NOR",1,listOf(true,true),1,false)))assertThrows(IllegalArgumentException::class.java){StudyData.session(StudyData.sessionMap(s))}
         assertThrows(IllegalArgumentException::class.java){StudyData.decode(StudyData.encode(b).replace("\"version\":1","\"version\":2"))}
     }
@@ -127,7 +145,7 @@ class StudyEnginesTest {
             assertEquals(s,StudyData.session(StudyData.sessionMap(s)));count++}
         LogicCatalog.sequential.forEach{c->val s=CircuitSession("s",c.title,"sequential",c.id,c.width,LogicEngine.defaultInputs(c),null,false)
             assertEquals(s,StudyData.session(StudyData.sessionMap(s)));count++}
-        assertEquals(31,count)
+        assertEquals(42,count)
     }
     @Test fun bcdDigitPackingCoversTenThousandDecimalValues(){
         for(v in 0 until 10000){val digits=RepresentationEngine.bcd(BigInteger.valueOf(v.toLong())).split(" ")

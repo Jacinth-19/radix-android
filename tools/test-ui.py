@@ -24,6 +24,8 @@ with sync_playwright() as p:
     expect(page.locator('#result-16')).to_have_text('FF')
     page.screenshot(path=str(screens/'desktop-dark.png'), full_page=True)
     passed('Default example is immediately useful')
+    expect(page.locator('[data-action="surprise"]')).to_contain_text('Randomize')
+    passed('Converter randomizer has an explicit visible label')
 
     field = page.locator('#number-input')
     field.fill('42')
@@ -69,6 +71,9 @@ with sync_playwright() as p:
     expect(page.locator('#number-input')).to_have_value('Z')
     page.reload(wait_until='networkidle')
     page.locator('.topnav [data-tab="more"]').click()
+    expect(page.locator('.more-card').first).to_have_attribute('data-tab','preferences')
+    expect(page.locator('.more-card').first).to_contain_text('Settings & offline backup')
+    passed('Settings is the first, clearly named card in More')
     page.locator('.more-card[data-tab="saved"]').click()
     expect(page.locator('.saved-value')).to_have_text('Z')
     page.locator('[data-action="delete"]').click()

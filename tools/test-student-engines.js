@@ -11,6 +11,7 @@ let assertions=0,tables=0,solutions=0,oracleSolutions=0,workingReports=0;
 const started=Date.now();
 function ok(value,message) {assertions++;assert.ok(value,message);}
 function eq(a,b,message) {assertions++;assert.deepEqual(a,b,message);}
+function bad(fn,message) {assertions++;assert.throws(fn,undefined,message);}
 const pop=n=>{let c=0;for(;n;n&=n-1)c++;return c;};
 function parse(expression,n,form) {
  if(expression==='0'||expression==='1')return ()=>expression==='1';
@@ -18,11 +19,11 @@ function parse(expression,n,form) {
  ok(clauses.length>0,'Expression must contain a clause');
  if(form==='POS')eq(clauses.map(c=>'('+c+')').join('').replace(/\s/g,''),expression.replace(/\s/g,''),'POS punctuation');
  const rules=clauses.map(clause=>{
-  const literals=Array.from(clause.matchAll(/[A-D]'?/g),m=>m[0]);
+  const literals=Array.from(clause.matchAll(/[A-F]'?/g),m=>m[0]);
   eq(literals.join(''),clause.replace(/[ +]/g,''),'No unparsed syntax');
   let mask=0,bits=0;
   for(const literal of literals) {
-   const variable='ABCD'.indexOf(literal[0]);ok(variable>=0&&variable<n,'Variable in range');
+   const variable='ABCDEF'.indexOf(literal[0]);ok(variable>=0&&variable<n,'Variable in range');
    const bit=1<<(n-variable-1);ok(!(mask&bit),'No repeated variable');mask|=bit;
    const complement=literal.endsWith("'");if(form==='SOP'?!complement:complement)bits|=bit;
   }
@@ -66,7 +67,7 @@ function verify(n,cells,minimum=false) {
   solutions++;const q=K.solve(n,cells,form),visible=parse(q.expression,n,form),target=form==='SOP'?1:0;
   for(let i=0;i<cells.length;i++) {eq(q.evaluate(i),visible(i),'Visible expression agrees with solver');if(cells[i]!==2)eq(visible(i),!!cells[i],`Truth n=${n}, form=${form}, index=${i}`);}
   for(const g of q.groups) {
-   const indices=Array.from({length:cells.length},(_,i)=>i).filter(i=>g.cube.members&(1<<i));
+   const indices=Array.from({length:cells.length},(_,i)=>i).filter(i=>K.hasCell(g.cube.members,i));
    eq(indices.length,1<<(n-pop(g.cube.mask)),'Power-of-two rectangle');
    ok(indices.some(i=>cells[i]===target),'No all-X groups');
    ok(indices.every(i=>cells[i]===target||cells[i]===2),'No opposite outputs');
@@ -85,6 +86,9 @@ let seed=20260929;
 function random(){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)%3;}
 for(let i=0;i<2000;i++)verify(4,Array.from({length:16},random),i<200);
 console.log('PASS: 2,000 seeded four-variable 0/1/X tables; first 200 independently optimized.');
+let sixSeed=20261011;function sixRandom(){sixSeed^=sixSeed<<13;sixSeed^=sixSeed>>>17;sixSeed^=sixSeed<<5;return(sixSeed>>>0)%3;}for(let i=0;i<128;i++)verify(6,Array.from({length:64},sixRandom));
+console.log('PASS: 128 seeded six-variable 0/1/X maps, both forms and independently parsed expressions.');
+const sigma=K.fromNotation('F(A.B.C)=Σm(1,3,5)'),pi=K.fromNotation('F(A,B,C)=ΠM(0,2)');eq([sigma.variables,sigma.names,sigma.form,sigma.cells],[3,'ABC','SOP',[0,1,0,1,0,1,0,0]]);eq([pi.variables,pi.names,pi.form,pi.cells],[3,'ABC','POS',[0,1,0,1,1,1,1,1]]);const sixNotation=K.fromNotation('F(A,B,C,D,E,F)=Σm(63)');eq([sixNotation.variables,sixNotation.cells[63]], [6,1]);bad(()=>K.fromNotation('F(A,A)=Σm(0)'));bad(()=>K.fromNotation('F(A,B)=Σm(4)'));bad(()=>K.fromNotation('F(A,B)=Σm(1-3)'));eq(K.fromLists(6,'63','', 'SOP').cells[63],1);eq(K.gray(3),[0,1,3,2,6,7,5,4]);eq(new Set(Array.from({length:64},(_,i)=>K.cellAt(6,Math.floor(i/8),i%8))).size,64);eq(K.solve(6,Array.from({length:64},(_,i)=>Number(!!(i&32))),'SOP').expression,'A');eq(K.solve(6,Array.from({length:64},(_,i)=>Number(!!(i&32))),'POS').expression,'(A)');const allSix=Array(64).fill(1),half=Array.from({length:32},(_,i)=>i);eq(K.checkGroup(6,allSix,half,'SOP').valid,true);eq(K.indices(K.solve(6,allSix,'SOP').groups[0].cube,6).length,64);
 eq(K.exercises.length,24);for(const e of K.exercises)verify(e.variables,e.cells(),true);
 eq(K.gray(2),[0,1,3,2]);eq(Array.from({length:4},(_,r)=>K.cellAt(4,r,0)),[0,4,12,8]);
 for(const bits of [1,2]){const labels=K.gray(bits);for(let i=0;i<labels.length;i++)eq(pop(labels[i]^labels[(i+1)%labels.length]),1,'Edges differ in one bit');}
@@ -133,6 +137,6 @@ for(const input of ['42','255','-42','10.625','0.125','0.(3)','0.1(6)'])for(let 
 for(let base=2;base<=36;base++)verifyWorking('10.1',base,10);
 for(const [input,from,to]of [['2',2,10],['',10,2],['G',16,2],['1.2.3',10,2],['10',10,1]])assert.throws(()=>working(input,from,to));
 console.log(`PASS: ${workingReports} exact worked conversions, source sums, division/multiplication identities, bit padding, signs, recurring fractions and approximation labels.`);
-const report={status:'pass',assertions,truthTables:tables,sopPosSolutions:solutions,independentMinimumChecks:oracleSolutions,workedConversionReports:workingReports,durationSeconds:Number(((Date.now()-started)/1000).toFixed(2)),baseExhaustiveCounts:{twoVariableTernary:81,threeVariableTernary:6561,fourVariableBoolean:65536,fourVariableSeededTernary:2000},note:'Additional catalog and constant tables are included in total counts. Browser tests do not imply Android device runtime verification.'};
+const report={status:'pass',assertions,truthTables:tables,sopPosSolutions:solutions,independentMinimumChecks:oracleSolutions,workedConversionReports:workingReports,durationSeconds:Number(((Date.now()-started)/1000).toFixed(2)),baseExhaustiveCounts:{twoVariableTernary:81,threeVariableTernary:6561,fourVariableBoolean:65536,fourVariableSeededTernary:2000,sixVariableSeededTernary:128},note:'Additional catalog and constant tables are included in total counts. Browser tests do not imply Android device runtime verification.'};
 fs.writeFileSync(path.join(__dirname,'../design/student-engine-results.json'),JSON.stringify(report,null,2)+'\n');
 console.log(`PASS: ${assertions.toLocaleString()} assertions; ${solutions.toLocaleString()} SOP/POS solutions (${oracleSolutions.toLocaleString()} minimum-cover oracle checks).`);
