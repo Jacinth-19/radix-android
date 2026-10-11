@@ -65,12 +65,17 @@ jobs:
           gradle_status=${PIPESTATUS[0]}
           if [ "$gradle_status" -ne 0 ]; then
             python3 - <<'PY'
+          import re
           from pathlib import Path
 
           lines = Path("android-build.log").read_text(errors="replace").splitlines()
-          details = "\n".join(lines[-80:])[-12000:]
+          failure_start = max((i for i, line in enumerate(lines) if line.startswith("FAILURE:")), default=-1)
+          focus = lines[failure_start:] if failure_start >= 0 else lines[-600:]
+          focus = [line for line in focus if line.strip() and not re.match(r"^\s*(at\s+|\.\.\.\s+\d+\s+more$)", line)]
+          context = [line for line in lines[-800:] if re.search(r"(^e: |^> Task .*FAILED|failed tests|tests completed, \d+ failed|AssertionError|No matching variant|Could not resolve|Could not find)", line, re.I)]
+          details = "\n".join(dict.fromkeys(context[-35:] + focus[:60]))[:3200]
           details = details.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
-          print(f"::error title=Android Gradle failure::{details}")
+          print(f"::error title=Android Gradle failure::{details or 'Gradle exited nonzero; see android-build.log artifact.'}")
           PY
           fi
           exit "$gradle_status"
