@@ -63,10 +63,11 @@ import kotlinx.coroutines.delay
 }
 @Composable private fun BitControls(names:List<String>,values:List<Boolean>,action:(Int)->Unit){
     val haptic=LocalHapticFeedback.current
+    val strings=LocalStrings.current
     FlowRow(Modifier.fillMaxWidth().guideAnchor("logic-inputs"),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp),maxItemsInEachRow=4){
         names.forEachIndexed{i,name->
             Surface(onClick={action(i);haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},shape=RoundedCornerShape(14.dp),color=if(values[i])Lime else MaterialTheme.colorScheme.surfaceVariant,contentColor=if(values[i])Ink else MaterialTheme.colorScheme.onSurface,
-                modifier=Modifier.widthIn(min=if(LocalLargeStudyControls.current)64.dp else 58.dp).heightIn(min=if(LocalLargeStudyControls.current)78.dp else 64.dp).semantics{contentDescription="Input $name ${if(values[i])1 else 0}. Tap to toggle."}){
+                modifier=Modifier.widthIn(min=if(LocalLargeStudyControls.current)64.dp else 58.dp).heightIn(min=if(LocalLargeStudyControls.current)78.dp else 64.dp).semantics{contentDescription=strings.text("Input $name ${if(values[i])1 else 0}. Tap to toggle.")}){
                 Column(Modifier.padding(horizontal=12.dp,vertical=8.dp),horizontalAlignment=Alignment.CenterHorizontally){Text(name,fontFamily=Mono,fontSize=11.sp);Text(if(values[i])"1"else"0",fontFamily=Mono,fontSize=23.sp,fontWeight=FontWeight.Bold)}
             }
         }

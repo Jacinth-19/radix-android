@@ -194,6 +194,7 @@ private fun RadixApp(vm: RadixViewModel) {
 
 @Composable
 private fun BrandHeader(vm: RadixViewModel, help:()->Unit) {
+    val strings=LocalStrings.current
     Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Lime), contentAlignment = Alignment.Center) {
             Text("rₓ", color = Ink, fontFamily = Grotesk, fontSize = 26.sp, fontWeight = FontWeight.Bold)
@@ -202,11 +203,11 @@ private fun BrandHeader(vm: RadixViewModel, help:()->Unit) {
         Text("radix", fontFamily = Grotesk, fontWeight = FontWeight.Bold, fontSize = 28.sp, letterSpacing = (-1.4).sp)
         Spacer(Modifier.weight(1f))
         IconButton(onClick=help,modifier=Modifier.size(48.dp).border(if(vm.tourSeen)1.dp else 2.dp,if(vm.tourSeen)outline()else accent(),CircleShape)){
-            Text("?",fontFamily=Mono,fontSize=22.sp,color=accent(),modifier=Modifier.semantics{contentDescription="Open visual helper and app tour"})
+            Text("?",fontFamily=Mono,fontSize=22.sp,color=accent(),modifier=Modifier.semantics{contentDescription=strings.text("Open visual helper and app tour")})
         }
         Spacer(Modifier.width(6.dp))
         IconButton(onClick={vm.tab=10},modifier=Modifier.size(48.dp).border(if(vm.tab==10)2.dp else 1.dp,if(vm.tab==10)accent()else outline(),CircleShape)){
-            Text("⚙",fontSize=20.sp,color=accent(),modifier=Modifier.semantics{contentDescription="Open settings"})
+            Text("⚙",fontSize=20.sp,color=accent(),modifier=Modifier.semantics{contentDescription=strings.text("Open settings")})
         }
         Spacer(Modifier.width(6.dp))
         IconButton(onClick = vm::toggleTheme, modifier = Modifier.size(48.dp).border(1.dp, outline(), CircleShape)) {
@@ -266,6 +267,7 @@ private fun ConverterScreen(vm: RadixViewModel, notify: (String) -> Unit, choose
 
 @Composable
 private fun SourceCard(vm: RadixViewModel, parsed: BaseConverter.Parsed, notify: (String) -> Unit, chooseSource: () -> Unit, compact: Boolean, focusChanged: (Boolean) -> Unit) {
+    val strings=LocalStrings.current
     val clipboard = LocalClipboardManager.current
     val keyboard = LocalSoftwareKeyboardController.current
     val haptic = LocalHapticFeedback.current
@@ -301,7 +303,7 @@ private fun SourceCard(vm: RadixViewModel, parsed: BaseConverter.Parsed, notify:
             Spacer(Modifier.height(16.dp))
             BasicTextField(
                 value = vm.number, onValueChange = vm::updateNumber,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).guideAnchor("number").onFocusChanged { focusChanged(it.isFocused) }.semantics { contentDescription = "Number to convert in base ${vm.sourceBase}" },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).guideAnchor("number").onFocusChanged { focusChanged(it.isFocused) }.semantics { contentDescription = strings.text("Number to convert in base ${vm.sourceBase}") },
                 textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface, fontFamily = Mono, fontWeight = FontWeight.Bold, fontSize = 38.sp),
                 cursorBrush = SolidColor(accent()), singleLine = true,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, autoCorrectEnabled = false,
@@ -337,7 +339,7 @@ private fun SourceCard(vm: RadixViewModel, parsed: BaseConverter.Parsed, notify:
                                 notify(if (it.exact) "${BaseConverter.name(base)} copied." else "Approximate value copied · 24 fractional places.")
                             } }, enabled = output != null,
                             color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.width(132.dp).heightIn(min = 68.dp).semantics { contentDescription = "Copy ${BaseConverter.name(base)} quick result" }
+                            modifier = Modifier.width(132.dp).heightIn(min = 68.dp).semantics { contentDescription = strings.text("Copy ${BaseConverter.name(base)} quick result") }
                         ) {
                             Column(Modifier.padding(10.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -424,6 +426,7 @@ private fun Results(vm: RadixViewModel, parsed: BaseConverter.Parsed, notify: (S
 
 @Composable
 private fun ResultCard(value: BaseConverter.Rational?, base: Int, notify: (String) -> Unit, modifier: Modifier = Modifier) {
+    val strings=LocalStrings.current
     val clipboard = LocalClipboardManager.current
     val haptic = LocalHapticFeedback.current
     val output = remember(value, base) { value?.let { BaseConverter.format(it, base) } }
@@ -455,7 +458,7 @@ private fun ResultCard(value: BaseConverter.Rational?, base: Int, notify: (Strin
             Box(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 7.dp)) {
                 Text(text, fontFamily = Mono, color = numberColor, fontWeight = FontWeight.Bold,
                     fontSize = if (text.length > 12) 21.sp else if (text.length > 7) 23.sp else 30.sp,
-                    maxLines = 1, modifier = Modifier.semantics { contentDescription = "${BaseConverter.name(base)}: ${output?.display ?: "no result"}" })
+                    maxLines = 1, modifier = Modifier.semantics { contentDescription = strings.text("${BaseConverter.name(base)}: ${output?.display ?: "no result"}") })
             }
             Text(when { output == null -> "Waiting for a number"; !output.exact -> "≈ 24 places · approximate"; output.repeating -> "Repeating · exact"; else -> "Exact conversion" },
                 color = if (output?.exact == false) numberColor else muted(), fontSize = 10.sp, modifier = Modifier.padding(top = 10.dp))
@@ -566,6 +569,7 @@ private fun SavedScreen(vm: RadixViewModel, notify: (String) -> Unit) {
 
 @Composable
 private fun BitLabScreen(vm: RadixViewModel) {
+    val strings=LocalStrings.current
     val haptic = LocalHapticFeedback.current
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
         Hero("A little bit.", "A lot of magic.", "THE 8-BIT PLAYGROUND", "Tap a bit. Watch every number change.")
@@ -589,8 +593,8 @@ private fun BitLabScreen(vm: RadixViewModel) {
                                             onClick = { vm.toggleBit(bit); haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) },
                                             color = color, contentColor = if (on) Ink else muted(), shape = RoundedCornerShape(10.dp),
                                             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).semantics {
-                                                contentDescription = "Toggle bit $bit, weight ${1 shl bit}"
-                                                stateDescription = if (on) "On" else "Off"
+                                                contentDescription = strings.text("Toggle bit $bit, weight ${1 shl bit}")
+                                                stateDescription = strings.text(if (on) "On" else "Off")
                                             }
                                         ) {
                                             Box(contentAlignment = Alignment.Center) {

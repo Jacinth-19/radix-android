@@ -21,15 +21,16 @@ internal object ShareCards {
     private fun paint(context:Context,color:Int,size:Float,bold:Boolean,mono:Boolean=false):Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply{this.color=color;textSize=sizeDp(context,size);typeface=face(context,bold||!mono);if(bold)isFakeBoldText=true}
     private fun sizeDp(context:Context,dp:Float):Float = dp*context.resources.displayMetrics.density/3f*3f // px on the 1080-wide card
     private fun card(w:Int,h:Int):Pair<Bitmap,Canvas>{val b=createBitmap(w,h);val c=Canvas(b);c.drawColor(INK);return b to c}
-    private fun header(c:Canvas,context:Context,eyebrow:String){
+    private fun header(c:Canvas,context:Context,eyebrow:String,language:String){
         val p=paint(context,LIME,44f,true);c.drawText("rₓ  radix",72f,130f,p)
-        c.drawText(eyebrow,72f,200f,paint(context,FAINT,34f,false))
+        c.drawText(AppStrings.translate(eyebrow,language),72f,200f,paint(context,FAINT,34f,false))
         Paint().apply{color=LIME;strokeWidth=4f}.also{c.drawLine(72f,232f,1008f,232f,it)}
     }
-    private fun footer(c:Canvas,context:Context,h:Int){c.drawText("Radix · offline learning · no ads, no accounts",72f,h-72f,paint(context,FAINT,30f,false))}
+    private fun footer(c:Canvas,context:Context,h:Int,language:String){c.drawText(AppStrings.translate("Radix · offline learning · no ads, no accounts",language),72f,h-72f,paint(context,FAINT,30f,false))}
     fun renderScore(context:Context,name:String,xp:Int,mastered:Int,total:Int,streak:Int):Bitmap{
-        val (b,c)=card(1080,1350);header(c,context,"SCORE CARD")
+        val (b,c)=card(1080,1350)
         val language=AppStrings.systemLanguage(context.resources.configuration.locales)
+        header(c,context,"SCORE CARD",language)
         val lines=GameEngine.scoreLines(name,xp,mastered,total,streak).map{AppStrings.translate(it,language)}
         c.drawText(name,72f,380f,paint(context,PAPER,84f,true))
         c.drawText(lines[0].substringAfter("· ").trim(),72f,470f,paint(context,LIME,48f,true))
@@ -42,16 +43,18 @@ internal object ShareCards {
         val (into,needed)=GameEngine.progressToNext(xp)
         Paint().apply{color=PANEL}.also{c.drawRoundRect(RectF(72f,y,1008f,y+44f),22f,22f,it)}
         Paint().apply{color=LIME}.also{c.drawRoundRect(RectF(72f,y,72f+936f*into/needed,y+44f),22f,22f,it)}
-        c.drawText("$into / $needed XP to Level ${GameEngine.level(xp)+1}",72f,y+110f,paint(context,FAINT,34f,false))
-        footer(c,context,1350);return b
+        c.drawText(AppStrings.translate("$into / $needed XP to Level ${GameEngine.level(xp)+1}",language),72f,y+110f,paint(context,FAINT,34f,false))
+        footer(c,context,1350,language);return b
     }
     fun renderKMap(context:Context,title:String,variables:Int,cells:List<Int>,form:String,expression:String,note:String):Bitmap{
         require(variables in 2..6&&cells.size==(1 shl variables)&&cells.all{it in 0..2}&&form in listOf("SOP","POS"))
         val height=if(variables==6)1980 else 1560
-        val (b,c)=card(1080,height);header(c,context,"K-MAP SOLUTION · $form")
-        c.drawText(title.take(34),72f,360f,paint(context,PAPER,56f,true))
+        val (b,c)=card(1080,height)
+        val language=AppStrings.systemLanguage(context.resources.configuration.locales)
+        header(c,context,"K-MAP SOLUTION · $form",language)
+        c.drawText(AppStrings.translate(title,language).take(34),72f,360f,paint(context,PAPER,56f,true))
         c.drawText("F(${KMapEngine.names(variables)}) = $expression",72f,440f,paint(context,LIME,44f,false))
-        c.drawText("Indices 0–${(1 shl variables)-1} · A is MSB · Gray-coded axes",72f,485f,paint(context,FAINT,27f,false))
+        c.drawText(AppStrings.translate("Indices 0–${(1 shl variables)-1} · A is MSB · Gray-coded axes",language),72f,485f,paint(context,FAINT,27f,false))
         val rows=KMapEngine.gray(KMapEngine.rowBits(variables));val cols=KMapEngine.gray(KMapEngine.columnBits(variables))
         val gx0=72f;val gy0=520f;val cell=936f/cols.size;val mono=paint(context,PAPER,40f,false);val indexPaint=paint(context,FAINT,19f,false,true)
         rows.forEachIndexed{r,_->
@@ -66,15 +69,16 @@ internal object ShareCards {
             }
         }
         val ny=gy0+rows.size*cell+80f
-        note.chunked(44).take(4).forEachIndexed{i,line->c.drawText(line,72f,ny+i*52f,paint(context,FAINT,32f,false))}
-        footer(c,context,height);return b
+        AppStrings.translateBlock(note,language).lineSequence().flatMap{it.chunked(44).asSequence()}.take(4).forEachIndexed{i,line->c.drawText(line,72f,ny+i*52f,paint(context,FAINT,32f,false))}
+        footer(c,context,height,language);return b
     }
     fun share(context:Context,bitmap:Bitmap,fileName:String){
         val dir=File(context.cacheDir,"share").apply{mkdirs()}
         require(fileName.matches(Regex("[A-Za-z0-9_-]+\\.png"))){ "Bad file name."}
         val file=File(dir,fileName);file.outputStream().use{bitmap.compress(Bitmap.CompressFormat.PNG,100,it)}
         val uri=FileProvider.getUriForFile(context,AUTHORITY,file)
-        context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply{type="image/png";putExtra(Intent.EXTRA_STREAM,uri);addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)},"Share card").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        val language=AppStrings.systemLanguage(context.resources.configuration.locales)
+        context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply{type="image/png";putExtra(Intent.EXTRA_STREAM,uri);addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)},AppStrings.translate("Share card",language)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
     fun shareScore(context:Context,name:String,xp:Int,mastered:Int,total:Int,streak:Int)=share(context,renderScore(context,name,xp,mastered,total,streak),"Radix-score.png")
     fun shareKMap(context:Context,title:String,variables:Int,cells:List<Int>,form:String,expression:String,note:String)=share(context,renderKMap(context,title,variables,cells,form,expression,note),"Radix-kmap.png")

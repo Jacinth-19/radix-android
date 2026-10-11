@@ -29,6 +29,19 @@ internal object UiTranslationsExtra {
         "No memory: outputs follow the current inputs." to "Sans mémoire : les sorties suivent les entrées actuelles.",
         "Swipe ↔ to follow all gates. Crossing wires connect only at dotted pin junctions." to "Balayez ↔ pour suivre les portes. Les fils croisés ne se connectent qu’aux jonctions pointillées.",
         "This circuit has more than six input variables; K-maps support up to six variables." to "Ce circuit a plus de six variables d’entrée ; les cartes de Karnaugh en acceptent au maximum six.",
+        "Inversion bubbles mean NOT; the extra curved input line identifies XOR/XNOR." to "Les bulles d’inversion signifient NON ; la ligne d’entrée courbe supplémentaire indique XOR/XNOR.",
+        "Switch to phone-friendly block view" to "Passer à la vue en blocs, adaptée au téléphone",
+        "Explore the gate-level diagram" to "Explorer le schéma au niveau des portes",
+        "Forbidden inputs force equal physical outputs. Stored memory is indeterminate; a valid set/reset recovers it." to "Les entrées interdites imposent des sorties physiques identiques. La mémoire stockée est indéterminée ; un état set/reset valide la rétablit.",
+        "Memory is indeterminate (X). Use a valid set/reset or capture a known D value to recover." to "La mémoire est indéterminée (X). Utilisez un set/reset valide ou capturez une valeur D connue pour la rétablir.",
+        "See inside the circuit" to "Voir l’intérieur du circuit",
+        "Q(next) applies on a rising edge. At other times Q holds." to "Q(suivant) s’applique sur un front montant. Le reste du temps, Q conserve sa valeur.",
+        "Q(now)" to "Q(actuel)",
+        "Q(next)" to "Q(suivant)",
+        "Status" to "État",
+        "Level-sensitive: enabled inputs can change Q immediately." to "Sensible au niveau : les entrées activées peuvent changer Q immédiatement.",
+        "⏸ Stop live clock" to "⏸ Arrêter l’horloge en direct",
+        "▶ Live clock" to "▶ Horloge en direct",
         "↑ Rise" to "↑ Front montant",
         "↓ Fall" to "↓ Front descendant",
         "Pulse" to "Impulsion",
@@ -157,7 +170,7 @@ internal object UiTranslationsExtra {
         "Library is full (24). Back up/delete an older session first." to "La bibliothèque est pleine (24). Sauvegardez ou supprimez d’abord une ancienne session.",
         "Save session" to "Enregistrer la session",
         "A little help.\nA lot of aha." to "Un peu d’aide.\nBeaucoup de déclics.",
-        "Take a guided tour of the core tools. This built-in helper is not an online chat or network service. The app follows your system language where translations are available and uses English otherwise." to "Suivez une visite guidée des outils principaux. Cette aide intégrée n’est ni un chat ni un service réseau. L’application suit la langue système lorsque la traduction existe et utilise l’anglais sinon.",
+        "Take a guided tour of the core tools. This built-in helper works offline. It is not a chat or network service. The app follows the system language when English, French, Spanish or Portuguese is supported; otherwise it uses English." to "Découvrez les outils essentiels avec ce guide intégré et disponible hors ligne. Ce n’est ni un chat ni un service réseau. L’application suit la langue du système si elle est en anglais, en français, en espagnol ou en portugais ; sinon, elle utilise l’anglais.",
         "Start the visual app tour" to "Commencer la visite guidée de l’application",
         "Try" to "Essayer",
         "→ Hint" to "→ Indice",
@@ -196,7 +209,78 @@ internal object UiTranslationsExtra {
         "Conversion restored from history." to "Conversion restaurée depuis l’historique.",
         "History entry removed." to "Entrée de l’historique supprimée.",
         "Conversion history cleared." to "Historique des conversions effacé.",
-        "Session restored; fresh timing trace." to "Session restaurée ; la chronologie repart de zéro."
+        "Session restored; fresh timing trace." to "Session restaurée ; la chronologie repart de zéro.",
+        "Start from a working build" to "Commencez par un montage qui fonctionne",
+        "Gate palette · tap to place" to "Palette de portes · touchez pour placer",
+        "Finish the wiring" to "Terminez le câblage",
+        "Live simulation" to "Simulation en direct",
+        "Pulse an input · watch for glitches" to "Impulsion d’entrée · observez les parasites",
+        "Your circuit's truth table" to "Table de vérité de votre circuit",
+        "Your float" to "Votre nombre flottant",
+        "Household table · same device" to "Classement familial · même appareil",
+        "Selected" to "Sélectionnée",
+        "Not selected" to "Non sélectionnée",
+        "Copy simplified expression" to "Copier l’expression simplifiée",
+        "SCORE CARD" to "CARTE DE SCORE",
+        "Radix · offline learning · no ads, no accounts" to "Radix · apprentissage hors ligne · sans publicité ni compte",
+        "Share card" to "Partager la carte",
+        "cross-coupled nor gates" to "portes NOR à rétroaction croisée",
+        "cross-coupled nand gates" to "portes NAND à rétroaction croisée",
+        "MASTER · follows D while CLK=0" to "MAÎTRE · suit D tant que CLK=0",
+        "SLAVE · copies master on ↑CLK" to "ESCLAVE · copie le maître sur ↑CLK",
+        "master Q → slave D" to "Q maître → D esclave",
+        "J and K are tied together: T=0 holds, T=1 toggles" to "J=K : T=0 conserve, T=1 bascule",
+        "synchronous: every stage shares one clock edge" to "synchrone : même front d’horloge pour chaque étage",
+        "D in" to "Entrée D",
+        "Q3 feeds back to D0" to "Q3 reboucle vers D0",
+        "inverted Q3 feeds back to D0" to "Q3 inversé reboucle vers D0",
+        "serial in → Q0 ··· Q3 out" to "Entrée série → Q0 ··· sortie Q3",
+        "Tap a glowing output, then an input (or the probe)." to "Touchez une sortie lumineuse, puis une entrée (ou la sonde).",
+        "Drag gates to arrange. Tap an input pin to unwire it." to "Faites glisser les portes pour les placer. Touchez une broche d’entrée pour la déconnecter.",
+        "⚡ Glitch: the probe flickers before settling." to "⚡ Parasite : la sonde vacille avant de se stabiliser.",
+        "Clean: the probe changes once, then holds." to "Signal stable : la sonde change une fois, puis reste ainsi.",
+        "Single · 32-bit" to "Simple · 32 bits",
+        "Double · 64-bit" to "Double précision · 64 bits",
+        "Decimal, inf, −inf or nan" to "Décimal, inf, −inf ou nan",
+        "Let's explore" to "Explorons !",
+        "Each product term is an AND gate; their outputs feed the final OR." to "Chaque terme produit correspond à une porte ET ; leurs sorties alimentent la porte OU finale.",
+        "Each sum clause is an OR gate; their outputs feed the final AND." to "Chaque clause somme correspond à une porte OU ; leurs sorties alimentent la porte ET finale.",
+        "✓ Correct. Here’s why." to "✓ Correct. Voici pourquoi.",
+        "Not yet. Try the hint and check again." to "Pas encore. Utilisez l’indice et vérifiez à nouveau.",
+        "Hide hint" to "Masquer l’indice",
+        "Show a hint" to "Afficher un indice",
+        "Hide model answer" to "Masquer la réponse modèle",
+        "Compare with model answer" to "Comparer à la réponse modèle",
+        "Tap to select; values stay fixed." to "Touchez pour sélectionner ; les valeurs restent fixes.",
+        "Tap: 0 → 1 → X → 0" to "Touchez : 0 → 1 → X → 0",
+        "Exit group check" to "Quitter la vérification de groupe",
+        "Check a group" to "Vérifier un groupe",
+        "Tap to verify live" to "Touchez pour vérifier en direct",
+        "Mismatch — report this bug" to "Résultat différent — signalez ce bogue",
+        "Big ideas." to "De grandes idées.",
+        "THE DIGITAL LOGIC STUDIO" to "STUDIO DE LOGIQUE NUMÉRIQUE",
+        "Tap an input. Follow a wire. Understand the output." to "Touchez une entrée. Suivez un fil. Comprenez la sortie.",
+        "A lot to explore." to "De quoi explorer.",
+        "YOUR LEARNING TOOLBOX" to "VOTRE BOÎTE À OUTILS D’APPRENTISSAGE",
+        "Everything offline. Everything within a tap." to "Tout hors ligne. Tout à portée de doigt.",
+        "Prove every line." to "Prouvez chaque ligne.",
+        "THE BOOLEAN LAWS LAB" to "LABORATOIRE DES LOIS BOOLÉENNES",
+        "Each law is verified live against every input row." to "Chaque loi est vérifiée en direct pour toutes les combinaisons d’entrées.",
+        "Multiply. Divide." to "Multipliez. Divisez.",
+        "BASE ARITHMETIC, WITH WORKING" to "ARITHMÉTIQUE EN BASE, AVEC CALCUL DÉTAILLÉ",
+        "Exact integer math in any base from 2 to 36." to "Calcul entier exact dans toutes les bases, de 2 à 36.",
+        "Place gates." to "Placez des portes.",
+        "Wire the idea." to "Reliez les portes pour donner vie à l’idée.",
+        "THE CIRCUIT BUILDER" to "CONSTRUCTEUR DE CIRCUITS",
+        "Drag, connect, simulate — feedback-free, always explainable." to "Glissez, reliez, simulez — sans retour matériel, avec des résultats toujours explicables.",
+        "Fractions fly." to "Les fractions prennent leur envol.",
+        "Bits explain." to "Les bits éclairent le calcul.",
+        "THE IEEE-754 FLOAT LAB" to "LABORATOIRE IEEE-754 DES NOMBRES FLOTTANTS",
+        "Sign, exponent, fraction — every float, decoded." to "Signe, exposant, fraction — chaque flottant décodé.",
+        "Earn XP." to "Gagnez des XP.",
+        "Top the table." to "Prenez la tête du classement.",
+        "LEADERBOARD & REWARDS" to "CLASSEMENT ET RÉCOMPENSES",
+        "One device, up to 8 players. Streaks never punish a missed day." to "Un appareil, jusqu’à 8 joueurs. Les séries ne pénalisent jamais un jour manqué."
     )
 
     private val es=mapOf(
@@ -226,6 +310,19 @@ internal object UiTranslationsExtra {
         "No memory: outputs follow the current inputs." to "Sin memoria: las salidas siguen las entradas actuales.",
         "Swipe ↔ to follow all gates. Crossing wires connect only at dotted pin junctions." to "Desliza ↔ para seguir todas las puertas. Los cables cruzados solo se conectan en las uniones punteadas.",
         "This circuit has more than six input variables; K-maps support up to six variables." to "Este circuito tiene más de seis variables de entrada; los mapas de Karnaugh admiten hasta seis.",
+        "Inversion bubbles mean NOT; the extra curved input line identifies XOR/XNOR." to "Las burbujas de inversión significan NOT; la línea curva adicional de entrada identifica XOR/XNOR.",
+        "Switch to phone-friendly block view" to "Cambiar a la vista de bloques, adaptada al móvil",
+        "Explore the gate-level diagram" to "Explorar el diagrama a nivel de puertas",
+        "Forbidden inputs force equal physical outputs. Stored memory is indeterminate; a valid set/reset recovers it." to "Las entradas prohibidas fuerzan salidas físicas iguales. La memoria almacenada es indeterminada; un set/reset válido la recupera.",
+        "Memory is indeterminate (X). Use a valid set/reset or capture a known D value to recover." to "La memoria es indeterminada (X). Usa un set/reset válido o captura un valor D conocido para recuperarla.",
+        "See inside the circuit" to "Ver el interior del circuito",
+        "Q(next) applies on a rising edge. At other times Q holds." to "Q(siguiente) se aplica en un flanco ascendente. En los demás momentos, Q se mantiene.",
+        "Q(now)" to "Q(actual)",
+        "Q(next)" to "Q(siguiente)",
+        "Status" to "Estado",
+        "Level-sensitive: enabled inputs can change Q immediately." to "Sensible al nivel: las entradas habilitadas pueden cambiar Q de inmediato.",
+        "⏸ Stop live clock" to "⏸ Detener reloj en vivo",
+        "▶ Live clock" to "▶ Reloj en vivo",
         "↑ Rise" to "↑ Subida",
         "↓ Fall" to "↓ Bajada",
         "Pulse" to "Pulso",
@@ -354,7 +451,7 @@ internal object UiTranslationsExtra {
         "Library is full (24). Back up/delete an older session first." to "La biblioteca está llena (24). Guarda o borra primero una sesión antigua.",
         "Save session" to "Guardar sesión",
         "A little help.\nA lot of aha." to "Un poco de ayuda.\nMuchos descubrimientos.",
-        "Take a guided tour of the core tools. This built-in helper is not an online chat or network service. The app follows your system language where translations are available and uses English otherwise." to "Recorre las herramientas principales con esta guía integrada; no es un chat ni un servicio de red. La aplicación usa el idioma del sistema cuando hay traducción y recurre al inglés en caso contrario.",
+        "Take a guided tour of the core tools. This built-in helper works offline. It is not a chat or network service. The app follows the system language when English, French, Spanish or Portuguese is supported; otherwise it uses English." to "Recorre las herramientas principales con esta guía integrada y sin conexión. No es un chat ni un servicio de red. La aplicación sigue el idioma del sistema cuando es inglés, francés, español o portugués; de lo contrario, usa inglés.",
         "Start the visual app tour" to "Iniciar recorrido visual",
         "Try" to "Probar",
         "→ Hint" to "→ Pista",
@@ -393,7 +490,78 @@ internal object UiTranslationsExtra {
         "Conversion restored from history." to "Se restauró la conversión del historial.",
         "History entry removed." to "Se quitó la entrada del historial.",
         "Conversion history cleared." to "Se borró el historial de conversiones.",
-        "Session restored; fresh timing trace." to "Sesión restaurada; el registro temporal empieza de nuevo."
+        "Session restored; fresh timing trace." to "Sesión restaurada; el registro temporal empieza de nuevo.",
+        "Start from a working build" to "Empieza con un montaje funcional",
+        "Gate palette · tap to place" to "Paleta de puertas · toca para colocar",
+        "Finish the wiring" to "Completa el cableado",
+        "Live simulation" to "Simulación en vivo",
+        "Pulse an input · watch for glitches" to "Pulsa una entrada · observa los transitorios",
+        "Your circuit's truth table" to "Tabla de verdad de tu circuito",
+        "Your float" to "Tu número en coma flotante",
+        "Household table · same device" to "Clasificación familiar · mismo dispositivo",
+        "Selected" to "Seleccionada",
+        "Not selected" to "No seleccionada",
+        "Copy simplified expression" to "Copiar expresión simplificada",
+        "SCORE CARD" to "TARJETA DE PUNTUACIÓN",
+        "Radix · offline learning · no ads, no accounts" to "Radix · aprendizaje sin conexión · sin anuncios ni cuentas",
+        "Share card" to "Compartir tarjeta",
+        "cross-coupled nor gates" to "puertas NOR acopladas en cruz",
+        "cross-coupled nand gates" to "puertas NAND acopladas en cruz",
+        "MASTER · follows D while CLK=0" to "MAESTRO · sigue D mientras CLK=0",
+        "SLAVE · copies master on ↑CLK" to "ESCLAVO · copia al maestro en ↑CLK",
+        "master Q → slave D" to "Q maestro → D esclavo",
+        "J and K are tied together: T=0 holds, T=1 toggles" to "J=K: T=0 mantiene, T=1 conmuta",
+        "synchronous: every stage shares one clock edge" to "síncrono: todas las etapas comparten un flanco de reloj",
+        "D in" to "Entrada D",
+        "Q3 feeds back to D0" to "Q3 realimenta D0",
+        "inverted Q3 feeds back to D0" to "Q3 invertido realimenta D0",
+        "serial in → Q0 ··· Q3 out" to "Entrada serie → Q0 ··· salida Q3",
+        "Tap a glowing output, then an input (or the probe)." to "Toca una salida iluminada y luego una entrada (o la sonda).",
+        "Drag gates to arrange. Tap an input pin to unwire it." to "Arrastra las puertas para ordenarlas. Toca un pin de entrada para desconectarlo.",
+        "⚡ Glitch: the probe flickers before settling." to "⚡ Transitorio: la sonda parpadea antes de estabilizarse.",
+        "Clean: the probe changes once, then holds." to "Estable: la sonda cambia una vez y luego se mantiene.",
+        "Single · 32-bit" to "Precisión simple · 32 bits",
+        "Double · 64-bit" to "Precisión doble · 64 bits",
+        "Decimal, inf, −inf or nan" to "Decimal, inf, −inf o nan",
+        "Let's explore" to "Exploremos",
+        "Each product term is an AND gate; their outputs feed the final OR." to "Cada término producto corresponde a una puerta AND; sus salidas alimentan la OR final.",
+        "Each sum clause is an OR gate; their outputs feed the final AND." to "Cada cláusula suma corresponde a una puerta OR; sus salidas alimentan la AND final.",
+        "✓ Correct. Here’s why." to "✓ Correcto. Aquí tienes la explicación.",
+        "Not yet. Try the hint and check again." to "Todavía no. Prueba la pista y vuelve a comprobarlo.",
+        "Hide hint" to "Ocultar pista",
+        "Show a hint" to "Mostrar una pista",
+        "Hide model answer" to "Ocultar respuesta modelo",
+        "Compare with model answer" to "Comparar con la respuesta modelo",
+        "Tap to select; values stay fixed." to "Toca para seleccionar; los valores no cambian.",
+        "Tap: 0 → 1 → X → 0" to "Toca: 0 → 1 → X → 0",
+        "Exit group check" to "Salir de la comprobación de grupos",
+        "Check a group" to "Comprobar un grupo",
+        "Tap to verify live" to "Toca para verificar en directo",
+        "Mismatch — report this bug" to "No coincide: informa de este error",
+        "Big ideas." to "Grandes ideas.",
+        "THE DIGITAL LOGIC STUDIO" to "ESTUDIO DE LÓGICA DIGITAL",
+        "Tap an input. Follow a wire. Understand the output." to "Pulsa una entrada. Sigue un cable. Comprende la salida.",
+        "A lot to explore." to "Mucho por explorar.",
+        "YOUR LEARNING TOOLBOX" to "TU CAJA DE HERRAMIENTAS DE APRENDIZAJE",
+        "Everything offline. Everything within a tap." to "Todo sin conexión. Todo al alcance de un toque.",
+        "Prove every line." to "Comprueba cada línea.",
+        "THE BOOLEAN LAWS LAB" to "LABORATORIO DE LEYES BOOLEANAS",
+        "Each law is verified live against every input row." to "Cada ley se verifica en directo con todas las combinaciones de entrada.",
+        "Multiply. Divide." to "Multiplica. Divide.",
+        "BASE ARITHMETIC, WITH WORKING" to "ARITMÉTICA EN BASE, CON PROCEDIMIENTO",
+        "Exact integer math in any base from 2 to 36." to "Cálculo entero exacto en cualquier base del 2 al 36.",
+        "Place gates." to "Coloca puertas.",
+        "Wire the idea." to "Conecta la idea.",
+        "THE CIRCUIT BUILDER" to "CONSTRUCTOR DE CIRCUITOS",
+        "Drag, connect, simulate — feedback-free, always explainable." to "Arrastra, conecta y simula: cada resultado se explica paso a paso.",
+        "Fractions fly." to "Las fracciones vuelan.",
+        "Bits explain." to "Los bits lo explican.",
+        "THE IEEE-754 FLOAT LAB" to "LABORATORIO DE PUNTO FLOTANTE IEEE-754",
+        "Sign, exponent, fraction — every float, decoded." to "Signo, exponente y fracción: cada flotante, descodificado.",
+        "Earn XP." to "Gana XP.",
+        "Top the table." to "Llega a lo más alto.",
+        "LEADERBOARD & REWARDS" to "CLASIFICACIÓN Y RECOMPENSAS",
+        "One device, up to 8 players. Streaks never punish a missed day." to "Un dispositivo, hasta 8 jugadores. Las rachas no penalizan los días de descanso."
     )
 
     private val pt=mapOf(
@@ -423,6 +591,19 @@ internal object UiTranslationsExtra {
         "No memory: outputs follow the current inputs." to "Sem memória: as saídas acompanham as entradas atuais.",
         "Swipe ↔ to follow all gates. Crossing wires connect only at dotted pin junctions." to "Deslize ↔ para acompanhar as portas. Fios cruzados só se conectam nas junções pontilhadas.",
         "This circuit has more than six input variables; K-maps support up to six variables." to "Este circuito tem mais de seis variáveis de entrada; mapas de Karnaugh aceitam até seis.",
+        "Inversion bubbles mean NOT; the extra curved input line identifies XOR/XNOR." to "As bolhas de inversão significam NOT; a linha de entrada curva extra identifica XOR/XNOR.",
+        "Switch to phone-friendly block view" to "Mudar para a visualização em blocos, ideal para celular",
+        "Explore the gate-level diagram" to "Explorar o diagrama em nível de portas",
+        "Forbidden inputs force equal physical outputs. Stored memory is indeterminate; a valid set/reset recovers it." to "Entradas proibidas forçam saídas físicas iguais. A memória armazenada é indeterminada; um set/reset válido a recupera.",
+        "Memory is indeterminate (X). Use a valid set/reset or capture a known D value to recover." to "A memória é indeterminada (X). Use um set/reset válido ou capture um valor D conhecido para recuperá-la.",
+        "See inside the circuit" to "Ver por dentro do circuito",
+        "Q(next) applies on a rising edge. At other times Q holds." to "Q(próximo) vale na borda de subida. Nos demais momentos, Q mantém o valor.",
+        "Q(now)" to "Q(atual)",
+        "Q(next)" to "Q(próximo)",
+        "Status" to "Estado",
+        "Level-sensitive: enabled inputs can change Q immediately." to "Sensível a nível: entradas habilitadas podem alterar Q imediatamente.",
+        "⏸ Stop live clock" to "⏸ Parar relógio ao vivo",
+        "▶ Live clock" to "▶ Relógio ao vivo",
         "↑ Rise" to "↑ Subida",
         "↓ Fall" to "↓ Descida",
         "Pulse" to "Pulso",
@@ -551,7 +732,7 @@ internal object UiTranslationsExtra {
         "Library is full (24). Back up/delete an older session first." to "A biblioteca está cheia (24). Faça backup ou exclua uma sessão antiga primeiro.",
         "Save session" to "Salvar sessão",
         "A little help.\nA lot of aha." to "Um pouco de ajuda.\nMuitas descobertas.",
-        "Take a guided tour of the core tools. This built-in helper is not an online chat or network service. The app follows your system language where translations are available and uses English otherwise." to "Faça uma visita guiada às ferramentas principais. Esta ajuda integrada não é um chat nem serviço de rede. O app segue o idioma do sistema quando há tradução e usa inglês nos demais casos.",
+        "Take a guided tour of the core tools. This built-in helper works offline. It is not a chat or network service. The app follows the system language when English, French, Spanish or Portuguese is supported; otherwise it uses English." to "Explore as ferramentas principais com esta ajuda integrada e offline. Ela não é um chat nem um serviço de rede. O app segue o idioma do sistema quando ele é inglês, francês, espanhol ou português; caso contrário, usa inglês.",
         "Start the visual app tour" to "Iniciar visita guiada do app",
         "Try" to "Tentar",
         "→ Hint" to "→ Dica",
@@ -590,16 +771,94 @@ internal object UiTranslationsExtra {
         "Conversion restored from history." to "Conversão restaurada do histórico.",
         "History entry removed." to "Entrada do histórico removida.",
         "Conversion history cleared." to "Histórico de conversões apagado.",
-        "Session restored; fresh timing trace." to "Sessão restaurada; o registro temporal recomeça."
+        "Session restored; fresh timing trace." to "Sessão restaurada; o registro temporal recomeça.",
+        "Start from a working build" to "Comece com uma montagem funcional",
+        "Gate palette · tap to place" to "Paleta de portas · toque para posicionar",
+        "Finish the wiring" to "Conclua a fiação",
+        "Live simulation" to "Simulação ao vivo",
+        "Pulse an input · watch for glitches" to "Pulse uma entrada · observe os transitórios",
+        "Your circuit's truth table" to "Tabela-verdade do seu circuito",
+        "Your float" to "Seu número de ponto flutuante",
+        "Household table · same device" to "Classificação familiar · mesmo dispositivo",
+        "Selected" to "Selecionada",
+        "Not selected" to "Não selecionada",
+        "Copy simplified expression" to "Copiar expressão simplificada",
+        "SCORE CARD" to "CARTÃO DE PONTUAÇÃO",
+        "Radix · offline learning · no ads, no accounts" to "Radix · aprendizado offline · sem anúncios nem contas",
+        "Share card" to "Compartilhar cartão",
+        "cross-coupled nor gates" to "portas NOR com realimentação cruzada",
+        "cross-coupled nand gates" to "portas NAND com realimentação cruzada",
+        "MASTER · follows D while CLK=0" to "MESTRE · segue D enquanto CLK=0",
+        "SLAVE · copies master on ↑CLK" to "ESCRAVO · copia o mestre na ↑CLK",
+        "master Q → slave D" to "Q mestre → D escravo",
+        "J and K are tied together: T=0 holds, T=1 toggles" to "J=K: T=0 mantém, T=1 alterna",
+        "synchronous: every stage shares one clock edge" to "síncrono: todos os estágios compartilham uma borda de clock",
+        "D in" to "Entrada D",
+        "Q3 feeds back to D0" to "Q3 realimenta D0",
+        "inverted Q3 feeds back to D0" to "Q3 invertido realimenta D0",
+        "serial in → Q0 ··· Q3 out" to "Entrada serial → Q0 ··· saída Q3",
+        "Tap a glowing output, then an input (or the probe)." to "Toque em uma saída iluminada e depois em uma entrada (ou na sonda).",
+        "Drag gates to arrange. Tap an input pin to unwire it." to "Arraste as portas para organizá-las. Toque em um pino de entrada para desconectá-lo.",
+        "⚡ Glitch: the probe flickers before settling." to "⚡ Transiente: a sonda oscila antes de estabilizar.",
+        "Clean: the probe changes once, then holds." to "Estável: a sonda muda uma vez e então permanece.",
+        "Single · 32-bit" to "Precisão simples · 32 bits",
+        "Double · 64-bit" to "Precisão dupla · 64 bits",
+        "Decimal, inf, −inf or nan" to "Decimal, inf, −inf ou nan",
+        "Let's explore" to "Vamos explorar",
+        "Each product term is an AND gate; their outputs feed the final OR." to "Cada termo produto corresponde a uma porta AND; as saídas alimentam a OR final.",
+        "Each sum clause is an OR gate; their outputs feed the final AND." to "Cada cláusula soma corresponde a uma porta OR; as saídas alimentam a AND final.",
+        "✓ Correct. Here’s why." to "✓ Correto. Veja por quê.",
+        "Not yet. Try the hint and check again." to "Ainda não. Use a dica e confira novamente.",
+        "Hide hint" to "Ocultar dica",
+        "Show a hint" to "Mostrar uma dica",
+        "Hide model answer" to "Ocultar resposta-modelo",
+        "Compare with model answer" to "Comparar com a resposta-modelo",
+        "Tap to select; values stay fixed." to "Toque para selecionar; os valores permanecem fixos.",
+        "Tap: 0 → 1 → X → 0" to "Toque: 0 → 1 → X → 0",
+        "Exit group check" to "Sair da verificação de grupo",
+        "Check a group" to "Verificar um grupo",
+        "Tap to verify live" to "Toque para verificar ao vivo",
+        "Mismatch — report this bug" to "Resultado divergente — relate este erro",
+        "Big ideas." to "Grandes ideias.",
+        "THE DIGITAL LOGIC STUDIO" to "ESTÚDIO DE LÓGICA DIGITAL",
+        "Tap an input. Follow a wire. Understand the output." to "Toque em uma entrada. Siga o fio. Entenda a saída.",
+        "A lot to explore." to "Muito para explorar.",
+        "YOUR LEARNING TOOLBOX" to "SEU KIT DE FERRAMENTAS DE APRENDIZAGEM",
+        "Everything offline. Everything within a tap." to "Tudo offline. Tudo a um toque.",
+        "Prove every line." to "Comprove cada linha.",
+        "THE BOOLEAN LAWS LAB" to "LABORATÓRIO DE LEIS BOOLEANAS",
+        "Each law is verified live against every input row." to "Cada lei é verificada ao vivo em todas as combinações de entrada.",
+        "Multiply. Divide." to "Multiplique. Divida.",
+        "BASE ARITHMETIC, WITH WORKING" to "ARITMÉTICA DE BASE, COM CÁLCULOS",
+        "Exact integer math in any base from 2 to 36." to "Cálculo exato de inteiros em qualquer base, de 2 a 36.",
+        "Place gates." to "Posicione as portas.",
+        "Wire the idea." to "Conecte as ideias.",
+        "THE CIRCUIT BUILDER" to "CONSTRUTOR DE CIRCUITOS",
+        "Drag, connect, simulate — feedback-free, always explainable." to "Arraste, conecte e simule — cada resultado pode ser explicado.",
+        "Fractions fly." to "Frações em movimento.",
+        "Bits explain." to "Bits explicam.",
+        "THE IEEE-754 FLOAT LAB" to "LABORATÓRIO DE PONTO FLUTUANTE IEEE-754",
+        "Sign, exponent, fraction — every float, decoded." to "Sinal, expoente e fração — cada número flutuante, decodificado.",
+        "Earn XP." to "Ganhe XP.",
+        "Top the table." to "Suba no placar.",
+        "LEADERBOARD & REWARDS" to "CLASSIFICAÇÃO E RECOMPENSAS",
+        "One device, up to 8 players. Streaks never punish a missed day." to "Um dispositivo, até 8 jogadores. Sequências não punem dias de descanso."
     )
 
     fun translate(source:String,language:String):String? {
         val lang=language.lowercase()
+        if(lang !in setOf("fr","es","pt"))return null
         val fixed=when(lang) {"fr"->fr[source];"es"->es[source];"pt"->pt[source];else->null}
         if(fixed!=null)return fixed
+        val kmapHeader=Regex("^K-MAP SOLUTION · (SOP|POS)$").matchEntire(source)
+        if(kmapHeader!=null)return when(lang) {"fr"->"SOLUTION DE CARTE DE KARNAUGH · ${kmapHeader.groupValues[1]}";"es"->"SOLUCIÓN DEL MAPA DE KARNAUGH · ${kmapHeader.groupValues[1]}";else->"SOLUÇÃO DO MAPA DE KARNAUGH · ${kmapHeader.groupValues[1]}"}
+        val kmapIndices=Regex("^Indices 0–(\\d+) · A is MSB · Gray-coded axes$").matchEntire(source)
+        if(kmapIndices!=null)return when(lang) {"fr"->"Indices 0–${kmapIndices.groupValues[1]} · A est le bit de poids fort · axes en code Gray";"es"->"Índices 0–${kmapIndices.groupValues[1]} · A es el bit más significativo · ejes en código Gray";else->"Índices 0–${kmapIndices.groupValues[1]} · A é o bit mais significativo · eixos em código Gray"}
         if(source=="start your streak")return when(lang) {"fr"->"Commencez votre série";"es"->"Empieza tu racha";"pt"->"Comece sua sequência";else->null}
         val allRows=Regex("^all (\\d+) rows$").matchEntire(source)
         if(allRows!=null)return when(lang) {"fr"->"toutes les ${allRows.groupValues[1]} lignes";"es"->"todas las ${allRows.groupValues[1]} filas";"pt"->"todas as ${allRows.groupValues[1]} linhas";else->null}
+        val lawVerified=Regex("^✓ Holds in all (\\d+) rows$").matchEntire(source)
+        if(lawVerified!=null)return when(lang) {"fr"->"✓ Vraie sur les ${lawVerified.groupValues[1]} lignes";"es"->"✓ Se cumple en las ${lawVerified.groupValues[1]} filas";"pt"->"✓ Válida nas ${lawVerified.groupValues[1]} linhas";else->null}
         val expressionRows=Regex("^Expression solved across all (\\d+) input rows\\.$").matchEntire(source)
         if(expressionRows!=null)return when(lang) {"fr"->"Expression résolue sur les ${expressionRows.groupValues[1]} lignes d’entrée.";"es"->"Expresión resuelta en las ${expressionRows.groupValues[1]} filas de entrada.";"pt"->"Expressão resolvida nas ${expressionRows.groupValues[1]} linhas de entrada.";else->null}
         val checkedRows=Regex("^Equivalence checked across all (\\d+) input rows\\.$").matchEntire(source)
@@ -613,6 +872,8 @@ internal object UiTranslationsExtra {
             val label=when(copiedLabel) {"derivation"->"derivation";"TSV truth table"->"table";else->null}
             if(label!=null)return when(lang) {"fr"->if(label=="derivation")"Dérivation copiée."else"Table de vérité TSV copiée.";"es"->if(label=="derivation")"Derivación copiada."else"Tabla de verdad TSV copiada.";"pt"->if(label=="derivation")"Derivação copiada."else"Tabela-verdade TSV copiada.";else->null}
         }
+        val fractionHint=Regex("^(Digits 0–[0-9A-Z](?:, A–[0-9A-Z])?) · fractions welcome$").matchEntire(source)
+        if(fractionHint!=null){val digits=CoreEngineTranslations.translate(fractionHint.groupValues[1],lang)?:fractionHint.groupValues[1];val tail=when(lang){"fr"->"fractions acceptées";"es"->"se aceptan fracciones";else->"frações permitidas"};return "$digits · $tail"}
         val copiedBase=Regex("^(Binary|Octal|Decimal|Hexadecimal|Base \\d+) copied\\.$").matchEntire(source)?.groupValues?.get(1)
         if(copiedBase!=null){
             if(copiedBase.startsWith("Base "))return when(lang) {"fr"->"$copiedBase copiée.";"es"->"$copiedBase copiada.";"pt"->"$copiedBase copiada.";else->null}
@@ -661,6 +922,8 @@ internal object UiTranslationsExtra {
         if(answer!=null)return when(lang) {"fr"->"Réponse : ${answer.groupValues[1]}";"es"->"Respuesta: ${answer.groupValues[1]}";"pt"->"Resposta: ${answer.groupValues[1]}";else->null}
         val delete=Regex("^Delete (.+)\\?$").matchEntire(source)
         if(delete!=null)return when(lang) {"fr"->"Supprimer « ${delete.groupValues[1]} » ?";"es"->"¿Eliminar «${delete.groupValues[1]}»?";"pt"->"Excluir «${delete.groupValues[1]}»?";else->null}
+        val deleteSaved=Regex("^Delete saved conversion (.+)$").matchEntire(source)
+        if(deleteSaved!=null)return when(lang) {"fr"->"Supprimer la conversion enregistrée ${deleteSaved.groupValues[1]}";"es"->"Eliminar conversión guardada ${deleteSaved.groupValues[1]}";"pt"->"Excluir conversão salva ${deleteSaved.groupValues[1]}";else->null}
         val card=Regex("^Choose study card · (\\d+)/(\\d+)$").matchEntire(source)
         if(card!=null)return when(lang) {"fr"->"Choisir une question · ${card.groupValues[1]}/${card.groupValues[2]}";"es"->"Elegir pregunta · ${card.groupValues[1]}/${card.groupValues[2]}";"pt"->"Escolher questão · ${card.groupValues[1]}/${card.groupValues[2]}";else->null}
         val page=Regex("^Copy this page \\((\\d+) rows\\)$").matchEntire(source)
@@ -671,12 +934,152 @@ internal object UiTranslationsExtra {
         if(vars!=null)return when(lang) {"fr"->"${vars.groupValues[1]} variables";"es"->"${vars.groupValues[1]} variables";"pt"->"${vars.groupValues[1]} variáveis";else->null}
         val tour=Regex("^Visual app tour, step (\\d+) of (\\d+)$").matchEntire(source)
         if(tour!=null)return when(lang) {"fr"->"Visite visuelle de l’application, étape ${tour.groupValues[1]} sur ${tour.groupValues[2]}";"es"->"Recorrido visual de la aplicación, paso ${tour.groupValues[1]} de ${tour.groupValues[2]}";"pt"->"Visita visual do app, etapa ${tour.groupValues[1]} de ${tour.groupValues[2]}";else->null}
+        val copyQuick=Regex("^Copy (.+) quick result$").matchEntire(source)
+        if(copyQuick!=null){val base=CoreEngineTranslations.translate(copyQuick.groupValues[1],lang)?:copyQuick.groupValues[1];return when(lang) {"fr"->"Copier le résultat rapide $base";"es"->"Copiar el resultado rápido $base";"pt"->"Copiar o resultado rápido $base";else->null}}
         val copyResult=Regex("^Copy (.+) result$").matchEntire(source)
-        if(copyResult!=null)return when(lang) {"fr"->"Copier le résultat ${copyResult.groupValues[1]}";"es"->"Copiar resultado ${copyResult.groupValues[1]}";"pt"->"Copiar resultado ${copyResult.groupValues[1]}";else->null}
+        if(copyResult!=null){val base=CoreEngineTranslations.translate(copyResult.groupValues[1],lang)?:copyResult.groupValues[1];return when(lang) {"fr"->"Copier le résultat $base";"es"->"Copiar resultado $base";"pt"->"Copiar resultado $base";else->null}}
         val wiring=Regex("^Wiring mode: (ON|OFF)$").matchEntire(source)
         if(wiring!=null)return when(lang) {"fr"->"Mode câblage : ${if(wiring.groupValues[1]=="ON")"ACTIVÉ"else"DÉSACTIVÉ"}";"es"->"Modo de cableado: ${if(wiring.groupValues[1]=="ON")"ACTIVADO"else"DESACTIVADO"}";"pt"->"Modo de fiação: ${if(wiring.groupValues[1]=="ON")"ATIVADO"else"DESATIVADO"}";else->null}
         val level=Regex("^Level (\\d+) (.+)$").matchEntire(source)
         if(level!=null)return when(lang) {"fr"->"Niveau ${level.groupValues[1]} · ${level.groupValues[2]}";"es"->"Nivel ${level.groupValues[1]} · ${level.groupValues[2]}";"pt"->"Nível ${level.groupValues[1]} · ${level.groupValues[2]}";else->null}
+        val probe=Regex("^Probe Y = ([01])$").matchEntire(source)
+        if(probe!=null)return when(lang) {"fr"->"Sonde Y = ${probe.groupValues[1]}";"es"->"Sonda Y = ${probe.groupValues[1]}";"pt"->"Sonda Y = ${probe.groupValues[1]}";else->null}
+        val gateEvent=Regex("^([A-Z]+) #(\\d+) → ([01]) @ (\\d+) ns$").matchEntire(source)
+        if(gateEvent!=null)return when(lang) {"fr"->"Porte ${gateEvent.groupValues[1]} #${gateEvent.groupValues[2]} → ${gateEvent.groupValues[3]} à ${gateEvent.groupValues[4]} ns";"es"->"Puerta ${gateEvent.groupValues[1]} #${gateEvent.groupValues[2]} → ${gateEvent.groupValues[3]} a los ${gateEvent.groupValues[4]} ns";"pt"->"Porta ${gateEvent.groupValues[1]} #${gateEvent.groupValues[2]} → ${gateEvent.groupValues[3]} a ${gateEvent.groupValues[4]} ns";else->null}
+        val pulse=Regex("^Pulse ([A-D])$").matchEntire(source)
+        if(pulse!=null)return when(lang) {"fr"->"Impulsion ${pulse.groupValues[1]}";"es"->"Pulso ${pulse.groupValues[1]}";"pt"->"Pulso ${pulse.groupValues[1]}";else->null}
+        val settled=Regex("^Settles in (\\d+) ns · final Y = ([01])$").matchEntire(source)
+        if(settled!=null)return when(lang) {"fr"->"Stabilisation en ${settled.groupValues[1]} ns · sortie finale Y = ${settled.groupValues[2]}";"es"->"Se estabiliza en ${settled.groupValues[1]} ns · salida final Y = ${settled.groupValues[2]}";"pt"->"Estabiliza em ${settled.groupValues[1]} ns · saída final Y = ${settled.groupValues[2]}";else->null}
+        val event=Regex("^t=(\\d+) ns  (.+) → ([01])$").matchEntire(source)
+        if(event!=null){
+            val rawLabel=event.groupValues[2]
+            val label=when {
+                rawLabel=="Y"->when(lang) {"fr"->"sortie Y";"es"->"salida Y";else->"saída Y"}
+                Regex("^(AND|OR|NOT|NAND|NOR|XOR|XNOR|BUFFER) #\\d+$").matches(rawLabel)->when(lang) {"fr"->"porte $rawLabel";"es"->"puerta $rawLabel";else->"porta $rawLabel"}
+                else->return null
+            }
+            return when(lang) {"fr"->"t=${event.groupValues[1]} ns · $label → ${event.groupValues[3]}";"es"->"t=${event.groupValues[1]} ns · $label → ${event.groupValues[3]}";else->"t=${event.groupValues[1]} ns · $label → ${event.groupValues[3]}"}
+        }
+        val rowsOverInputs=Regex("^(\\d+) rows over ([A-D](?:, [A-D])*)$").matchEntire(source)
+        if(rowsOverInputs!=null)return when(lang) {"fr"->"${rowsOverInputs.groupValues[1]} lignes pour les entrées ${rowsOverInputs.groupValues[2]}";"es"->"${rowsOverInputs.groupValues[1]} filas para las entradas ${rowsOverInputs.groupValues[2]}";"pt"->"${rowsOverInputs.groupValues[1]} linhas para as entradas ${rowsOverInputs.groupValues[2]}";else->null}
+        val addPlayer=Regex("^Add player \\((\\d+)/(\\d+)\\)$").matchEntire(source)
+        if(addPlayer!=null)return when(lang) {"fr"->"Ajouter un joueur (${addPlayer.groupValues[1]}/${addPlayer.groupValues[2]})";"es"->"Añadir jugador (${addPlayer.groupValues[1]}/${addPlayer.groupValues[2]})";"pt"->"Adicionar jogador (${addPlayer.groupValues[1]}/${addPlayer.groupValues[2]})";else->null}
+        val saveSession=Regex("^Save session · (\\d+)/(\\d+)$").matchEntire(source)
+        if(saveSession!=null)return when(lang) {"fr"->"Enregistrer la session · ${saveSession.groupValues[1]}/${saveSession.groupValues[2]}";"es"->"Guardar sesión · ${saveSession.groupValues[1]}/${saveSession.groupValues[2]}";"pt"->"Salvar sessão · ${saveSession.groupValues[1]}/${saveSession.groupValues[2]}";else->null}
+        val inputLabel=Regex("^(\\d+) inputs$").matchEntire(source)
+        if(inputLabel!=null)return when(lang) {"fr"->"${inputLabel.groupValues[1]} entrées";"es"->"${inputLabel.groupValues[1]} entradas";"pt"->"${inputLabel.groupValues[1]} entradas";else->null}
+        val currentRow=Regex("^Show current input row \\((\\d+)\\)$").matchEntire(source)
+        if(currentRow!=null)return when(lang) {"fr"->"Afficher la ligne d’entrée ${currentRow.groupValues[1]}";"es"->"Mostrar la fila de entrada ${currentRow.groupValues[1]}";"pt"->"Mostrar a linha de entrada ${currentRow.groupValues[1]}";else->null}
+        val kVariables=Regex("^K-map variables: (.+)$").matchEntire(source)
+        if(kVariables!=null)return when(lang) {"fr"->"Variables de la carte de Karnaugh : ${kVariables.groupValues[1]}";"es"->"Variables del mapa de Karnaugh: ${kVariables.groupValues[1]}";"pt"->"Variáveis do mapa de Karnaugh: ${kVariables.groupValues[1]}";else->null}
+        val clockMemory=Regex("^CLK = ([01])  ·  memory (.+)$").matchEntire(source)
+        if(clockMemory!=null)return when(lang) {"fr"->"HORLOGE = ${clockMemory.groupValues[1]}  ·  mémoire ${clockMemory.groupValues[2]}";"es"->"RELOJ = ${clockMemory.groupValues[1]}  ·  memoria ${clockMemory.groupValues[2]}";"pt"->"CLK = ${clockMemory.groupValues[1]}  ·  memória ${clockMemory.groupValues[2]}";else->null}
+        val saveRows=Regex("^(\\d+) SAVED · UP TO (\\d+)$").matchEntire(source)
+        if(saveRows!=null)return when(lang) {"fr"->"${saveRows.groupValues[1]} ENREGISTRÉS · JUSQU’À ${saveRows.groupValues[2]}";"es"->"${saveRows.groupValues[1]} GUARDADOS · HASTA ${saveRows.groupValues[2]}";"pt"->"${saveRows.groupValues[1]} SALVOS · ATÉ ${saveRows.groupValues[2]}";else->null}
+        val customBase=Regex("^Custom base (\\d+) · change$").matchEntire(source)
+        if(customBase!=null)return when(lang) {"fr"->"Base personnalisée ${customBase.groupValues[1]} · modifier";"es"->"Base personalizada ${customBase.groupValues[1]} · cambiar";"pt"->"Base personalizada ${customBase.groupValues[1]} · alterar";else->null}
+        val baseEntry=Regex("^(.+) · base (\\d+)$").matchEntire(source)
+        if(baseEntry!=null){val name=CoreEngineTranslations.translate(baseEntry.groupValues[1],lang)?:baseEntry.groupValues[1];return when(lang) {"fr"->"$name · base ${baseEntry.groupValues[2]}";"es"->"$name · base ${baseEntry.groupValues[2]}";"pt"->"$name · base ${baseEntry.groupValues[2]}";else->null}}
+        val hexValue=Regex("^([0-9A-F]+) HEX$").matchEntire(source)
+        if(hexValue!=null)return "${hexValue.groupValues[1]} HEX"
+        val octalValue=Regex("^([0-7]+) OCT$").matchEntire(source)
+        if(octalValue!=null)return "${octalValue.groupValues[1]} OCT"
+        val uppercaseBase=Regex("^BASE (\\d+) · (BINARY|OCTAL|DECIMAL|HEXADECIMAL|BASE \\d+)$").matchEntire(source)
+        if(uppercaseBase!=null){
+            val name=when(uppercaseBase.groupValues[2]) {"BINARY"->when(lang) {"fr"->"BINAIRE";"es"->"BINARIO";else->"BINÁRIO"};"OCTAL"->"OCTAL";"DECIMAL"->when(lang) {"fr"->"DÉCIMAL";else->"DECIMAL"};"HEXADECIMAL"->when(lang) {"fr"->"HEXADÉCIMAL";else->"HEXADECIMAL"};else->uppercaseBase.groupValues[2]}
+            return when(lang) {"fr"->"BASE ${uppercaseBase.groupValues[1]} · $name";"es"->"BASE ${uppercaseBase.groupValues[1]} · $name";"pt"->"BASE ${uppercaseBase.groupValues[1]} · $name";else->null}
+        }
+        val answerBase=Regex("^ANSWER · BASE (\\d+)$").matchEntire(source)
+        if(answerBase!=null)return when(lang) {"fr"->"RÉSULTAT · BASE ${answerBase.groupValues[1]}";"es"->"RESPUESTA · BASE ${answerBase.groupValues[1]}";"pt"->"RESPOSTA · BASE ${answerBase.groupValues[1]}";else->null}
+        val representationWidth=Regex("^(\\d+) bits$").matchEntire(source)
+        if(representationWidth!=null)return when(lang) {"fr"->"${representationWidth.groupValues[1]} bits";"es"->"${representationWidth.groupValues[1]} bits";"pt"->"${representationWidth.groupValues[1]} bits";else->null}
+        val binaryWord=Regex("^(\\d+)-BIT BINARY WORD$").matchEntire(source)
+        if(binaryWord!=null)return when(lang) {"fr"->"MOT BINAIRE SUR ${binaryWord.groupValues[1]} BITS";"es"->"PALABRA BINARIA DE ${binaryWord.groupValues[1]} BITS";"pt"->"PALAVRA BINÁRIA DE ${binaryWord.groupValues[1]} BITS";else->null}
+        val binaryDigits=Regex("^(\\d+) binary digits$").matchEntire(source)
+        if(binaryDigits!=null)return when(lang) {"fr"->"${binaryDigits.groupValues[1]} chiffres binaires";"es"->"${binaryDigits.groupValues[1]} dígitos binarios";"pt"->"${binaryDigits.groupValues[1]} dígitos binários";else->null}
+        val hexDigits=Regex("^(\\d+) hex digits$").matchEntire(source)
+        if(hexDigits!=null)return when(lang) {"fr"->"${hexDigits.groupValues[1]} chiffres hexadécimaux";"es"->"${hexDigits.groupValues[1]} dígitos hexadecimales";"pt"->"${hexDigits.groupValues[1]} dígitos hexadecimais";else->null}
+        val savedSolutions=Regex("^Saved solutions · (\\d+)$").matchEntire(source)
+        if(savedSolutions!=null)return when(lang) {"fr"->"Solutions enregistrées · ${savedSolutions.groupValues[1]}";"es"->"Soluciones guardadas · ${savedSolutions.groupValues[1]}";"pt"->"Soluções salvas · ${savedSolutions.groupValues[1]}";else->null}
+        val savedBooleanSolutions=Regex("^Saved Boolean solutions · (\\d+)$").matchEntire(source)
+        if(savedBooleanSolutions!=null)return when(lang) {"fr"->"Solutions booléennes enregistrées · ${savedBooleanSolutions.groupValues[1]}";"es"->"Soluciones booleanas guardadas · ${savedBooleanSolutions.groupValues[1]}";"pt"->"Soluções booleanas salvas · ${savedBooleanSolutions.groupValues[1]}";else->null}
+        val indexNote=Regex("^Indices 0–(\\d+)\\. A is the MSB\\. Duplicates are ignored; ranges are not supported\\.$").matchEntire(source)
+        if(indexNote!=null)return when(lang) {"fr"->"Indices 0–${indexNote.groupValues[1]}. A est le bit de poids fort. Les doublons sont ignorés ; les plages ne sont pas prises en charge.";"es"->"Índices 0–${indexNote.groupValues[1]}. A es el bit más significativo. Se ignoran los duplicados; no se admiten rangos.";"pt"->"Índices 0–${indexNote.groupValues[1]}. A é o bit mais significativo. Duplicatas são ignoradas; intervalos não são aceitos.";else->null}
+        val listSummary=Regex("^1s: (.+) · Xs: (.+)$").matchEntire(source)
+        if(listSummary!=null){val ones=if(listSummary.groupValues[1]=="none")when(lang){"fr"->"aucun";"es"->"ninguno";else->"nenhum"}else listSummary.groupValues[1];val dc=if(listSummary.groupValues[2]=="none")when(lang){"fr"->"aucune";"es"->"ninguno";else->"nenhuma"}else listSummary.groupValues[2];return when(lang) {"fr"->"1 obligatoires : $ones · indifférences X : $dc";"es"->"1 obligatorios: $ones · condiciones indiferentes X: $dc";"pt"->"1 obrigatórios: $ones · condições indiferentes X: $dc";else->null}}
+        val kMapHeader=Regex("^([A-Z]{2,6})   index   input   simplified$").matchEntire(source)
+        if(kMapHeader!=null)return when(lang) {"fr"->"${kMapHeader.groupValues[1]}   indice   entrée   simplifiée";"es"->"${kMapHeader.groupValues[1]}   índice   entrada   simplificada";"pt"->"${kMapHeader.groupValues[1]}   índice   entrada   simplificada";else->null}
+        val optionalCell=Regex("^(.*) \\(optional\\)$").matchEntire(source)
+        if(optionalCell!=null)return when(lang) {"fr"->"${optionalCell.groupValues[1]} (facultatif)";"es"->"${optionalCell.groupValues[1]} (opcional)";"pt"->"${optionalCell.groupValues[1]} (opcional)";else->null}
+        val canvas=Regex("^Canvas · (\\d+)/(\\d+) gates$").matchEntire(source)
+        if(canvas!=null)return when(lang) {"fr"->"Zone de travail · ${canvas.groupValues[1]}/${canvas.groupValues[2]} portes";"es"->"Lienzo · ${canvas.groupValues[1]}/${canvas.groupValues[2]} puertas";"pt"->"Área de trabalho · ${canvas.groupValues[1]}/${canvas.groupValues[2]} portas";else->null}
+        val recentActivity=Regex("^Recent activity · (\\d+)/100$").matchEntire(source)
+        if(recentActivity!=null)return when(lang) {"fr"->"Activité récente · ${recentActivity.groupValues[1]}/100";"es"->"Actividad reciente · ${recentActivity.groupValues[1]}/100";"pt"->"Atividade recente · ${recentActivity.groupValues[1]}/100";else->null}
+        val nowPlaying=Regex("^Now playing · (.*)$").matchEntire(source)
+        if(nowPlaying!=null)return when(lang) {"fr"->"En cours · ${nowPlaying.groupValues[1]}";"es"->"En juego · ${nowPlaying.groupValues[1]}";"pt"->"Em jogo · ${nowPlaying.groupValues[1]}";else->null}
+        val criticalPath=Regex("^Critical path: (\\d+) ns through (\\d+) gates?\\. Delays are teaching values \\(NOT 2 ns, NAND/NOR 3 ns, AND/OR 4 ns, XOR/XNOR 6 ns\\), not silicon measurements\\.$").matchEntire(source)
+        if(criticalPath!=null){val count=criticalPath.groupValues[2];val plural=count!="1";return when(lang) {"fr"->"Chemin critique : ${criticalPath.groupValues[1]} ns à travers $count porte${if(plural)"s"else""}. Les délais sont pédagogiques (NOT 2 ns, NAND/NOR 3 ns, AND/OR 4 ns, XOR/XNOR 6 ns), pas des mesures du silicium.";"es"->"Ruta crítica: ${criticalPath.groupValues[1]} ns a través de $count puerta${if(plural)"s"else""}. Los retardos son didácticos (NOT 2 ns, NAND/NOR 3 ns, AND/OR 4 ns, XOR/XNOR 6 ns), no mediciones del silicio.";"pt"->"Caminho crítico: ${criticalPath.groupValues[1]} ns por $count porta${if(plural)"s"else""}. Os atrasos são didáticos (NOT 2 ns, NAND/NOR 3 ns, AND/OR 4 ns, XOR/XNOR 6 ns), não medições do silício.";else->null}}
+        val parsedLive=Regex("^Parsed as (.+)\\. The live switches drive both the output and the gate-level diagram\\.$").matchEntire(source)
+        if(parsedLive!=null)return when(lang) {"fr"->"Expression analysée : ${parsedLive.groupValues[1]}. Les interrupteurs agissent à la fois sur la sortie et sur le schéma des portes.";"es"->"Expresión interpretada: ${parsedLive.groupValues[1]}. Los interruptores controlan tanto la salida como el diagrama de puertas.";"pt"->"Expressão interpretada: ${parsedLive.groupValues[1]}. As chaves controlam a saída e o diagrama de portas.";else->null}
+        val notEquivalent=Regex("^Not equivalent · (\\d+) counterexample rows?$").matchEntire(source)
+        if(notEquivalent!=null){val count=notEquivalent.groupValues[1];val singular=count=="1";return when(lang) {"fr"->"Non équivalentes · $count ligne${if(singular)""else"s"} de contre-exemple";"es"->"No equivalentes · $count fila${if(singular)""else"s"} de contraejemplo";"pt"->"Não equivalentes · $count linha${if(singular)""else"s"} de contraexemplo";else->null}}
+        val counterexamples=Regex("^Counterexamples \\(input order (.+)\\): (.*)$").matchEntire(source)
+        if(counterexamples!=null)return when(lang) {"fr"->"Contre-exemples (ordre des entrées ${counterexamples.groupValues[1]}) : ${counterexamples.groupValues[2]}";"es"->"Contraejemplos (orden de entrada ${counterexamples.groupValues[1]}): ${counterexamples.groupValues[2]}";"pt"->"Contraexemplos (ordem das entradas ${counterexamples.groupValues[1]}): ${counterexamples.groupValues[2]}";else->null}
+        val verifierRows=Regex("^The verifier compares all (\\d+) input combinations, not only the switches shown above\\.$").matchEntire(source)
+        if(verifierRows!=null)return when(lang) {"fr"->"Le vérificateur compare les ${verifierRows.groupValues[1]} combinaisons d’entrées, pas seulement celles des interrupteurs affichés.";"es"->"El verificador compara las ${verifierRows.groupValues[1]} combinaciones de entrada, no solo las de los interruptores mostrados.";"pt"->"O verificador compara as ${verifierRows.groupValues[1]} combinações de entrada, não apenas as chaves exibidas.";else->null}
+        val evaluateRows=Regex("^Evaluate all (\\d+) rows in binary order\\. Rows with output 1 become minterms; rows with output 0 become maxterms\\.$").matchEntire(source)
+        if(evaluateRows!=null)return when(lang) {"fr"->"Évaluez les ${evaluateRows.groupValues[1]} lignes dans l’ordre binaire. Les sorties 1 deviennent des mintermes ; les sorties 0, des maxtermes.";"es"->"Evalúa las ${evaluateRows.groupValues[1]} filas en orden binario. Las salidas 1 son minterminos; las salidas 0, maxterminos.";"pt"->"Avalie as ${evaluateRows.groupValues[1]} linhas em ordem binária. Saídas 1 tornam-se mintermos; saídas 0, maxtermos.";else->null}
+        val highlightedRows=Regex("^Highlighted row follows the live input switches\\. All (\\d+) rows remain available for copying\\.$").matchEntire(source)
+        if(highlightedRows!=null)return when(lang) {"fr"->"La ligne mise en évidence suit les interrupteurs d’entrée. Les ${highlightedRows.groupValues[1]} lignes restent copiables.";"es"->"La fila resaltada sigue los interruptores de entrada. Las ${highlightedRows.groupValues[1]} filas se pueden copiar.";"pt"->"A linha destacada acompanha as chaves de entrada. As ${highlightedRows.groupValues[1]} linhas podem ser copiadas.";else->null}
+        val noRequiredCells=Regex("^No required ([01])-cells; the constant answer needs no groups\\.$").matchEntire(source)
+        if(noRequiredCells!=null)return when(lang) {"fr"->"Aucune case ${noRequiredCells.groupValues[1]} requise ; la constante ne nécessite aucun groupe.";"es"->"No se requieren celdas con ${noRequiredCells.groupValues[1]}; la constante no necesita grupos.";"pt"->"Nenhuma célula com ${noRequiredCells.groupValues[1]} é necessária; a constante não precisa de grupos.";else->null}
+        val cellsSummary=Regex("^Cells (.+) · (\\d+) cells( · wraps an edge)?( · essential)?$").matchEntire(source)
+        if(cellsSummary!=null){val wrap=cellsSummary.groupValues[3].isNotEmpty();val essential=cellsSummary.groupValues[4].isNotEmpty();return when(lang) {"fr"->"Cases ${cellsSummary.groupValues[1]} · ${cellsSummary.groupValues[2]} cases${if(wrap)" · les bords se rejoignent"else""}${if(essential)" · essentiel"else""}";"es"->"Celdas ${cellsSummary.groupValues[1]} · ${cellsSummary.groupValues[2]} celdas${if(wrap)" · los bordes se conectan"else""}${if(essential)" · esencial"else""}";"pt"->"Células ${cellsSummary.groupValues[1]} · ${cellsSummary.groupValues[2]} células${if(wrap)" · as bordas se conectam"else""}${if(essential)" · essencial"else""}";else->null}}
+        val inputGateStatus=Regex("^Inputs: (.+)\\. Group gates update as the switches change\\.$").matchEntire(source)
+        if(inputGateStatus!=null)return when(lang) {"fr"->"Entrées : ${inputGateStatus.groupValues[1]}. Les portes se mettent à jour avec les interrupteurs.";"es"->"Entradas: ${inputGateStatus.groupValues[1]}. Las puertas se actualizan al cambiar los interruptores.";"pt"->"Entradas: ${inputGateStatus.groupValues[1]}. As portas são atualizadas ao mudar as chaves.";else->null}
+        val sessionSummary=Regex("^(.+) · (gates|combinational|sequential) · inputs ([01]+)(?: · Q=([01X]+) · CLK=([01]))?$").matchEntire(source)
+        if(sessionSummary!=null){val kind=sessionSummary.groupValues[2];val rawModel=sessionSummary.groupValues[1];val model=when(kind){"gates"->LogicCatalog.gates.firstOrNull{it.gate.name.equals(rawModel,true)}?.gate?.name?:rawModel;"combinational"->LogicCatalog.circuits.firstOrNull{it.id==rawModel}?.let{LogicCatalogTranslations.translate(it.title,lang)?:it.title}?:rawModel;else->LogicCatalog.sequential.firstOrNull{it.id==rawModel}?.let{LogicCatalogTranslations.translate(it.title,lang)?:it.title}?:rawModel};val modelText=if(kind=="gates")model else model;val kindText=when(kind){"gates"->when(lang){"fr"->"portes";"es"->"puertas";else->"portas"};"combinational"->when(lang){"fr"->"combinatoire";"es"->"combinacional";else->"combinacional"};else->when(lang){"fr"->"séquentiel";"es"->"secuencial";else->"sequencial"}};val inputs=when(lang){"fr"->"entrées";"es"->"entradas";else->"entradas"};val clock=if(sessionSummary.groupValues[4].isNotEmpty())" · Q=${sessionSummary.groupValues[4]} · ${when(lang){"fr"->"HORLOGE";"es"->"RELOJ";else->"CLK"}}=${sessionSummary.groupValues[5]}"else"";return "$modelText · $kindText · $inputs ${sessionSummary.groupValues[3]}$clock"}
+        val inputToggle=Regex("^Input ([A-Z]) ([01])\\. Tap to toggle\\.$").matchEntire(source)
+        if(inputToggle!=null)return when(lang) {"fr"->"Entrée ${inputToggle.groupValues[1]}, ${inputToggle.groupValues[2]}. Touchez pour basculer.";"es"->"Entrada ${inputToggle.groupValues[1]}, ${inputToggle.groupValues[2]}. Toca para alternar.";"pt"->"Entrada ${inputToggle.groupValues[1]}, ${inputToggle.groupValues[2]}. Toque para alternar.";else->null}
+        val externalToggle=Regex("^External input ([A-D]), ([01])\\. Tap to toggle\\.$").matchEntire(source)
+        if(externalToggle!=null)return when(lang) {"fr"->"Entrée externe ${externalToggle.groupValues[1]}, ${externalToggle.groupValues[2]}. Touchez pour basculer.";"es"->"Entrada externa ${externalToggle.groupValues[1]}, ${externalToggle.groupValues[2]}. Toca para alternar.";"pt"->"Entrada externa ${externalToggle.groupValues[1]}, ${externalToggle.groupValues[2]}. Toque para alternar.";else->null}
+        val externalState=Regex("^External input ([A-D]), ([01])$").matchEntire(source)
+        if(externalState!=null)return when(lang) {"fr"->"Entrée externe ${externalState.groupValues[1]}, ${externalState.groupValues[2]}";"es"->"Entrada externa ${externalState.groupValues[1]}, ${externalState.groupValues[2]}";"pt"->"Entrada externa ${externalState.groupValues[1]}, ${externalState.groupValues[2]}";else->null}
+        val pinInput=Regex("^([A-Z]+) input (\\d+), (wired|empty)$").matchEntire(source)
+        if(pinInput!=null)return when(lang) {"fr"->"Entrée ${pinInput.groupValues[2]} de la porte ${pinInput.groupValues[1]} : ${if(pinInput.groupValues[3]=="wired")"connectée"else"libre"}";"es"->"Entrada ${pinInput.groupValues[2]} de la puerta ${pinInput.groupValues[1]}: ${if(pinInput.groupValues[3]=="wired")"conectada"else"vacía"}";"pt"->"Entrada ${pinInput.groupValues[2]} da porta ${pinInput.groupValues[1]}: ${if(pinInput.groupValues[3]=="wired")"conectada"else"vazia"}";else->null}
+        val pinOutput=Regex("^([A-Z]+) output$").matchEntire(source)
+        if(pinOutput!=null)return when(lang) {"fr"->"Sortie de la porte ${pinOutput.groupValues[1]}";"es"->"Salida de la puerta ${pinOutput.groupValues[1]}";"pt"->"Saída da porta ${pinOutput.groupValues[1]}";else->null}
+        val outputLabel=Regex("^out = ([01])$").matchEntire(source)
+        if(outputLabel!=null)return when(lang) {"fr"->"sortie = ${outputLabel.groupValues[1]}";"es"->"salida = ${outputLabel.groupValues[1]}";"pt"->"saída = ${outputLabel.groupValues[1]}";else->null}
+        val guideHeading=Regex("^VISUAL HELPER · (\\d+)/(\\d+)$").matchEntire(source)
+        if(guideHeading!=null)return when(lang) {"fr"->"AIDE VISUELLE · ${guideHeading.groupValues[1]}/${guideHeading.groupValues[2]}";"es"->"GUÍA VISUAL · ${guideHeading.groupValues[1]}/${guideHeading.groupValues[2]}";"pt"->"AJUDA VISUAL · ${guideHeading.groupValues[1]}/${guideHeading.groupValues[2]}";else->null}
+        val shownRows=Regex("^(\\d+) ROWS · SHOWING 16 AT A TIME$").matchEntire(source)
+        if(shownRows!=null)return when(lang) {"fr"->"${shownRows.groupValues[1]} LIGNES · 16 AFFICHÉES À LA FOIS";"es"->"${shownRows.groupValues[1]} FILAS · SE MUESTRAN 16 A LA VEZ";"pt"->"${shownRows.groupValues[1]} LINHAS · 16 EXIBIDAS POR VEZ";else->null}
+        val outputProbe=Regex("^Output probe, ([01])$").matchEntire(source)
+        if(outputProbe!=null)return when(lang) {"fr"->"Sonde de sortie, ${outputProbe.groupValues[1]}";"es"->"Sonda de salida, ${outputProbe.groupValues[1]}";"pt"->"Sonda de saída, ${outputProbe.groupValues[1]}";else->null}
+        val mapCell=Regex("^(Minterm m|Maxterm M)(\\d+), (.+), output (don't-care|[01])\\. (Select group cell|Tap to cycle)$").matchEntire(source)
+        if(mapCell!=null){val term=if(mapCell.groupValues[1].startsWith("Minterm"))when(lang){"fr"->"minterme m";"es"->"mintermino m";else->"mintermo m"}else when(lang){"fr"->"maxterme M";"es"->"maxtermino M";else->"maxtermo M"};val value=if(mapCell.groupValues[4]=="don't-care")when(lang){"fr"->"indifférence";"es"->"valor indiferente";else->"condição indiferente"}else mapCell.groupValues[4];val action=if(mapCell.groupValues[5]=="Select group cell")when(lang){"fr"->"Sélectionnez une case à grouper";"es"->"Selecciona la celda del grupo";else->"Selecione a célula do grupo"}else when(lang){"fr"->"Touchez pour changer la valeur";"es"->"Toca para cambiar el valor";else->"Toque para mudar o valor"};return when(lang) {"fr"->"$term${mapCell.groupValues[2]}, ${mapCell.groupValues[3]}, sortie ${value}. $action.";"es"->"$term${mapCell.groupValues[2]}, ${mapCell.groupValues[3]}, salida ${value}. $action.";"pt"->"$term${mapCell.groupValues[2]}, ${mapCell.groupValues[3]}, saída ${value}. $action.";else->null}}
+        val baseResult=Regex("^(Binary|Octal|Decimal|Hexadecimal|Base \\d+): (.+)$").matchEntire(source)
+        if(baseResult!=null){val rawName=baseResult.groupValues[1];val name=CoreEngineTranslations.translate(rawName,lang)?:rawName;val value=if(baseResult.groupValues[2]=="no result")when(lang){"fr"->"aucun résultat";"es"->"sin resultado";else->"sem resultado"}else baseResult.groupValues[2];return "$name : $value"}
+        val gateDiagram=Regex("^([A-Z]+) gate\\. Inputs (\\[[01](?:, [01])*\\]); output ([01])\\.$").matchEntire(source)
+        if(gateDiagram!=null)return when(lang) {"fr"->"Porte ${gateDiagram.groupValues[1]}. Entrées ${gateDiagram.groupValues[2]} ; sortie ${gateDiagram.groupValues[3]}.";"es"->"Puerta ${gateDiagram.groupValues[1]}. Entradas ${gateDiagram.groupValues[2]}; salida ${gateDiagram.groupValues[3]}.";"pt"->"Porta ${gateDiagram.groupValues[1]}. Entradas ${gateDiagram.groupValues[2]}; saída ${gateDiagram.groupValues[3]}.";else->null}
+        val gateSchematic=Regex("^(.+) gate-level schematic\\. Crossings connect only at pin junction dots\\.$").matchEntire(source)
+        if(gateSchematic!=null){val title=LogicCatalogTranslations.translate(gateSchematic.groupValues[1],lang)?:gateSchematic.groupValues[1];return when(lang) {"fr"->"Schéma de $title au niveau des portes. Les croisements ne sont reliés qu’aux points de jonction des broches.";"es"->"Esquema de $title a nivel de puertas. Los cruces solo se conectan en los puntos de unión de los pines.";"pt"->"Esquema de $title no nível das portas. Os cruzamentos só se conectam nos pontos de junção dos pinos.";else->null}}
+        val blockDiagram=Regex("^(.+) block\\. (.+)$").matchEntire(source)
+        if(blockDiagram!=null){val title=LogicCatalogTranslations.translate(blockDiagram.groupValues[1],lang)?:blockDiagram.groupValues[1];val unknown=when(lang){"fr"->"indéterminé";"es"->"desconocido";else->"desconhecido"};val outputs=Regex("([A-Za-z]+)(?=\\s*=)").replace(blockDiagram.groupValues[2].replace("unknown",unknown)){match->LogicCatalogTranslations.translateOutputName(match.value,lang)};return when(lang) {"fr"->"Bloc $title. Sorties : $outputs";"es"->"Bloque $title. Salidas: $outputs";"pt"->"Bloco $title. Saídas: $outputs";else->null}}
+        val crossLatch=Regex("^Cross-coupled (NOR|NAND) latch\\. (nS|R) drives the Q gate\\.$").matchEntire(source)
+        if(crossLatch!=null){val setInput=crossLatch.groupValues[2]=="nS";return when(lang) {"fr"->"Verrou ${crossLatch.groupValues[1]} à rétroaction croisée. ${if(setInput)"nS commande"else"R commande"} la porte Q.";"es"->"Latch ${crossLatch.groupValues[1]} acoplado en cruz. ${if(setInput)"nS controla"else"R controla"} la puerta Q.";"pt"->"Latch ${crossLatch.groupValues[1]} com realimentação cruzada. ${if(setInput)"nS aciona"else"R aciona"} a porta Q.";else->null}}
+        if(source=="D latch internals: steering gates plus a cross-coupled NOR core.")return when(lang) {"fr"->"Intérieur du verrou D : portes de commande et cœur NOR à rétroaction croisée.";"es"->"Interior del latch D: puertas de control y núcleo NOR acoplado en cruz.";else->"Interior do latch D: portas de controle e núcleo NOR com realimentação cruzada."}
+        if(source=="SR flip-flop internals: clocked AND gates feeding an SR NOR core.")return when(lang) {"fr"->"Intérieur de la bascule SR : des portes AND commandées par l’horloge alimentent un cœur SR à portes NOR.";"es"->"Interior del flip-flop SR: puertas AND sincronizadas alimentan un núcleo SR de puertas NOR.";else->"Interior do flip-flop SR: portas AND controladas pelo clock alimentam um núcleo SR NOR."}
+        if(source=="D flip-flop internals: master latch and slave latch with a clock inverter.")return when(lang) {"fr"->"Intérieur de la bascule D : verrou maître, verrou esclave et inverseur d’horloge.";"es"->"Interior del flip-flop D: latch maestro, latch esclavo e inversor de reloj.";else->"Interior do flip-flop D: latch mestre, latch escravo e inversor de clock."}
+        val jkT=Regex("^(JK|T) flip-flop internals: input steering with Q feedback into a clocked SR core\\.$").matchEntire(source)
+        if(jkT!=null)return when(lang) {"fr"->"Intérieur de la bascule ${jkT.groupValues[1]} : commande des entrées avec rétroaction de Q vers un cœur SR cadencé.";"es"->"Interior del flip-flop ${jkT.groupValues[1]}: control de entradas con realimentación de Q hacia un núcleo SR sincronizado.";else->"Interior do flip-flop ${jkT.groupValues[1]}: controle das entradas com realimentação de Q para um núcleo SR controlado pelo clock."}
+        if(source=="3-bit counter internals: ideal T stages with EN, clock and synchronous reset rails.")return when(lang) {"fr"->"Intérieur du compteur 3 bits : étages T idéaux avec lignes EN, horloge et remise à zéro synchrone.";"es"->"Interior del contador de 3 bits: etapas T ideales con señales EN, reloj y reinicio síncrono.";else->"Interior do contador de 3 bits: estágios T ideais com sinais EN, clock e reset síncrono."}
+        val wideCounter=Regex("^4-bit (.+) internals: ideal D stages with shared clock, enable and reset\\.$").matchEntire(source)
+        if(wideCounter!=null){val kind=when(wideCounter.groupValues[1]) {"ring counter"->when(lang){"fr"->"compteur en anneau";"es"->"contador en anillo";else->"contador em anel"};"Johnson counter"->"compteur Johnson";else->wideCounter.groupValues[1]};return when(lang) {"fr"->"Intérieur du $kind 4 bits : étages D idéaux avec horloge, activation et remise à zéro communes.";"es"->"Interior del $kind de 4 bits: etapas D ideales con reloj, habilitación y reinicio compartidos.";else->"Interior do $kind de 4 bits: estágios D ideais com clock, habilitação e reset compartilhados."}}
+        val stage=Regex("^([TD]) stage Q(\\d+)$").matchEntire(source)
+        if(stage!=null){val register=stage.groupValues[1];val index=stage.groupValues[2];return when(lang) {"fr"->"Étage $register Q$index";"es"->"Etapa $register Q$index";else->"Estágio $register Q$index"}}
+        if(source=="Discrete action timing trace, not real time. Unknown states are marked X.")return when(lang) {"fr"->"Chronologie discrète des actions, pas du temps réel. Les états inconnus sont marqués X.";"es"->"Traza temporal de acciones discretas, no tiempo real. Los estados desconocidos se marcan con X.";else->"Traçado temporal de ações discretas, não tempo real. Estados desconhecidos são marcados com X."}
         return null
     }
 }

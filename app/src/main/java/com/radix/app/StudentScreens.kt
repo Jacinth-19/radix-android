@@ -43,7 +43,8 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
     var target by remember { mutableIntStateOf(initialTarget) }
     val report = remember(input,from,target) { runCatching { BaseWorking.explain(input,from,target) }.getOrNull() }
     val clipboard=LocalClipboardManager.current
-    val language=LocalStrings.current.languageCode
+    val strings=LocalStrings.current
+    val language=strings.languageCode
     ModalBottomSheet(onDismissRequest=dismiss, sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true), containerColor=panel()) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=30.dp)) {
             Row(verticalAlignment=Alignment.CenterVertically) {
@@ -55,7 +56,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                 listOf(2,8,10,16).forEach { base -> StudentChip(BaseConverter.shortName(base),target==base,{target=base},Modifier.weight(1f)) }
             }
             Text("Target base $target · ${BaseConverter.name(target)}",color=accent(),fontSize=12.sp,modifier=Modifier.padding(top=12.dp))
-            Slider(value=target.toFloat(),onValueChange={target=it.roundToInt()},valueRange=2f..36f,steps=33,modifier=Modifier.semantics {contentDescription="Target base from 2 to 36"})
+            Slider(value=target.toFloat(),onValueChange={target=it.roundToInt()},valueRange=2f..36f,steps=33,modifier=Modifier.semantics {contentDescription=strings.text("Target base from 2 to 36")})
             if(report==null) Text("Fix the source input before generating working.",color=MaterialTheme.colorScheme.error)
             else {
                 Surface(shape=RoundedCornerShape(18.dp),color=MaterialTheme.colorScheme.surfaceVariant) {
@@ -85,7 +86,8 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
     }
 }
 @Composable private fun WorkHeading(number: String,title: String,body: String) {
-    Text("$number  $title",fontWeight=FontWeight.Bold,fontSize=17.sp,modifier=Modifier.padding(top=24.dp,bottom=8.dp))
+    val strings=LocalStrings.current
+    Text("$number  ${strings.text(title)}",fontWeight=FontWeight.Bold,fontSize=17.sp,modifier=Modifier.padding(top=24.dp,bottom=8.dp))
     Text(body,color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(bottom=12.dp))
 }
 @Composable private fun WorkLines(lines: List<String>) {
@@ -291,6 +293,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
 }
 
 @Composable private fun KMapGrid(vm: RadixViewModel, solution: KMapEngine.Solution?, highlight: Int, manual: Boolean, selected: Set<Int>, showGroups:Boolean, showIndices:Boolean, action:(Int)->Unit) {
+    val strings=LocalStrings.current
     val n=vm.kVariables;val rows=KMapEngine.gray(KMapEngine.rowBits(n));val cols=KMapEngine.gray(KMapEngine.columnBits(n))
     BoxWithConstraints(Modifier.fillMaxWidth().padding(top=10.dp).guideAnchor("kmap")) {
         val gridWidth=if(n>=5)maxOf(maxWidth,548.dp)else maxWidth
@@ -309,8 +312,8 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     val marked=index in selected
                     Surface(onClick={action(index)},enabled=vm.kError==null,shape=RoundedCornerShape(12.dp),color=if(marked)Lime.copy(alpha=0.2f)else MaterialTheme.colorScheme.surfaceVariant,
                         modifier=Modifier.weight(1f).heightIn(min=76.dp).semantics {
-                            contentDescription="${if(vm.kForm==KMapEngine.Form.SOP)"Minterm m"else"Maxterm M"}$index, ${vm.kNames.mapIndexed {i,ch->"$ch=${KMapEngine.binary(index,n)[i]}"}.joinToString(", ")}, output ${if(value==2)"don't-care"else value}. ${if(manual)"Select group cell"else"Tap to cycle"}"
-                            stateDescription=if(marked)"Selected"else"Not selected"
+                            contentDescription=strings.text("${if(vm.kForm==KMapEngine.Form.SOP)"Minterm m"else"Maxterm M"}$index, ${vm.kNames.mapIndexed {i,ch->"$ch=${KMapEngine.binary(index,n)[i]}"}.joinToString(", ")}, output ${if(value==2)"don't-care"else value}. ${if(manual)"Select group cell"else"Tap to cycle"}")
+                            stateDescription=strings.text(if(marked)"Selected"else"Not selected")
                         }.drawWithContent {
                             drawContent()
                             val strokes=if(manual&&marked)listOf(Lime)else if(manual)emptyList()else groups.take(4).map {groupColors[it%groupColors.size]}

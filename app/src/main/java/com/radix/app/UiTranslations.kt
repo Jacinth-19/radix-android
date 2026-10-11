@@ -63,6 +63,7 @@ internal object UiTranslations {
         "Multiply the fractional part" to "Convertir la partie fractionnaire par multiplications",
         "Previous" to "Précédent",
         "Next" to "Suivant",
+        "Next →" to "Suivant →",
         "Make logic." to "Créez la logique.",
         "Look simple." to "Rendez-la simple.",
         "KARNAUGH MAPS, MADE FRIENDLY" to "LES CARTES DE KARNAUGH, EN TOUTE SIMPLICITÉ",
@@ -192,7 +193,19 @@ internal object UiTranslations {
         "Undo" to "Annuler",
         "Redo" to "Rétablir",
         "On" to "Activé",
-        "Off" to "Désactivé"
+        "Off" to "Désactivé",
+        "Waiting for a number" to "En attente d’un nombre",
+        "≈ 24 places · approximate" to "≈ 24 décimales · approximation",
+        "A different perspective." to "Un autre point de vue.",
+        "Choose your source base." to "Choisissez la base source.",
+        "Add any base from 2 to 36 to your results." to "Ajoutez à vos résultats n’importe quelle base de 2 à 36.",
+        "Changing the base reinterprets your current input." to "Changer de base réinterprète la valeur actuellement saisie.",
+        "Each bit is a switch: 0 is off and 1 is on. From right to left, the positions are worth 1, 2, 4, 8, 16, 32, 64 and 128. Add the positions that are switched on." to "Chaque bit est un interrupteur : 0 signifie désactivé et 1 activé. De droite à gauche, les positions valent 1, 2, 4, 8, 16, 32, 64 et 128. Additionnez les valeurs des positions activées.",
+        "One hexadecimal digit represents four bits. 1111 in binary is F in hex, so 1111 1111 becomes FF. The digits are 0–9 followed by A–F." to "Un chiffre hexadécimal représente quatre bits. 1111 en binaire vaut F en hexadécimal ; 1111 1111 devient donc FF. Les chiffres vont de 0 à 9, puis de A à F.",
+        "In any base, each position is worth a power of that base. 10 in binary means 2 in decimal. 10 in hexadecimal means 16. Same digits, different perspective." to "Dans toute base, chaque position vaut une puissance de cette base. 10 en binaire vaut 2 en décimal. 10 en hexadécimal vaut 16. Les mêmes chiffres, un autre point de vue.",
+        "Binary word" to "Mot binaire",
+        "Whole decimal integer" to "Entier décimal",
+        "Gray-code word" to "Mot en code Gray"
     )
 
     private val es = mapOf(
@@ -256,6 +269,7 @@ internal object UiTranslations {
         "Multiply the fractional part" to "Convertir la parte fraccionaria mediante multiplicaciones",
         "Previous" to "Anterior",
         "Next" to "Siguiente",
+        "Next →" to "Siguiente →",
         "Make logic." to "Crea lógica.",
         "Look simple." to "Hazla sencilla.",
         "KARNAUGH MAPS, MADE FRIENDLY" to "MAPAS DE KARNAUGH, MÁS SENCILLOS",
@@ -385,7 +399,19 @@ internal object UiTranslations {
         "Undo" to "Deshacer",
         "Redo" to "Rehacer",
         "On" to "Activado",
-        "Off" to "Desactivado"
+        "Off" to "Desactivado",
+        "Waiting for a number" to "Esperando un número",
+        "≈ 24 places · approximate" to "≈ 24 decimales · aproximado",
+        "A different perspective." to "Una perspectiva distinta.",
+        "Choose your source base." to "Elige la base de origen.",
+        "Add any base from 2 to 36 to your results." to "Añade a los resultados cualquier base del 2 al 36.",
+        "Changing the base reinterprets your current input." to "Al cambiar la base, se reinterpreta la entrada actual.",
+        "Each bit is a switch: 0 is off and 1 is on. From right to left, the positions are worth 1, 2, 4, 8, 16, 32, 64 and 128. Add the positions that are switched on." to "Cada bit es un interruptor: 0 está apagado y 1 encendido. De derecha a izquierda, las posiciones valen 1, 2, 4, 8, 16, 32, 64 y 128. Suma los valores de las posiciones encendidas.",
+        "One hexadecimal digit represents four bits. 1111 in binary is F in hex, so 1111 1111 becomes FF. The digits are 0–9 followed by A–F." to "Cada dígito hexadecimal representa cuatro bits. 1111 en binario es F en hexadecimal, así que 1111 1111 se convierte en FF. Los dígitos van del 0 al 9 y luego de la A a la F.",
+        "In any base, each position is worth a power of that base. 10 in binary means 2 in decimal. 10 in hexadecimal means 16. Same digits, different perspective." to "En cualquier base, cada posición vale una potencia de esa base. 10 en binario significa 2 en decimal. 10 en hexadecimal significa 16. Los mismos dígitos, distinta perspectiva.",
+        "Binary word" to "Palabra binaria",
+        "Whole decimal integer" to "Entero decimal",
+        "Gray-code word" to "Palabra en código Gray"
     )
 
     private val pt = mapOf(
@@ -449,6 +475,7 @@ internal object UiTranslations {
         "Multiply the fractional part" to "Converter a parte fracionária por multiplicações",
         "Previous" to "Anterior",
         "Next" to "Próximo",
+        "Next →" to "Avançar →",
         "Make logic." to "Crie lógica.",
         "Look simple." to "Deixe simples.",
         "KARNAUGH MAPS, MADE FRIENDLY" to "MAPAS DE KARNAUGH SEM COMPLICAÇÃO",
@@ -578,7 +605,19 @@ internal object UiTranslations {
         "Undo" to "Desfazer",
         "Redo" to "Refazer",
         "On" to "Ativado",
-        "Off" to "Desativado"
+        "Off" to "Desativado",
+        "Waiting for a number" to "Aguardando um número",
+        "≈ 24 places · approximate" to "≈ 24 casas decimais · aproximado",
+        "A different perspective." to "Uma perspectiva diferente.",
+        "Choose your source base." to "Escolha a base de origem.",
+        "Add any base from 2 to 36 to your results." to "Adicione qualquer base de 2 a 36 aos resultados.",
+        "Changing the base reinterprets your current input." to "Ao mudar a base, a entrada atual é reinterpretada.",
+        "Each bit is a switch: 0 is off and 1 is on. From right to left, the positions are worth 1, 2, 4, 8, 16, 32, 64 and 128. Add the positions that are switched on." to "Cada bit é um interruptor: 0 está desligado e 1 está ligado. Da direita para a esquerda, as posições valem 1, 2, 4, 8, 16, 32, 64 e 128. Some os valores das posições ligadas.",
+        "One hexadecimal digit represents four bits. 1111 in binary is F in hex, so 1111 1111 becomes FF. The digits are 0–9 followed by A–F." to "Cada dígito hexadecimal representa quatro bits. 1111 em binário é F em hexadecimal, então 1111 1111 vira FF. Os dígitos vão de 0 a 9, depois de A a F.",
+        "In any base, each position is worth a power of that base. 10 in binary means 2 in decimal. 10 in hexadecimal means 16. Same digits, different perspective." to "Em qualquer base, cada posição vale uma potência dessa base. 10 em binário significa 2 em decimal. 10 em hexadecimal significa 16. Os mesmos dígitos, outra perspectiva.",
+        "Binary word" to "Palavra binária",
+        "Whole decimal integer" to "Inteiro decimal",
+        "Gray-code word" to "Palavra em código Gray"
     )
 
     fun translate(source:String,language:String):String {

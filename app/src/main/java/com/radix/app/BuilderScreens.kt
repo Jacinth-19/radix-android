@@ -76,13 +76,13 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
         LabCard("Canvas · ${board.gates.size}/${BuilderEngine.MAX_GATES} gates"){
             Row(verticalAlignment=Alignment.CenterVertically){
                 Column(Modifier.weight(1f)){Text(if(vm.builderWiring)"Wiring mode: ON"else"Wiring mode: OFF",fontSize=14.sp,fontWeight=FontWeight.Bold);LabNote(if(vm.builderWiring)"Tap a glowing output, then an input (or the probe)."else"Drag gates to arrange. Tap an input pin to unwire it.")}
-                Switch(checked=vm.builderWiring,onCheckedChange={vm.builderSetWiring(it)},modifier=Modifier.semantics{contentDescription="Toggle wiring mode"})
+                Switch(checked=vm.builderWiring,onCheckedChange={vm.builderSetWiring(it)},modifier=Modifier.semantics{contentDescription=strings.text("Toggle wiring mode")})
             }
             BuilderCanvas(vm,eval,notify)
             Row(horizontalArrangement=Arrangement.spacedBy(8.dp)){
                 (0 until 4).forEach{i->
                     val on=board.ext[i]
-                    Surface(onClick={vm.builderToggleExt(i);pulse=null;haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},shape=RoundedCornerShape(12.dp),color=if(on)Lime else MaterialTheme.colorScheme.surfaceVariant,contentColor=if(on)Ink else MaterialTheme.colorScheme.onSurface,modifier=Modifier.weight(1f).heightIn(min=56.dp).semantics{contentDescription="External input ${BuilderEngine.inputName(i)}, ${if(on)1 else 0}. Tap to toggle."}){
+                    Surface(onClick={vm.builderToggleExt(i);pulse=null;haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},shape=RoundedCornerShape(12.dp),color=if(on)Lime else MaterialTheme.colorScheme.surfaceVariant,contentColor=if(on)Ink else MaterialTheme.colorScheme.onSurface,modifier=Modifier.weight(1f).heightIn(min=56.dp).semantics{contentDescription=strings.text("External input ${BuilderEngine.inputName(i)}, ${if(on)1 else 0}. Tap to toggle.")}){
                         Column(Modifier.padding(6.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){Text(BuilderEngine.inputName(i),fontFamily=Mono,fontSize=11.sp);Text(if(on)"1"else"0",fontFamily=Mono,fontSize=20.sp,fontWeight=FontWeight.Bold)}
                     }
                 }
@@ -119,6 +119,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
 }
 
 @Composable private fun BuilderCanvas(vm:RadixViewModel,eval:BuilderEngine.Eval?,notify:(String)->Unit){
+    val strings=LocalStrings.current
     val haptic=LocalHapticFeedback.current;val density=LocalDensity.current
     BoxWithConstraints(Modifier.fillMaxWidth().height(430.dp).clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.45f))) {
         val wPx=with(density){maxWidth.toPx()};val hPx=with(density){maxHeight.toPx()}
@@ -151,7 +152,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
                 else{vm.builderToggleExt(i)};haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
             },shape=RoundedCornerShape(10.dp),color=if(board.ext[i])Lime else panel(),contentColor=if(board.ext[i])Ink else MaterialTheme.colorScheme.onSurface,
                 border=BorderStroke(if(pending)3.dp else 1.dp,if(pending)accent()else outline()),
-                modifier=Modifier.offset{IntOffset(((i+0.5f)/4*wPx-32.dp.value*density.density).roundToInt(),(8.dp.value*density.density).roundToInt())}.size(64.dp,44.dp).semantics{contentDescription="External input ${BuilderEngine.inputName(i)}, ${if(board.ext[i])1 else 0}"}){
+                modifier=Modifier.offset{IntOffset(((i+0.5f)/4*wPx-32.dp.value*density.density).roundToInt(),(8.dp.value*density.density).roundToInt())}.size(64.dp,44.dp).semantics{contentDescription=strings.text("External input ${BuilderEngine.inputName(i)}, ${if(board.ext[i])1 else 0}")}){
                 Column(Modifier.fillMaxSize(),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){Text(BuilderEngine.inputName(i),fontFamily=Mono,fontSize=10.sp);Text(if(board.ext[i])"1"else"0",fontFamily=Mono,fontSize=16.sp,fontWeight=FontWeight.Bold)}
             }
         }
@@ -169,7 +170,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
                                     if(vm.builderWiring){if(vm.builderPending!=null)vm.builderTapTarget(g.id,p)else notify("Pick a glowing output first.")}
                                     else if(wired){vm.builderDeleteWireTo(g.id,p);notify("Wire removed.")}
                                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                },shape=RoundedCornerShape(8.dp),color=if(wired)accent().copy(alpha=0.25f)else MaterialTheme.colorScheme.surfaceVariant,border=BorderStroke(1.dp,outline()),modifier=Modifier.size(PIN).padding(1.dp).semantics{contentDescription="${g.gate} input ${p+1}, ${if(wired)"wired"else"empty"}"}){
+                                },shape=RoundedCornerShape(8.dp),color=if(wired)accent().copy(alpha=0.25f)else MaterialTheme.colorScheme.surfaceVariant,border=BorderStroke(1.dp,outline()),modifier=Modifier.size(PIN).padding(1.dp).semantics{contentDescription=strings.text("${g.gate} input ${p+1}, ${if(wired)"wired"else"empty"}")}){
                                     Box(contentAlignment=Alignment.Center){Text((p+1).toString(),fontFamily=Mono,fontSize=9.sp)}
                                 }
                                 if(p<arity-1)Spacer(Modifier.height(PIN_GAP))
@@ -183,7 +184,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
                         Surface(onClick={
                             if(vm.builderWiring)vm.builderTapSource(g.id,0)else notify("Turn wiring mode ON, then tap this output.")
                             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        },shape=RoundedCornerShape(8.dp),color=if(vm.builderPending==Pair(g.id,0))Lime else if(out==true)accent().copy(alpha=0.3f)else MaterialTheme.colorScheme.surfaceVariant,border=BorderStroke(1.dp,outline()),modifier=Modifier.size(PIN).semantics{contentDescription="${g.gate} output"}){
+                        },shape=RoundedCornerShape(8.dp),color=if(vm.builderPending==Pair(g.id,0))Lime else if(out==true)accent().copy(alpha=0.3f)else MaterialTheme.colorScheme.surfaceVariant,border=BorderStroke(1.dp,outline()),modifier=Modifier.size(PIN).semantics{contentDescription=strings.text("${g.gate} output")}){
                             Box(contentAlignment=Alignment.Center){Text("Y",fontFamily=Mono,fontSize=10.sp,fontWeight=FontWeight.Bold)}
                         }
                     }
@@ -195,7 +196,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
             if(vm.builderWiring){if(vm.builderPending!=null)vm.builderTapTarget(BuilderEngine.PROBE,0)else notify("Pick a glowing output first.")}
             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         },shape=RoundedCornerShape(12.dp),color=if(eval?.probe==true)Lime else panel(),contentColor=if(eval?.probe==true)Ink else MaterialTheme.colorScheme.onSurface,border=BorderStroke(1.dp,outline()),
-            modifier=Modifier.offset{IntOffset((wPx/2-48.dp.value*density.density).roundToInt(),(hPx-44.dp.value*density.density).roundToInt())}.size(96.dp,36.dp).semantics{contentDescription="Output probe, ${if(eval?.probe==true)1 else 0}"}){
+            modifier=Modifier.offset{IntOffset((wPx/2-48.dp.value*density.density).roundToInt(),(hPx-44.dp.value*density.density).roundToInt())}.size(96.dp,36.dp).semantics{contentDescription=strings.text("Output probe, ${if(eval?.probe==true)1 else 0}")}){
             Box(contentAlignment=Alignment.Center){Text("Y = ${eval?.probe?.let{if(it)1 else 0}?:"–"}",fontFamily=Mono,fontSize=14.sp,fontWeight=FontWeight.Bold)}
         }
     }

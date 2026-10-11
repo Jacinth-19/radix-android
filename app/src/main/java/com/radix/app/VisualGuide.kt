@@ -56,7 +56,8 @@ internal val guideSteps=listOf(
 @Composable internal fun GuideOverlay(index:Int,anchors:Map<String,Rect>,next:()->Unit,previous:()->Unit,close:()->Unit){
     BackHandler(onBack=close)
     val step=guideSteps[index]
-    BoxWithConstraints(Modifier.fillMaxSize().clickable(onClick={}).semantics{contentDescription="Visual app tour, step ${index+1} of ${guideSteps.size}"}){
+    val strings=LocalStrings.current
+    BoxWithConstraints(Modifier.fillMaxSize().clickable(onClick={}).semantics{contentDescription=strings.text("Visual app tour, step ${index+1} of ${guideSteps.size}")}){
         val density=androidx.compose.ui.platform.LocalDensity.current
         val rect=anchors[step.anchor]?:if(step.anchor=="logic-clock")anchors["logic-choice"]else null
         val width=with(density){maxWidth.toPx()};val height=with(density){maxHeight.toPx()}
@@ -84,7 +85,7 @@ internal val guideSteps=listOf(
     ModalBottomSheet(onDismissRequest=dismiss,containerColor=panel(),sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)){
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=28.dp)){
             Text("A little help.\nA lot of aha.",fontFamily=Grotesk,fontSize=29.sp,lineHeight=32.sp,fontWeight=FontWeight.Bold)
-            Text("Take a guided tour of the core tools. This helper is built in—not an online chat or a network service. Some advanced lesson screens are still English-only.",color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(vertical=12.dp))
+            Text("Take a guided tour of the core tools. This built-in helper works offline. It is not a chat or network service. The app follows the system language when English, French, Spanish or Portuguese is supported; otherwise it uses English.",color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(vertical=12.dp))
             Button(onClick=start,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp),shape=RoundedCornerShape(14.dp)){Text("Start the visual app tour")}
             HelpCard("01","Convert without waiting","Choose a source base, type your number, then read or copy a result. Try decimal 255 → hexadecimal FF."){
                 Row(Modifier.fillMaxWidth().padding(vertical=15.dp),horizontalArrangement=Arrangement.SpaceEvenly){Text("255₁₀",fontFamily=Mono,fontSize=25.sp,color=accent());Text("→",fontSize=25.sp);Text("FF₁₆",fontFamily=Mono,fontSize=25.sp,color=MaterialTheme.colorScheme.secondary)}
@@ -124,9 +125,10 @@ internal val guideSteps=listOf(
     }
 }
 @Composable private fun HelpCard(number:String,title:String,body:String,visual:@Composable ()->Unit){
+    val strings=LocalStrings.current
     Surface(shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceVariant,modifier=Modifier.fillMaxWidth().padding(top=15.dp)){
         Column(Modifier.padding(16.dp)){
-            Text("$number  $title",fontWeight=FontWeight.Bold,fontSize=17.sp,lineHeight=23.sp)
+            Text("$number  ${strings.text(title)}",fontWeight=FontWeight.Bold,fontSize=17.sp,lineHeight=23.sp)
             visual();Text(body,color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(top=9.dp))
         }
     }

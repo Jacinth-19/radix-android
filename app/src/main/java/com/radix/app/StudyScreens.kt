@@ -233,7 +233,7 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
             StudyCard("G${i+1} · ${if(form==KMapEngine.Form.POS)"(${g.term})"else g.term}"){
                 StudyNote("Cells ${g.cube.indices(1 shl r.names.size).joinToString(", ")} · ${java.lang.Long.bitCount(g.cube.members)} cells${if(g.wraps)" · wraps an edge"else""}${if(g.essential)" · essential"else""}")
                 g.explanation.forEach{StudyNote(it)}
-                StudyNote(if(g.essential)"At least one required cell has no other maximal cover."else"Chosen to complete an exact minimum cover; overlap is allowed.")
+                StudyNote(if(g.essential)"At least one required cell has no other maximal covering group."else"Chosen to finish a minimum cover. Overlap is allowed.")
             }
         }
     }
@@ -418,12 +418,12 @@ private fun expressionMapText(source:String,r:ExpressionEngine.Report,form:KMapE
 }
 
 @Composable internal fun RepresentationScreen(vm:RadixViewModel,notify:(String)->Unit){
-    val s=vm.representation;val clipboard=LocalClipboardManager.current;val language=LocalStrings.current.languageCode;val result=remember(s){runCatching{RepresentationEngine.report(s.input,s.width,s.signed,s.mode)}}
+    val s=vm.representation;val clipboard=LocalClipboardManager.current;val strings=LocalStrings.current;val language=strings.languageCode;val result=remember(s){runCatching{RepresentationEngine.report(s.input,s.width,s.signed,s.mode)}}
     StudyPage("Same bits.","Different meaning.","THE NUMBER REPRESENTATION LAB","Choose a width. Read the value. Understand the sign."){
         StudyCard("Encode or decode"){
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(7.dp)){RepresentationEngine.widths.forEach{w->OutlinedButton(onClick={vm.setRepresentation(s.copy(width=w))},modifier=Modifier.heightIn(min=actionHeight())){Text("$w bits",fontSize=11.sp,color=if(w==s.width)accent()else muted())}}}
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){listOf("decimal" to "Decimal", "bits" to "Binary word", "gray" to "Gray code").forEach{(key,name)->OutlinedButton(onClick={vm.setRepresentation(s.copy(mode=key,input=when(key){"decimal"->"-13";"bits"->"11110011";else->"0110"},width=maxOf(8,s.width)))},modifier=Modifier.heightIn(min=actionHeight())){Text(name,fontSize=11.sp,color=if(key==s.mode)accent()else muted())}}}
-            Row(verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text("Two’s-complement interpretation",fontSize=13.sp);StudyNote("Off = unsigned decimal input/range")};Switch(checked=s.signed,onCheckedChange={vm.setRepresentation(s.copy(signed=it))},modifier=Modifier.semantics{contentDescription="Use signed two’s-complement interpretation"})}
+            Row(verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text("Two’s-complement interpretation",fontSize=13.sp);StudyNote("Off = unsigned decimal input/range")};Switch(checked=s.signed,onCheckedChange={vm.setRepresentation(s.copy(signed=it))},modifier=Modifier.semantics{contentDescription=strings.text("Use signed two’s-complement interpretation")})}
             OutlinedTextField(value=s.input,onValueChange={vm.setRepresentation(s.copy(input=it))},label={Text(if(s.mode=="decimal")"Whole decimal integer"else if(s.mode=="gray")"Gray-code word"else"Binary word")},modifier=Modifier.fillMaxWidth(),textStyle=LocalTextStyle.current.copy(fontFamily=Mono),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Ascii),minLines=1,maxLines=3)
             result.exceptionOrNull()?.let{StudyNote(it.message?:"Check input.",true)}
         }
@@ -522,8 +522,8 @@ private val shortAnswerPrompts=listOf(
     val open=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()){uri->if(uri!=null)scope.launch{val result=runCatching{withContext(Dispatchers.IO){context.contentResolver.openInputStream(uri)?.use{stream->val out=java.io.ByteArrayOutputStream();val buffer=ByteArray(4096);while(true){val count=stream.read(buffer);if(count<0)break;require(out.size()+count<=262144){"Backup exceeds 256 KiB."};out.write(buffer,0,count)};out.toString("UTF-8")}?:kotlin.error("Cannot open backup")}};result.fold(onSuccess={draft=it;checked=null;error=null;notify("Backup loaded. Validate before restoring.")},onFailure={error=it.message})}}
     StudyPage("Make it yours.","Keep it safe.","PREFERENCES & OFFLINE BACKUP","No cloud. No account. Your study data stays yours."){
         StudyCard("Comfort controls"){
-            Row(verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text("Haptic feedback",fontSize=15.sp);StudyNote("Allow short native tap feedback")};Switch(checked=vm.haptics,onCheckedChange=vm::setHaptics,modifier=Modifier.semantics{contentDescription="Allow haptic feedback"})}
-            Row(verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text("Larger learning controls",fontSize=15.sp);StudyNote("More room for circuit inputs and study actions; system font scaling is respected")};Switch(checked=vm.largeControls,onCheckedChange=vm::setLargeControls,modifier=Modifier.semantics{contentDescription="Use larger learning controls"})}
+            Row(verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text("Haptic feedback",fontSize=15.sp);StudyNote("Allow short native tap feedback")};Switch(checked=vm.haptics,onCheckedChange=vm::setHaptics,modifier=Modifier.semantics{contentDescription=strings.text("Allow haptic feedback")})}
+            Row(verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text("Larger learning controls",fontSize=15.sp);StudyNote("More room for circuit inputs and study actions; system font scaling is respected")};Switch(checked=vm.largeControls,onCheckedChange=vm::setLargeControls,modifier=Modifier.semantics{contentDescription=strings.text("Use larger learning controls")})}
         }
         StudyCard("Appearance"){
             ThemeSection(vm)

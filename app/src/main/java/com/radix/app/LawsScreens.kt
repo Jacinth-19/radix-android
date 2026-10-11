@@ -100,7 +100,8 @@ private val lawGroups = listOf(
 
 @Composable internal fun ArithmeticScreen(vm: RadixViewModel, notify: (String) -> Unit) {
     val clipboard = LocalClipboardManager.current
-    val language=LocalStrings.current.languageCode
+    val strings=LocalStrings.current
+    val language=strings.languageCode
     var a by remember { mutableStateOf("1011") }
     var b by remember { mutableStateOf("0111") }
     var base by remember { mutableIntStateOf(2) }
@@ -120,7 +121,7 @@ private val lawGroups = listOf(
                     }
                 }
                 Slider(value = base.toFloat(), onValueChange = { base = it.roundToInt() }, valueRange = 2f..36f, steps = 33,
-                    modifier = Modifier.semantics { contentDescription = "Arithmetic base from 2 to 36" })
+                    modifier = Modifier.semantics { contentDescription = strings.text("Arithmetic base from 2 to 36") })
                 OutlinedTextField(value = a, onValueChange = { a = it.take(64) }, label = { Text("First number") }, textStyle = LocalTextStyle.current.copy(fontFamily = Mono), modifier = Modifier.fillMaxWidth(), singleLine = true)
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     listOf('+' to "+", '-' to "−", '×' to "×", '÷' to "÷").forEach { (value, label) ->

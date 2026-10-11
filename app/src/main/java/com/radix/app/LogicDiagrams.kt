@@ -32,8 +32,9 @@ private fun layout(c:LogicEngine.Circuit):DiagramLayout {
     c.nodes.forEach{n->val d=depth.getValue(n.id);val i=used[d]?:0;used[d]=i+1;points[n.id]=NetPoint(50+d*150f,30+(i+.5f)*(h-60)/counts.getValue(d),n.gate)}
     return DiagramLayout((depth.values.max()+1)*150f+80,h,points)
 }
-private data class DiagramPaint(val high:Color,val low:Color,val ink:Color,val panel:Color,val unknown:Color) {
+private data class DiagramPaint(val high:Color,val low:Color,val ink:Color,val panel:Color,val unknown:Color,val language:String) {
     fun tone(v:Int?):Color=if(v==null)unknown else if(v==1)high else low
+    fun text(source:String):String=AppStrings.translate(source,language)
 }
 private fun DrawScope.label(p:DiagramPaint,x:Float,y:Float,s:String,color:Color=p.low,size:Float=11f,center:Boolean=false){
     val paint=Paint(Paint.ANTI_ALIAS_FLAG).apply{textSize=size;typeface=Typeface.MONOSPACE;this.color=android.graphics.Color.argb((color.alpha*255).toInt(),(color.red*255).toInt(),(color.green*255).toInt(),(color.blue*255).toInt());textAlign=if(center)Paint.Align.CENTER else Paint.Align.LEFT}
@@ -62,8 +63,9 @@ private fun DrawScope.symbol(p:DiagramPaint,g:LogicEngine.Gate,x:Float,y:Float){
     }
 }
 @Composable private fun DiagramSurface(width:Float,height:Float,title:String,wide:Boolean=false,draw:DrawScope.(DiagramPaint)->Unit){
-    val p=DiagramPaint(accent(),muted(),MaterialTheme.colorScheme.onSurface,MaterialTheme.colorScheme.surfaceVariant,MaterialTheme.colorScheme.secondary)
-    BoxWithConstraints(Modifier.fillMaxWidth().semantics{contentDescription=title}) {
+    val strings=LocalStrings.current
+    val p=DiagramPaint(accent(),muted(),MaterialTheme.colorScheme.onSurface,MaterialTheme.colorScheme.surfaceVariant,MaterialTheme.colorScheme.secondary,strings.languageCode)
+    BoxWithConstraints(Modifier.fillMaxWidth().semantics{contentDescription=strings.text(title)}) {
         // Compact block/single-gate views fit phones. Expanded netlists scroll locally at readable scale.
         val actual=if(wide)maxOf(maxWidth.value,width) else minOf(maxWidth.value,width)
         Box(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
@@ -87,23 +89,28 @@ private fun DrawScope.symbol(p:DiagramPaint,g:LogicEngine.Gate,x:Float,y:Float){
 }
 @Composable internal fun CircuitDiagram(c:LogicEngine.Circuit,r:LogicEngine.CircuitResult,expanded:Boolean){
     if(!expanded){BlockDiagram(c.title,c.inputs,c.outputs.keys.toList(),c.inputs.map{if(r.signals.getValue(it))1 else 0},r.outputs.values.map{if(it)1 else 0},false,false);return}
+    val language=LocalStrings.current.languageCode
+    val outputNames=c.outputs.keys.map{LogicCatalogTranslations.translateOutputName(it,language)}
     val l=layout(c)
     DiagramSurface(l.width,l.height,"${c.title} gate-level schematic. Crossings connect only at pin junction dots.",true){p->
         c.nodes.forEach {n->val point=l.points.getValue(n.id);n.refs.forEachIndexed{i,ref->val from=l.points.getValue(ref);val fx=from.x+(from.gate?.let{outputX(it)}?:0f);wire(p,fx,from.y,point.x+if(isOr(n.gate))7f else 0f,point.y-26+(i+1)*52f/(n.refs.size+1),if(r.signals.getValue(ref))1 else 0);drawCircle(p.tone(if(r.signals.getValue(ref))1 else 0),3f,Offset(fx,from.y))}}
         c.nodes.forEach {n->val point=l.points.getValue(n.id);symbol(p,n.gate,point.x,point.y-26);label(p,point.x+26,point.y+45,"${n.gate} · ${n.id}",size=10f,center=true)}
         c.inputs.forEach {n->val point=l.points.getValue(n);label(p,8f,point.y+4,n);label(p,48f,point.y-9,if(r.signals.getValue(n))"1"else"0",p.tone(if(r.signals.getValue(n))1 else 0))}
-        c.outputs.entries.forEachIndexed{i,(name,ref)->val from=l.points.getValue(ref);val y=35+(i+.5f)*(l.height-70)/c.outputs.size;val v=if(r.outputs.getValue(name))1 else 0;wire(p,from.x+(from.gate?.let{outputX(it)}?:0f),from.y,l.width-60,y,v);label(p,l.width-52,y+4,"$name=$v",p.tone(v))}
+        c.outputs.entries.forEachIndexed{i,(name,ref)->val from=l.points.getValue(ref);val y=35+(i+.5f)*(l.height-70)/c.outputs.size;val v=if(r.outputs.getValue(name))1 else 0;wire(p,from.x+(from.gate?.let{outputX(it)}?:0f),from.y,l.width-60,y,v);label(p,l.width-52,y+4,"${outputNames[i]}=$v",p.tone(v))}
     }
 }
 @Composable internal fun BlockDiagram(title:String,inputs:List<String>,outputs:List<String>,ivals:List<Int?>,ovals:List<Int?>,clocked:Boolean,clock:Boolean){
+    val language=LocalStrings.current.languageCode
+    val visualTitle=LogicCatalogTranslations.translate(title,language)?:title
+    val visualOutputs=outputs.map{LogicCatalogTranslations.translateOutputName(it,language)}
     val h=maxOf(200,maxOf(inputs.size,outputs.size+(if(clocked)1 else 0))*32+60).toFloat()
-    DiagramSurface(320f,h,"$title block. ${outputs.zip(ovals).joinToString{(name,v)->"$name=${v?:"unknown"}"}}"){p->
+    DiagramSurface(320f,h,"$title block. ${outputs.zip(ovals).joinToString{(name,v)->"$name=${v?:"unknown"}}}"){p->
         drawRoundRect(p.panel,Offset(122f,24f),Size(91f,h-49),androidx.compose.ui.geometry.CornerRadius(12f))
         drawRoundRect(p.low,Offset(122f,24f),Size(91f,h-49),androidx.compose.ui.geometry.CornerRadius(12f),style=Stroke(1.2f))
-        val words=title.replace(" · enable","").replace(" · NOR","").replace(" · NAND","").split(' ')
+        val words=visualTitle.substringBefore(" · ").split(' ')
         words.forEachIndexed{i,word->label(p,166f,maxOf(55f,h/2-words.size*7)+15*i,word,p.ink,10f,true)}
         inputs.forEachIndexed{i,n->val y=38+(i+.5f)*(h-if(clocked)108 else 68)/inputs.size;label(p,10f,y+4,n,size=10f);label(p,65f,y-7,ivals[i]?.toString()?:"X",p.tone(ivals[i]),10f);wire(p,73f,y,122f,y,ivals[i])}
-        outputs.forEachIndexed{i,n->val y=38+(i+.5f)*(h-68)/outputs.size;wire(p,213f,y,252f,y,ovals[i]);label(p,260f,y+4,"$n=${ovals[i]?:"X"}",p.tone(ovals[i]),10f)}
+        visualOutputs.forEachIndexed{i,n->val y=38+(i+.5f)*(h-68)/visualOutputs.size;wire(p,213f,y,252f,y,ovals[i]);label(p,260f,y+4,"$n=${ovals[i]?:"X"}",p.tone(ovals[i]),10f)}
         if(clocked){val cy=h-49;wire(p,78f,cy,122f,cy,if(clock)1 else 0);drawPath(PathParser().parsePathString("M122 ${h-55} l9 6 -9 6").toPath(),p.ink,style=Stroke(1.5f));label(p,43f,cy+4,"CLK",size=9f)}
     }
 }
@@ -117,7 +124,7 @@ private fun DrawScope.stageCell(p:DiagramPaint,x:Float,y:Float,w:Float,h:Float,t
     withTransform({translate(2f,2.5f)}){drawRoundRect(p.ink.copy(alpha=.12f),Offset(x,y),Size(w,h),androidx.compose.ui.geometry.CornerRadius(12f))}
     drawRoundRect(p.panel,Offset(x,y),Size(w,h),androidx.compose.ui.geometry.CornerRadius(12f))
     drawRoundRect(p.ink,Offset(x,y),Size(w,h),androidx.compose.ui.geometry.CornerRadius(12f),style=Stroke(2f))
-    label(p,x+w/2,y+22,title,p.ink,11f,true)
+    label(p,x+w/2,y+22,p.text(title),p.ink,11f,true)
     label(p,x+w/2,y+h-12,"Q=${q?:"X"}",p.tone(q),13f,true)
 }
 private fun DrawScope.clockWedge(x:Float,y:Float){drawPath(PathParser().parsePathString("M$x $y l10 7 -10 7").toPath(),androidx.compose.ui.graphics.Color.Transparent);drawPath(PathParser().parsePathString("M$x $y l10 7 -10 7 Z").toPath(),pInk(),style=Stroke(1.6f))}
@@ -136,7 +143,7 @@ private fun pInk():androidx.compose.ui.graphics.Color=androidx.compose.ui.graphi
                 track(p,listOf(ox to 186f,310f to 186f,310f to 48+104f/3,px to 48+104f/3),outputs[1])
                 pin(p,ox,74f,outputs[0]);pin(p,ox,186f,outputs[1]);pin(p,px,160+104f/3,outputs[0]);pin(p,px,48+104f/3,outputs[1])
                 label(p,240f,59f,"Q=${outputs[0]?:"X"}",p.tone(outputs[0]));label(p,240f,213f,"Q′=${outputs[1]?:"X"}",p.tone(outputs[1]))
-                label(p,145f,238f,"cross-coupled ${kind.name.lowercase()} gates",size=10f)
+                label(p,145f,238f,p.text("cross-coupled ${kind.name.lowercase()} gates"),size=10f)
             }
         }
         "D_LATCH"->{
@@ -183,11 +190,11 @@ private fun pInk():androidx.compose.ui.graphics.Color=androidx.compose.ui.graphi
             DiagramSurface(560f,395f,"D flip-flop internals: master latch and slave latch with a clock inverter.",true){p->
                 val d=bit(inputs[0]);val clk=bit(state.clock);val nclk=1-clk
                 label(p,10f,70f,"D");label(p,10f,199f,"CLK=$clk",p.tone(clk))
-                label(p,150f,18f,"MASTER · follows D while CLK=0",size=10f)
-                label(p,150f,190f,"SLAVE · copies master on ↑CLK",size=10f)
+                label(p,150f,18f,p.text("MASTER · follows D while CLK=0"),size=10f)
+                label(p,150f,190f,p.text("SLAVE · copies master on ↑CLK"),size=10f)
                 track(p,listOf(30f to 195f,480f to 195f),clk);pin(p,30f,195f,clk)
                 track(p,listOf(440f to 66f,505f to 66f,505f to 207f,40f to 207f,40f to 251f),null)
-                label(p,300f,203f,"master Q → slave D",size=9f)
+                label(p,300f,203f,p.text("master Q → slave D"),size=9f)
                 // Master steering.
                 wire(p,40f,66f,140f,66f,d);pin(p,140f,66f,d)
                 symbol(p,LogicEngine.Gate.NOT,140f,40f)
@@ -249,7 +256,7 @@ private fun pInk():androidx.compose.ui.graphics.Color=androidx.compose.ui.graphi
                 track(p,listOf(410f to 160f,436f to 160f,436f to 59f,347f to 59f),qb)
                 pin(p,410f,50f,q);pin(p,410f,160f,qb)
                 label(p,414f,42f,"Q=${q?:"X"}",p.tone(q));label(p,414f,187f,"Q′=${qb?:"X"}",p.tone(qb))
-                if(!jk)label(p,120f,228f,"J and K are tied together: T=0 holds, T=1 toggles",size=10f)
+                if(!jk)label(p,120f,228f,p.text("J and K are tied together: T=0 holds, T=1 toggles"),size=10f)
             }
         }
         "COUNTER_3"->{
@@ -284,7 +291,7 @@ private fun pInk():androidx.compose.ui.graphics.Color=androidx.compose.ui.graphi
                 pin(p,240f,120f,q[1])
                 wire(p,182f,76f,145f,120f,null);pin(p,145f,120f,null)
                 label(p,130f,44f,"T2=EN·Q0·Q1",size=9f)
-                label(p,90f,252f,"synchronous: every stage shares one clock edge",size=10f)
+                label(p,90f,252f,p.text("synchronous: every stage shares one clock edge"),size=10f)
             }
         }
         "SHIFT_4","RING_4","JOHNSON_4"->{
@@ -304,16 +311,16 @@ private fun pInk():androidx.compose.ui.graphics.Color=androidx.compose.ui.graphi
                     wire(p,x+30,226f,x+30,200f,en);wire(p,x+50,248f,x+50,200f,clk);wire(p,x+70,268f,x+70,200f,rst)
                 }
                 // Bits flow left→right toward the MSB: D→Q0→Q1→Q2→Q3.
-                if(hasD){wire(p,50f,76f,80f,140f,dIn);pin(p,80f,140f,dIn);label(p,52f,66f,"D in",size=9f)}
+                if(hasD){wire(p,50f,76f,80f,140f,dIn);pin(p,80f,140f,dIn);label(p,52f,66f,p.text("D in"),size=9f)}
                 for(i in 0 until 3){val v=q[3-i];wire(p,xs[i]+100f,150f,xs[i+1],150f,v);pin(p,xs[i]+100f,150f,v);pin(p,xs[i+1],150f,v)}
-                if(s.id=="RING_4"){track(p,listOf(540f to 150f,575f to 150f,575f to 60f,60f to 60f,60f to 150f,80f to 150f),q[0]);pin(p,80f,150f,q[0]);label(p,280f,52f,"Q3 feeds back to D0",size=10f)}
+                if(s.id=="RING_4"){track(p,listOf(540f to 150f,575f to 150f,575f to 60f,60f to 60f,60f to 150f,80f to 150f),q[0]);pin(p,80f,150f,q[0]);label(p,280f,52f,p.text("Q3 feeds back to D0"),size=10f)}
                 if(s.id=="JOHNSON_4"){
                     track(p,listOf(540f to 150f,575f to 150f,575f to 60f,60f to 60f,60f to 150f,94f to 150f),q[0])
                     drawCircle(p.panel,5f,Offset(88f,150f));drawCircle(p.ink,5f,Offset(88f,150f),style=Stroke(1.6f))
                     pin(p,80f,150f,q[0])
-                    label(p,280f,52f,"inverted Q3 feeds back to D0",size=10f)
+                    label(p,280f,52f,p.text("inverted Q3 feeds back to D0"),size=10f)
                 }
-                if(hasD)label(p,80f,100f,"serial in → Q0 ··· Q3 out",size=10f)
+                if(hasD)label(p,80f,100f,p.text("serial in → Q0 ··· Q3 out"),size=10f)
             }
         }
     }

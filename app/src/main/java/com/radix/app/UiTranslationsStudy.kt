@@ -104,7 +104,29 @@ internal object UiTranslationsStudy {
         "Try, hint, check, understand" to "Essayez, demandez un indice, vérifiez, comprenez",
         "More → Logic practice has 108 cards across Easy, Intermediate and Advanced. Choose an answer, check it, use a hint or reveal the explanation. Correct checks save mastery; revealing does not. Streaks celebrate practice days and never punish a missed day." to "Plus → Entraînement logique propose 108 questions en niveaux Facile, Intermédiaire et Avancé. Choisissez une réponse, vérifiez-la, demandez un indice ou affichez l’explication. Une bonne réponse valide la maîtrise ; révéler ne compte pas. Les séries célèbrent les jours d’entraînement sans pénaliser les pauses.",
         "Keep a safe checkpoint" to "Gardez un point de reprise sûr",
-        "Logic has Undo/Redo and Save session. More → Circuit checkpoints restores inputs, clock and memory with a fresh trace. Settings lets you control haptics, larger study controls, daily reminders, streak celebrations and reminder tips. Portable backups are validated before replacing data; keys/passwords are excluded." to "Logique propose Annuler/Rétablir et Enregistrer la session. Plus → Points de reprise restaure les entrées, l’horloge et la mémoire avec une nouvelle chronologie. Les paramètres contrôlent le retour haptique, les grandes commandes, les rappels, les séries et les astuces. Les sauvegardes portables sont vérifiées avant remplacement ; clés et mots de passe sont exclus."
+        "Logic has Undo/Redo and Save session. More → Circuit checkpoints restores inputs, clock and memory with a fresh trace. Settings lets you control haptics, larger study controls, daily reminders, streak celebrations and reminder tips. Portable backups are validated before replacing data; keys/passwords are excluded." to "Logique propose Annuler/Rétablir et Enregistrer la session. Plus → Points de reprise restaure les entrées, l’horloge et la mémoire avec une nouvelle chronologie. Les paramètres contrôlent le retour haptique, les grandes commandes, les rappels, les séries et les astuces. Les sauvegardes portables sont vérifiées avant remplacement ; clés et mots de passe sont exclus.",
+        "Settings, reminders & backup" to "Paramètres, rappels et sauvegarde",
+        "Theme, automatic system language, haptics, notifications and portable study data" to "Thème, langue système automatique, retour haptique, notifications et données d’étude exportables",
+        "Learning path & progress" to "Parcours d’apprentissage et progression",
+        "Boolean expression lab" to "Laboratoire d’expressions booléennes",
+        "Solve, verify, derive SOP/POS and inspect a live gate diagram" to "Résolvez, vérifiez, dérivez SOP/POS et inspectez un schéma de portes en direct",
+        "Logic practice hub" to "Espace d’entraînement logique",
+        "Circuit builder" to "Constructeur de circuits",
+        "Drag gates, wire them, simulate and inspect a truth table" to "Placez et reliez des portes, simulez le circuit et consultez la table de vérité",
+        "IEEE-754 float lab" to "Laboratoire de nombres flottants IEEE-754",
+        "Sign, exponent, fraction — every float decoded" to "Signe, exposant, fraction — décodez chaque flottant",
+        "Leaderboard & rewards" to "Classement et récompenses",
+        "Boolean laws lab" to "Laboratoire des lois booléennes",
+        "Every law verified live on every row" to "Chaque loi est vérifiée en direct sur toutes les lignes",
+        "Base arithmetic lab" to "Laboratoire d’arithmétique en base",
+        "+ − × ÷ in any base, with column working" to "+ − × ÷ dans toutes les bases, avec le calcul posé",
+        "Number representations" to "Représentations des nombres",
+        "One’s & two’s complement, widths, Gray and BCD" to "Complément à un et à deux, largeurs, Gray et BCD",
+        "Circuit checkpoints" to "Points de reprise des circuits",
+        "The 8-bit playground" to "Atelier 8 bits",
+        "Build a byte, one switch at a time" to "Construisez un octet, un interrupteur à la fois",
+        "Visual helper & app tour" to "Aide visuelle et visite guidée",
+        "Illustrated lessons and replayable highlights" to "Leçons illustrées et mises en évidence à revoir"
     )
 
     private val es = mapOf(
@@ -209,7 +231,29 @@ internal object UiTranslationsStudy {
         "Try, hint, check, understand" to "Prueba, pide una pista, comprueba y comprende",
         "More → Logic practice has 108 cards across Easy, Intermediate and Advanced. Choose an answer, check it, use a hint or reveal the explanation. Correct checks save mastery; revealing does not. Streaks celebrate practice days and never punish a missed day." to "Más → Práctica lógica ofrece 108 preguntas de nivel Fácil, Intermedio y Avanzado. Elige una respuesta, compruébala, usa una pista o revela la explicación. Las respuestas correctas cuentan como dominadas; revelar no. Las rachas celebran los días de práctica sin penalizar descansos.",
         "Keep a safe checkpoint" to "Guarda un punto de control seguro",
-        "Logic has Undo/Redo and Save session. More → Circuit checkpoints restores inputs, clock and memory with a fresh trace. Settings lets you control haptics, larger study controls, daily reminders, streak celebrations and reminder tips. Portable backups are validated before replacing data; keys/passwords are excluded." to "Lógica tiene Deshacer/Rehacer y Guardar sesión. Más → Puntos de control restaura entradas, reloj y memoria con un registro nuevo. Ajustes controla vibración, controles grandes, recordatorios, rachas y consejos. Las copias portátiles se validan antes de reemplazar datos; se excluyen claves y contraseñas."
+        "Logic has Undo/Redo and Save session. More → Circuit checkpoints restores inputs, clock and memory with a fresh trace. Settings lets you control haptics, larger study controls, daily reminders, streak celebrations and reminder tips. Portable backups are validated before replacing data; keys/passwords are excluded." to "Lógica tiene Deshacer/Rehacer y Guardar sesión. Más → Puntos de control restaura entradas, reloj y memoria con un registro nuevo. Ajustes controla vibración, controles grandes, recordatorios, rachas y consejos. Las copias portátiles se validan antes de reemplazar datos; se excluyen claves y contraseñas.",
+        "Settings, reminders & backup" to "Ajustes, recordatorios y copias de seguridad",
+        "Theme, automatic system language, haptics, notifications and portable study data" to "Tema, idioma automático del sistema, respuesta háptica, notificaciones y datos de estudio portátiles",
+        "Learning path & progress" to "Ruta de aprendizaje y progreso",
+        "Boolean expression lab" to "Laboratorio de expresiones booleanas",
+        "Solve, verify, derive SOP/POS and inspect a live gate diagram" to "Resuelve, verifica, deriva SOP/POS y consulta un diagrama de puertas en directo",
+        "Logic practice hub" to "Centro de práctica lógica",
+        "Circuit builder" to "Constructor de circuitos",
+        "Drag gates, wire them, simulate and inspect a truth table" to "Arrastra puertas, conéctalas, simula el circuito y consulta la tabla de verdad",
+        "IEEE-754 float lab" to "Laboratorio de coma flotante IEEE-754",
+        "Sign, exponent, fraction — every float decoded" to "Signo, exponente, fracción: descodifica cada número flotante",
+        "Leaderboard & rewards" to "Clasificación y recompensas",
+        "Boolean laws lab" to "Laboratorio de leyes booleanas",
+        "Every law verified live on every row" to "Cada ley se verifica en directo en todas las filas",
+        "Base arithmetic lab" to "Laboratorio de aritmética en bases",
+        "+ − × ÷ in any base, with column working" to "+ − × ÷ en cualquier base, con el procedimiento por columnas",
+        "Number representations" to "Representaciones numéricas",
+        "One’s & two’s complement, widths, Gray and BCD" to "Complemento a uno y a dos, anchos, Gray y BCD",
+        "Circuit checkpoints" to "Puntos de control de circuitos",
+        "The 8-bit playground" to "Zona de 8 bits",
+        "Build a byte, one switch at a time" to "Crea un byte, un interruptor a la vez",
+        "Visual helper & app tour" to "Ayuda visual y recorrido de la app",
+        "Illustrated lessons and replayable highlights" to "Lecciones ilustradas y resaltados que puedes repetir"
     )
 
     private val pt = mapOf(
@@ -314,13 +358,37 @@ internal object UiTranslationsStudy {
         "Try, hint, check, understand" to "Experimente, peça uma dica, confira e entenda",
         "More → Logic practice has 108 cards across Easy, Intermediate and Advanced. Choose an answer, check it, use a hint or reveal the explanation. Correct checks save mastery; revealing does not. Streaks celebrate practice days and never punish a missed day." to "Mais → Prática lógica tem 108 questões nos níveis Fácil, Intermediário e Avançado. Escolha e confira uma resposta, use uma dica ou revele a explicação. Respostas corretas registram domínio; revelar não. Sequências celebram os dias de prática sem punir pausas.",
         "Keep a safe checkpoint" to "Mantenha um ponto de retomada seguro",
-        "Logic has Undo/Redo and Save session. More → Circuit checkpoints restores inputs, clock and memory with a fresh trace. Settings lets you control haptics, larger study controls, daily reminders, streak celebrations and reminder tips. Portable backups are validated before replacing data; keys/passwords are excluded." to "Lógica oferece Desfazer/Refazer e Salvar sessão. Mais → Pontos de retomada restaura entradas, clock e memória com um novo histórico. Configurações controla resposta háptica, controles maiores, lembretes, sequências e dicas. Backups portáteis são validados antes de substituir dados; chaves e senhas ficam de fora."
+        "Logic has Undo/Redo and Save session. More → Circuit checkpoints restores inputs, clock and memory with a fresh trace. Settings lets you control haptics, larger study controls, daily reminders, streak celebrations and reminder tips. Portable backups are validated before replacing data; keys/passwords are excluded." to "Lógica oferece Desfazer/Refazer e Salvar sessão. Mais → Pontos de retomada restaura entradas, clock e memória com um novo histórico. Configurações controla resposta háptica, controles maiores, lembretes, sequências e dicas. Backups portáteis são validados antes de substituir dados; chaves e senhas ficam de fora.",
+        "Settings, reminders & backup" to "Configurações, lembretes e backup",
+        "Theme, automatic system language, haptics, notifications and portable study data" to "Tema, idioma automático do sistema, resposta háptica, notificações e dados de estudo portáteis",
+        "Learning path & progress" to "Percurso de aprendizagem e progresso",
+        "Boolean expression lab" to "Laboratório de expressões booleanas",
+        "Solve, verify, derive SOP/POS and inspect a live gate diagram" to "Resolva, confira, derive SOP/POS e inspecione um diagrama de portas ao vivo",
+        "Logic practice hub" to "Central de prática lógica",
+        "Circuit builder" to "Construtor de circuitos",
+        "Drag gates, wire them, simulate and inspect a truth table" to "Arraste portas, conecte-as, simule o circuito e consulte a tabela-verdade",
+        "IEEE-754 float lab" to "Laboratório de ponto flutuante IEEE-754",
+        "Sign, exponent, fraction — every float decoded" to "Sinal, expoente e fração — decodifique qualquer número flutuante",
+        "Leaderboard & rewards" to "Classificação e recompensas",
+        "Boolean laws lab" to "Laboratório de leis booleanas",
+        "Every law verified live on every row" to "Cada lei é verificada ao vivo em todas as linhas",
+        "Base arithmetic lab" to "Laboratório de aritmética em bases",
+        "+ − × ÷ in any base, with column working" to "+ − × ÷ em qualquer base, com o cálculo por colunas",
+        "Number representations" to "Representações numéricas",
+        "One’s & two’s complement, widths, Gray and BCD" to "Complemento de um e de dois, larguras, Gray e BCD",
+        "Circuit checkpoints" to "Pontos de restauração de circuitos",
+        "The 8-bit playground" to "Laboratório de 8 bits",
+        "Build a byte, one switch at a time" to "Monte um byte, uma chave por vez",
+        "Visual helper & app tour" to "Ajuda visual e visita guiada do app",
+        "Illustrated lessons and replayable highlights" to "Lições ilustradas e destaques que você pode rever"
     )
 
     fun translate(source:String,language:String):String? {
         val lang=language.lowercase()
         val translations=when(lang) {"fr"->fr;"es"->es;"pt"->pt;else->return null}
         translations[source]?.let{return it}
+        val practiceHub=Regex("^More → Logic practice has (\\d+) cards across Easy, Intermediate and Advanced\\. Choose an answer, check it, use a hint or reveal the explanation\\. Correct checks save mastery; revealing does not\\. Streaks celebrate practice days and never punish a missed day\\.$").matchEntire(source)
+        if(practiceHub!=null){val count=practiceHub.groupValues[1];return when(lang){"fr"->"Plus → Entraînement logique propose $count questions en niveaux Facile, Intermédiaire et Avancé. Choisissez une réponse, vérifiez-la, demandez un indice ou affichez l’explication. Une bonne réponse valide la maîtrise ; révéler ne compte pas. Les séries célèbrent les jours d’entraînement sans pénaliser les pauses.";"es"->"Más → Práctica lógica ofrece $count preguntas de nivel Fácil, Intermedio y Avanzado. Elige una respuesta, compruébala, usa una pista o revela la explicación. Las respuestas correctas cuentan como dominadas; revelar no. Las rachas celebran los días de práctica sin penalizar descansos.";else->"Mais → Prática lógica tem $count questões nos níveis Fácil, Intermediário e Avançado. Escolha uma resposta, confira-a, use uma dica ou revele a explicação. Respostas corretas registram domínio; revelar não. Sequências celebram os dias de prática sem punir pausas."}}
         val meta=Regex("^(.+) · (EASY|INTERMEDIATE|ADVANCED)$").matchEntire(source)?:return null
         val category=translations[meta.groupValues[1]]?:return null
         val tier=when(lang) {

@@ -20,18 +20,43 @@ internal object LogicCatalogTranslations {
         "For two inputs XNOR means equal. With 3 or 4 inputs, it means EVEN parity—not that all inputs are equal." to Text3("Avec deux entrées, XNOR signifie égal. Avec 3 ou 4 entrées, il indique une parité PAIRE, pas que toutes les entrées sont égales.","Con dos entradas, XNOR significa igual. Con 3 o 4, indica paridad PAR, no que todas sean iguales.","Com duas entradas, XNOR significa igual. Com 3 ou 4, indica paridade PAR — não que todas sejam iguais."),
         "Keep the input unchanged." to Text3("Conservez l’entrée inchangée.","Mantén la entrada sin cambios.","Mantenha a entrada inalterada."),
         "A buffer has one input. It preserves the logic value; electrical drive strength is not modeled." to Text3("Un BUFFER a une entrée. Il conserve la valeur logique ; la capacité électrique de commande n’est pas modélisée.","Un BUFFER tiene una entrada. Conserva el valor lógico; no se modela la capacidad eléctrica de salida.","Um BUFFER tem uma entrada. Preserva o valor lógico; a capacidade elétrica de acionamento não é modelada."),
+        "Sum = A ⊕ B" to Text3("Somme = A ⊕ B","Suma = A ⊕ B","Soma = A ⊕ B"),
+        "Carry = A · B" to Text3("Retenue = A · B","Acarreo = A · B","Transporte = A · B"),
+        "Sum = A ⊕ B ⊕ Cin" to Text3("Somme = A ⊕ B ⊕ Cin","Suma = A ⊕ B ⊕ Cin","Soma = A ⊕ B ⊕ Cin"),
+        "Diff = A ⊕ B" to Text3("Différence = A ⊕ B","Diferencia = A ⊕ B","Diferença = A ⊕ B"),
+        "Borrow = A′B" to Text3("Emprunt = A′B","Préstamo = A′B","Empréstimo = A′B"),
+        "Diff = A ⊕ B ⊕ Bin" to Text3("Différence = A ⊕ B ⊕ Bin","Diferencia = A ⊕ B ⊕ Bin","Diferença = A ⊕ B ⊕ Bin"),
+        "EN=0: all outputs 0" to Text3("EN=0 : toutes les sorties valent 0","EN=0: todas las salidas valen 0","EN=0: todas as saídas são 0"),
+        "Y1Y0 = highest asserted input index" to Text3("Y1Y0 = indice le plus élevé parmi les entrées actives","Y1Y0 = índice más alto entre las entradas activas","Y1Y0 = índice mais alto entre as entradas ativas"),
+        "Compare A1 vs B1 first" to Text3("Comparez d’abord A1 et B1","Compara primero A1 con B1","Compare A1 com B1 primeiro"),
+        "If equal, compare A0 vs B0" to Text3("S’ils sont égaux, comparez A0 et B0","Si son iguales, compara A0 con B0","Se forem iguais, compare A0 com B0"),
+        "Y = D[base-2 index selected by S2, S1, S0]" to Text3("Y = D[indice en base 2 sélectionné par S2, S1, S0]","Y = D[índice en base 2 seleccionado por S2, S1, S0]","Y = D[índice na base 2 selecionado por S2, S1, S0]"),
+        "Y = D[base-2 index selected by S3, S2, S1, S0]" to Text3("Y = D[indice en base 2 sélectionné par S3, S2, S1, S0]","Y = D[índice en base 2 seleccionado por S3, S2, S1, S0]","Y = D[índice na base 2 selecionado por S3, S2, S1, S0]"),
+        "Y0 = D · minterm(S) for select 00" to Text3("Y0 = D · minterme(S) pour la sélection 00","Y0 = D · mintermino(S) para la selección 00","Y0 = D · mintermo(S) para a seleção 00"),
+        "Y1 = D · minterm(S) for select 01" to Text3("Y1 = D · minterme(S) pour la sélection 01","Y1 = D · mintermino(S) para la selección 01","Y1 = D · mintermo(S) para a seleção 01"),
+        "Y2 = D · minterm(S) for select 10" to Text3("Y2 = D · minterme(S) pour la sélection 10","Y2 = D · mintermino(S) para la selección 10","Y2 = D · mintermo(S) para a seleção 10"),
+        "Y3 = D · minterm(S) for select 11" to Text3("Y3 = D · minterme(S) pour la sélection 11","Y3 = D · mintermino(S) para la selección 11","Y3 = D · mintermo(S) para a seleção 11"),
+        "Y[i] = D when select = i; all other outputs are 0." to Text3("Y[i] = D quand la sélection vaut i ; toutes les autres sorties valent 0.","Y[i] = D cuando la selección vale i; todas las demás salidas valen 0.","Y[i] = D quando a seleção vale i; todas as outras saídas são 0."),
+        "Y[i] = 1 exactly when input A = i (0…7)." to Text3("Y[i] = 1 exactement quand l’entrée A vaut i (0…7).","Y[i] = 1 exactamente cuando la entrada A vale i (0…7).","Y[i] = 1 exatamente quando a entrada A vale i (0…7)."),
+        "Y[i] = 1 exactly when input A = i (0…15)." to Text3("Y[i] = 1 exactement quand l’entrée A vaut i (0…15).","Y[i] = 1 exactamente cuando la entrada A vale i (0…15).","Y[i] = 1 exatamente quando a entrada A vale i (0…15)."),
+        "LT is true at the first (most-significant) bit where A=0 and B=1." to Text3("LT vaut 1 au premier bit (de poids fort) où A=0 et B=1.","LT es 1 en el primer bit (más significativo) donde A=0 y B=1.","LT vale 1 no primeiro bit (mais significativo) em que A=0 e B=1."),
+        "Exactly one of LT, EQ or GT is 1." to Text3("Une seule de LT, EQ ou GT vaut 1.","Exactamente una de LT, EQ o GT vale 1.","Exatamente uma entre LT, EQ e GT vale 1."),
+        "Even = (A ⊕ B ⊕ C ⊕ P)′" to Text3("Pair = (A ⊕ B ⊕ C ⊕ P)′","Par = (A ⊕ B ⊕ C ⊕ P)′","Par = (A ⊕ B ⊕ C ⊕ P)′"),
+        "Error = A ⊕ B ⊕ C ⊕ P" to Text3("Erreur = A ⊕ B ⊕ C ⊕ P","Error = A ⊕ B ⊕ C ⊕ P","Erro = A ⊕ B ⊕ C ⊕ P"),
+        "A B C D are 8-4-2-1 BCD inputs." to Text3("A, B, C et D sont les entrées BCD de poids 8-4-2-1.","A, B, C y D son las entradas BCD con pesos 8-4-2-1.","A, B, C e D são as entradas BCD com pesos 8-4-2-1."),
+        "a…g are active-high segments for a common-cathode display." to Text3("a…g sont les segments actifs à 1 d’un afficheur à cathode commune.","a…g son los segmentos activos en alto de una pantalla de cátodo común.","a…g são os segmentos ativos em nível alto de um display de cátodo comum."),
         "Half adder" to Text3("Demi-additionneur","Semisumador","Meio somador"),
         "Adds two one-bit values. It has no carry-in." to Text3("Additionne deux valeurs d’un bit. Il n’a pas de retenue d’entrée.","Suma dos valores de un bit. No tiene acarreo de entrada.","Soma dois valores de um bit. Não possui carry de entrada."),
-        "Read Carry:Sum as a two-bit number; 1 + 1 = 10₂, not a single output of 2." to Text3("Lisez Carry:Sum comme un nombre de deux bits : 1 + 1 = 10₂, pas une sortie unique égale à 2.","Lee Carry:Sum como un número de dos bits: 1 + 1 = 10₂, no como una salida única de 2.","Leia Carry:Sum como um número de dois bits: 1 + 1 = 10₂, não como uma saída única de 2."),
+        "Read Carry:Sum as a two-bit number; 1 + 1 = 10₂, not a single output of 2." to Text3("Lisez Retenue:Somme comme un nombre de deux bits : 1 + 1 = 10₂, pas une sortie unique égale à 2.","Lee Acarreo:Suma como un número de dos bits: 1 + 1 = 10₂, no como una salida única de 2.","Leia Transporte:Soma como um número de dois bits: 1 + 1 = 10₂, não como uma saída única de 2."),
         "Full adder" to Text3("Additionneur complet","Sumador completo","Somador completo"),
         "Includes a carry-in, so three one-bit values are added." to Text3("Inclut une retenue d’entrée : trois valeurs d’un bit sont donc additionnées.","Incluye acarreo de entrada, así que se suman tres valores de un bit.","Inclui carry de entrada, então três valores de um bit são somados."),
-        "Cout:Sum represents A + B + Cin. Connect Cout to the next stage’s Cin for a ripple adder." to Text3("Cout:Sum représente A + B + Cin. Reliez Cout au Cin de l’étage suivant pour former un additionneur à propagation.","Cout:Sum representa A + B + Cin. Conecta Cout al Cin de la etapa siguiente para formar un sumador en cascada.","Cout:Sum representa A + B + Cin. Conecte Cout ao Cin do próximo estágio para formar um somador em cascata."),
+        "Cout:Sum represents A + B + Cin. Connect Cout to the next stage’s Cin for a ripple adder." to Text3("Cout:Somme représente A + B + Cin. Reliez Cout au Cin de l’étage suivant pour former un additionneur à propagation.","Cout:Suma representa A + B + Cin. Conecta Cout al Cin de la etapa siguiente para formar un sumador en cascada.","Cout:Soma representa A + B + Cin. Conecte Cout ao Cin do próximo estágio para formar um somador em cascata."),
         "Half subtractor" to Text3("Demi-soustracteur","Semirrestador","Meio subtrator"),
         "Subtracts B from A. Operand order matters." to Text3("Soustrait B de A. L’ordre des opérandes est important.","Resta B de A. El orden de los operandos importa.","Subtrai B de A. A ordem dos operandos importa."),
-        "When A=0 and B=1, Diff=1 with Borrow=1. This is binary subtraction, not an ordinary negative output bit." to Text3("Quand A=0 et B=1, Diff=1 et Borrow=1. C’est une soustraction binaire, pas un bit de sortie négatif ordinaire.","Cuando A=0 y B=1, Diff=1 y Borrow=1. Es una resta binaria, no un bit de salida negativo común.","Quando A=0 e B=1, Diff=1 e Borrow=1. É subtração binária, não um bit de saída negativo comum."),
+        "When A=0 and B=1, Diff=1 with Borrow=1. This is binary subtraction, not an ordinary negative output bit." to Text3("Quand A=0 et B=1, Différence=1 et Emprunt=1. C’est une soustraction binaire, pas un bit de sortie négatif ordinaire.","Cuando A=0 y B=1, Diferencia=1 y Préstamo=1. Es una resta binaria, no un bit de salida negativo común.","Quando A=0 e B=1, Diferença=1 e Empréstimo=1. É subtração binária, não um bit de saída negativo comum."),
         "Full subtractor" to Text3("Soustracteur complet","Restador completo","Subtrator completo"),
         "Computes A − B − Bin." to Text3("Calcule A − B − Bin.","Calcula A − B − Bin.","Calcula A − B − Bin."),
-        "Bout indicates that the next higher stage must supply a borrow; Diff = (A − B − Bin) mod 2." to Text3("Bout indique que l’étage de poids supérieur doit fournir un emprunt ; Diff = (A − B − Bin) mod 2.","Bout indica que la etapa superior debe aportar un préstamo; Diff = (A − B − Bin) mod 2.","Bout indica que o próximo estágio mais significativo deve fornecer um empréstimo; Diff = (A − B − Bin) mod 2."),
+        "Bout indicates that the next higher stage must supply a borrow; Diff = (A − B − Bin) mod 2." to Text3("Bout indique que l’étage de poids supérieur doit fournir un emprunt ; Différence = (A − B − Bin) mod 2.","Bout indica que la etapa superior debe aportar un préstamo; Diferencia = (A − B − Bin) mod 2.","Bout indica que o próximo estágio mais significativo deve fornecer um empréstimo; Diferença = (A − B − Bin) mod 2."),
         "2:1 multiplexer" to Text3("Multiplexeur 2:1","Multiplexor 2:1","Multiplexador 2:1"),
         "A multiplexer selects one data input, not one output." to Text3("Un multiplexeur sélectionne une entrée de données, pas une sortie.","Un multiplexor selecciona una entrada de datos, no una salida.","Um multiplexador seleciona uma entrada de dados, não uma saída."),
         "S=0 selects D0; S=1 selects D1. Changing an unselected input does not affect Y." to Text3("S=0 sélectionne D0 ; S=1 sélectionne D1. Modifier une entrée non sélectionnée ne change pas Y.","S=0 selecciona D0; S=1 selecciona D1. Cambiar una entrada no seleccionada no afecta a Y.","S=0 seleciona D0; S=1 seleciona D1. Alterar uma entrada não selecionada não afeta Y."),
@@ -46,7 +71,7 @@ internal object LogicCatalogTranslations {
         "When disabled no output is asserted; this differs from a decoder without an enable input." to Text3("Désactivé, aucune sortie n’est activée ; c’est différent d’un décodeur sans entrée de validation.","Deshabilitado, ninguna salida se activa; esto difiere de un decodificador sin entrada de habilitación.","Desabilitado, nenhuma saída é ativada; isso difere de um decodificador sem entrada de habilitação."),
         "4:2 priority encoder" to Text3("Codeur prioritaire 4:2","Codificador de prioridad 4:2","Codificador de prioridade 4:2"),
         "Unlike a basic one-hot encoder, multiple active inputs are allowed: the highest index wins." to Text3("Contrairement à un codeur one-hot simple, plusieurs entrées peuvent être actives : l’indice le plus élevé est prioritaire.","A diferencia de un codificador one-hot básico, se permiten varias entradas activas: gana el índice más alto.","Diferente de um codificador one-hot básico, várias entradas podem estar ativas: vence o maior índice."),
-        "Valid distinguishes D0=1 (code 00) from no active input (code 00, Valid=0)." to Text3("Valid distingue D0=1 (code 00) de l’absence d’entrée active (code 00, Valid=0).","Valid distingue D0=1 (código 00) de ninguna entrada activa (código 00, Valid=0).","Valid distingue D0=1 (código 00) de nenhuma entrada ativa (código 00, Valid=0)."),
+        "Valid distinguishes D0=1 (code 00) from no active input (code 00, Valid=0)." to Text3("Valide distingue D0=1 (code 00) de l’absence d’entrée active (code 00, Valide=0).","Válida distingue D0=1 (código 00) de ninguna entrada activa (código 00, Válida=0).","Válida distingue D0=1 (código 00) de nenhuma entrada ativa (código 00, Válida=0)."),
         "1-bit magnitude comparator" to Text3("Comparateur de magnitude 1 bit","Comparador de magnitud de 1 bit","Comparador de magnitude de 1 bit"),
         "Compares unsigned one-bit values." to Text3("Compare des valeurs non signées sur un bit.","Compara valores sin signo de un bit.","Compara valores sem sinal de um bit."),
         "Exactly one of LT/EQ/GT is 1 for every valid input." to Text3("Pour chaque entrée valide, une seule sortie parmi LT/EQ/GT vaut 1.","Para cada entrada válida, exactamente una salida entre LT/EQ/GT vale 1.","Para cada entrada válida, exatamente uma das saídas LT/EQ/GT vale 1."),
@@ -85,8 +110,8 @@ internal object LogicCatalogTranslations {
         "Append P to the three data bits." to Text3("Ajoutez P aux trois bits de données.","Añade P a los tres bits de datos.","Acrescente P aos três bits de dados."),
         "P is 1 when the data contain an odd number of 1s, making the total number of 1s even." to Text3("P vaut 1 lorsque les données contiennent un nombre impair de 1, afin que le total soit pair.","P vale 1 cuando los datos tienen un número impar de 1, para que el total sea par.","P vale 1 quando os dados contêm uma quantidade ímpar de 1, tornando o total par."),
         "4-bit even-parity checker" to Text3("Vérificateur de parité paire 4 bits","Comprobador de paridad par de 4 bits","Verificador de paridade par de 4 bits"),
-        "Even=1 means the received four-bit word has even parity." to Text3("Even=1 signifie que le mot reçu de quatre bits a une parité paire.","Even=1 significa que la palabra recibida de cuatro bits tiene paridad par.","Even=1 significa que a palavra recebida de quatro bits tem paridade par."),
-        "Error=1 means an odd number of 1s was received; this detects, but cannot correct, an odd-bit error." to Text3("Error=1 signifie qu’un nombre impair de 1 a été reçu ; l’erreur est détectée, mais pas corrigée.","Error=1 significa que se recibió un número impar de 1; detecta, pero no corrige, errores de bits impares.","Error=1 significa que foi recebida uma quantidade ímpar de 1; isso detecta, mas não corrige, erros de bits ímpares."),
+        "Even=1 means the received four-bit word has even parity." to Text3("Pair=1 signifie que le mot reçu de quatre bits a une parité paire.","Par=1 significa que la palabra recibida de cuatro bits tiene paridad par.","Par=1 significa que a palavra recebida de quatro bits tem paridade par."),
+        "Error=1 means an odd number of 1s was received; this detects, but cannot correct, an odd-bit error." to Text3("Erreur=1 signifie qu’un nombre impair de 1 a été reçu ; l’erreur est détectée, mais pas corrigée.","Error=1 significa que se recibió un número impar de 1; detecta, pero no corrige, errores de bits impares.","Erro=1 significa que foi recebida uma quantidade ímpar de 1; isso detecta, mas não corrige, erros de bits ímpares."),
         "BCD-to-seven-segment decoder" to Text3("Décodeur BCD vers afficheur sept segments","Decodificador BCD a siete segmentos","Decodificador BCD para sete segmentos"),
         "Digits 0–9 display their decimal glyph; invalid BCD inputs 10–15 turn every segment off." to Text3("Les chiffres 0–9 affichent leur forme décimale ; les entrées BCD invalides 10–15 éteignent tous les segments.","Los dígitos 0–9 muestran su forma decimal; las entradas BCD no válidas 10–15 apagan todos los segmentos.","Os dígitos 0–9 exibem sua forma decimal; entradas BCD inválidas de 10–15 apagam todos os segmentos."),
         "The model describes logic only; it does not model current limiting, display wiring or physical polarity." to Text3("Le modèle décrit uniquement la logique ; il ne simule ni limitation de courant, ni câblage d’afficheur, ni polarité physique.","El modelo solo describe la lógica; no simula limitación de corriente, cableado de pantalla ni polaridad física.","O modelo descreve apenas a lógica; não simula limitação de corrente, fiação do display ou polaridade física."),
@@ -135,10 +160,21 @@ internal object LogicCatalogTranslations {
         "Starting from 0000: 0000 → 0001 → 0011 → 0111 → 1111 → 1110 → 1100 → 1000 → 0000." to Text3("En partant de 0000 : 0000 → 0001 → 0011 → 0111 → 1111 → 1110 → 1100 → 1000 → 0000.","Desde 0000: 0000 → 0001 → 0011 → 0111 → 1111 → 1110 → 1100 → 1000 → 0000.","Partindo de 0000: 0000 → 0001 → 0011 → 0111 → 1111 → 1110 → 1100 → 1000 → 0000."),
         "The four-bit twisted-ring counter has eight states in its initialized cycle. RESET is synchronous." to Text3("Le compteur Johnson sur quatre bits possède huit états dans son cycle initialisé. RESET est synchrone.","El contador Johnson de cuatro bits tiene ocho estados en el ciclo inicializado. RESET es síncrono.","O contador Johnson de quatro bits tem oito estados no ciclo inicializado. RESET é síncrono.")
     )
-    fun translate(source:String,language:String):String?=entries[source]?.let { text -> when(language.lowercase()) {
-        "fr"->text.fr
-        "es"->text.es
-        "pt"->text.pt
-        else->null
-    } }
+    fun translate(source:String,language:String):String? {
+        val lang=language.lowercase()
+        if(lang !in setOf("fr","es","pt"))return null
+        entries[source]?.let { text -> return when(lang) {"fr"->text.fr;"es"->text.es;else->text.pt} }
+        return translateOutputName(source,lang).takeIf{it!=source}
+    }
+
+    /** Human-readable circuit port labels; symbolic pins such as A, Q, and Cout stay unchanged. */
+    fun translateOutputName(source:String,language:String):String {
+        val labels=when(language.lowercase()) {
+            "fr"->mapOf("Sum" to "Somme","Carry" to "Retenue","Diff" to "Différence","Borrow" to "Emprunt","Valid" to "Valide","Even" to "Pair","Error" to "Erreur")
+            "es"->mapOf("Sum" to "Suma","Carry" to "Acarreo","Diff" to "Diferencia","Borrow" to "Préstamo","Valid" to "Válida","Even" to "Par","Error" to "Error")
+            "pt"->mapOf("Sum" to "Soma","Carry" to "Transporte","Diff" to "Diferença","Borrow" to "Empréstimo","Valid" to "Válida","Even" to "Par","Error" to "Erro")
+            else->return source
+        }
+        return labels[source]?:source
+    }
 }

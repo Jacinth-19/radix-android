@@ -23,10 +23,11 @@ internal object PracticeChoiceTranslations {
         "touch only in POS" to Text3("se touchent uniquement en POS","solo se tocan en POS","só se conectam em POS"),
         "touch only in 4-var" to Text3("se touchent uniquement sur 4 variables","solo se tocan en mapas de 4 variables","só se conectam em mapas de 4 variáveis")
     )
-    fun translate(source:String,language:String):String?=entries[source]?.let { text -> when(language.lowercase()) {
-        "fr"->text.fr
-        "es"->text.es
-        "pt"->text.pt
-        else->null
-    } }
+    fun translate(source:String,language:String):String? {
+        val lang=language.lowercase()
+        if(lang !in setOf("fr","es","pt"))return null
+        entries[source]?.let { text -> return when(lang) {"fr"->text.fr;"es"->text.es;else->text.pt} }
+        val variables=Regex("^(\\d+) variables$").matchEntire(source)?.groupValues?.get(1)?:return null
+        return when(lang) {"fr"->"$variables variables";"es"->"$variables variables";else->"$variables variáveis"}
+    }
 }
