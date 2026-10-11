@@ -63,7 +63,7 @@ object KMapEngine {
         val match = Regex("""F\s*\(\s*([A-F](?:\s*[,·.]\s*[A-F]){1,5})\s*\)\s*=\s*([Σ∑Π])\s*([MM])\s*\(\s*([^()]*)\s*\)""").matchEntire(normalized)
             ?: throw IllegalArgumentException("Use F(A.B.C)=Σm(1,3) or F(A,B,C)=ΠM(0,2). Variables A–F; indices are comma-separated.")
         val names = match.groupValues[1].split(Regex("[,·.\\s]+")).joinToString("")
-        require(names.length in 2..6 && names.distinct().size == names.length) { "List 2–6 different variables in significance order." }
+        require(names.length in 2..6 && names.toSet().size == names.length) { "List 2–6 different variables in significance order." }
         val form = when (match.groupValues[2]) { "Σ", "∑" -> Form.SOP; "Π" -> Form.POS; else -> error("Unknown form") }
         val indices = parseIndices(match.groupValues[4], 1 shl names.length)
         val target = if (form == Form.SOP) 1 else 0
@@ -121,10 +121,10 @@ object KMapEngine {
             if (cells[i] == target) required = required or (1L shl i)
             if (cells[i] == 1 - target) forbidden = forbidden or (1L shl i)
         }
-        if (required == 0) return Solution(variables, form, if (form == Form.SOP) "0" else "1", emptyList(), 0, 0,
+        if (required == 0L) return Solution(variables, form, if (form == Form.SOP) "0" else "1", emptyList(), 0, 0L,
             if (cells.all { it == DONT_CARE }) "Every cell is unspecified. ${if (form == Form.SOP) "0" else "1"} is a valid simplest choice; the other constant is valid too."
             else "There are no required ${target}s. The constant ${if (form == Form.SOP) "0" else "1"} satisfies every specified cell.")
-        val eligible = allCubes.getValue(variables).filter { it.members and forbidden == 0 && it.members and required != 0 }
+        val eligible = allCubes.getValue(variables).filter { (it.members and forbidden) == 0L && (it.members and required) != 0L }
         val primes = eligible.filter { cube -> eligible.none { other -> other.members != cube.members && other.members and cube.members == cube.members } }
         val coverage = primes.map { it.members and required }
         val essential = primes.indices.filter { p ->

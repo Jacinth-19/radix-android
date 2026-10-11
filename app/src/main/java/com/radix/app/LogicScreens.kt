@@ -118,24 +118,81 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
         if(n in 2..4)TextButton(onClick={vm.logicToKMap(n,rows.map{it.last().toInt()})},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Simplify this gate in K-maps",fontSize=12.sp)}
     }
 }
-@Composable private fun PagedCircuitTruthTable(c:LogicEngine.Circuit,currentInputs:List<Boolean>,notify:(String)->Unit){
-    val headers=c.inputs+c.outputs.keys;val current=LogicEngine.code(currentInputs);val total=1 shl c.inputs.size
-    var page by remember(c.id){mutableIntStateOf(0)}
-    val pages=maxOf(1,(total+15)/16)
-    LaunchedEffect(current){page=current/16}
-    val rows=remember(c.id,page){(page*16 until minOf(total,page*16+16)).map{code->val bits=LogicEngine.bits(code,c.inputs.size);bits.map{if(it)"1"else"0"}+LogicEngine.evaluate(c,bits).outputs.values.map{if(it)"1"else"0"}}}
-    Column(Modifier.fillMaxWidth().guideAnchor("logic-table")){
-        Text("${total} ROWS · SHOWING 16 AT A TIME",fontSize=9.sp,letterSpacing=.7.sp,color=muted(),modifier=Modifier.padding(top=12.dp,bottom=10.dp))
-        Column(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())){
-            Row{headers.forEach{Text(it,fontFamily=Mono,fontSize=10.sp,color=muted(),modifier=Modifier.width(if(it.length>4)58.dp else 42.dp).padding(vertical=9.dp))}}
-            rows.forEachIndexed{i,row->val active=current==page*16+i;Surface(color=if(active)MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,shape=RoundedCornerShape(6.dp)){Row{row.forEachIndexed{j,value->Text(value,fontFamily=Mono,fontSize=11.sp,color=if(active)accent()else MaterialTheme.colorScheme.onSurface,modifier=Modifier.width(if(headers[j].length>4)58.dp else 42.dp).padding(vertical=8.dp))}}}
+@Composable private fun PagedCircuitTruthTable(c: LogicEngine.Circuit, currentInputs: List<Boolean>, notify: (String) -> Unit) {
+    val headers = c.inputs + c.outputs.keys
+    val current = LogicEngine.code(currentInputs)
+    val total = 1 shl c.inputs.size
+    var page by remember(c.id) { mutableIntStateOf(0) }
+    val pages = maxOf(1, (total + 15) / 16)
+    LaunchedEffect(current) { page = current / 16 }
+    val rows = remember(c.id, page) {
+        (page * 16 until minOf(total, page * 16 + 16)).map { code ->
+            val bits = LogicEngine.bits(code, c.inputs.size)
+            bits.map { if (it) "1" else "0" } +
+                LogicEngine.evaluate(c, bits).outputs.values.map { if (it) "1" else "0" }
         }
-        if(pages>1)Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){TextButton(onClick={page--},enabled=page>0){Text("Previous",fontSize=11.sp)};Text("${page+1}/$pages",fontFamily=Mono,fontSize=10.sp,modifier=Modifier.weight(1f));TextButton(onClick={page++},enabled=page<pages-1){Text("Next",fontSize=11.sp)}}
-        TextButton(onClick={page=current/16},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Show current input row (${current})",fontSize=11.sp)}
     }
-    val text=tableText("${c.title} · rows ${page*16}–${minOf(total-1,page*16+15)}",headers,rows)
-    val clipboard=LocalClipboardManager.current
-    TextButton(onClick={clipboard.setText(AnnotatedString(text));notify("Visible truth-table page copied.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Copy this page (${rows.size} rows)",fontSize=12.sp)}
+
+    Column(Modifier.fillMaxWidth().guideAnchor("logic-table")) {
+        Text(
+            "${total} ROWS · SHOWING 16 AT A TIME",
+            fontSize = 9.sp,
+            letterSpacing = .7.sp,
+            color = muted(),
+            modifier = Modifier.padding(top = 12.dp, bottom = 10.dp)
+        )
+        Column(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
+            Row {
+                headers.forEach { header ->
+                    Text(
+                        header,
+                        fontFamily = Mono,
+                        fontSize = 10.sp,
+                        color = muted(),
+                        modifier = Modifier.width(if (header.length > 4) 58.dp else 42.dp).padding(vertical = 9.dp)
+                    )
+                }
+            }
+            rows.forEachIndexed { index, row ->
+                val active = current == page * 16 + index
+                Surface(
+                    color = if (active) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Row {
+                        row.forEachIndexed { column, value ->
+                            Text(
+                                value,
+                                fontFamily = Mono,
+                                fontSize = 11.sp,
+                                color = if (active) accent() else MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.width(if (headers[column].length > 4) 58.dp else 42.dp)
+                                    .padding(vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        if (pages > 1) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = { page-- }, enabled = page > 0) { Text("Previous", fontSize = 11.sp) }
+                Text("${page + 1}/$pages", fontFamily = Mono, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                TextButton(onClick = { page++ }, enabled = page < pages - 1) { Text("Next", fontSize = 11.sp) }
+            }
+        }
+        TextButton(
+            onClick = { page = current / 16 },
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+        ) { Text("Show current input row ($current)", fontSize = 11.sp) }
+    }
+
+    val text = tableText("${c.title} · rows ${page * 16}–${minOf(total - 1, page * 16 + 15)}", headers, rows)
+    val clipboard = LocalClipboardManager.current
+    TextButton(
+        onClick = { clipboard.setText(AnnotatedString(text)); notify("Visible truth-table page copied.") },
+        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+    ) { Text("Copy this page (${rows.size} rows)", fontSize = 12.sp) }
 }
 @Composable private fun CombinationalPanel(vm:RadixViewModel,notify:(String)->Unit){
     val strings=LocalStrings.current
