@@ -33,9 +33,9 @@ concurrency:
 
 jobs:
   build:
-    name: Compile, unit test, lint and package unsigned APKs
+    name: Compile, unit and emulator test, lint and package unsigned APKs
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - name: Check out source
         uses: actions/checkout@v6
@@ -93,6 +93,21 @@ jobs:
           fi
           exit "$gradle_status"
 
+      - name: Verify native UI on a compact Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          script: |
+            set -euo pipefail
+            # Exercise a compact 320 dp phone in both portrait and landscape.
+            adb shell wm size 640x1280
+            adb shell wm density 320
+            ./gradlew --no-daemon --stacktrace connectedDebugAndroidTest
+
       - name: Upload APKs and Android reports
         if: always()
         uses: actions/upload-artifact@v7
@@ -105,6 +120,9 @@ jobs:
             app/build/outputs/apk/release/*.apk
             app/build/reports/tests/testDebugUnitTest/**
             app/build/reports/tests/testReleaseUnitTest/**
+            app/build/reports/androidTests/connected/**
+            app/build/outputs/androidTest-results/connected/**
+            app/build/test-results/connectedAndroidTest/**
             app/build/reports/lint-results-*.html
 
   release-v7:
