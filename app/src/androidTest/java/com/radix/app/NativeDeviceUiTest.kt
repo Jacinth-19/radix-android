@@ -164,6 +164,9 @@ class NativeDeviceUiTest {
             composeRule.activity.resources.configuration.orientation == expected
         }
         composeRule.waitForIdle()
+        // MainActivity's activity-scoped splash state is recreated on orientation changes.
+        composeRule.mainClock.advanceTimeBy(1_500)
+        composeRule.waitForIdle()
     }
 
     private fun assertMinimumTarget(
