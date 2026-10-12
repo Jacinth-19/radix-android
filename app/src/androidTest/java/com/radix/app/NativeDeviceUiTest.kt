@@ -113,6 +113,9 @@ class NativeDeviceUiTest {
     }
 
     private fun openHome() {
+        // Compose's test clock owns LaunchedEffect delays; advance past the app's splash delay.
+        composeRule.mainClock.advanceTimeBy(1_500)
+        composeRule.waitForIdle()
         waitForUi("startup, onboarding, or home") {
             hasTextNode(strings.skip) ||
                 hasTextNode(strings.tabConvert) ||
