@@ -106,3 +106,113 @@ jobs:
             app/build/reports/tests/testDebugUnitTest/**
             app/build/reports/tests/testReleaseUnitTest/**
             app/build/reports/lint-results-*.html
+
+  release-v7:
+    name: Sign and publish v7.0.0
+    needs: build
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/arena/1469181a-radix-android' &&
+      github.event.head_commit.message == 'release: v7.0.0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Check out release source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK (API 36)
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+
+      - name: Set up Gradle caching
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Verify source release version
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'versionCode = 7' app/build.gradle.kts
+          grep -Fq 'versionName = "7.0.0"' app/build.gradle.kts
+          if gh release view v7.0.0 >/dev/null 2>&1; then
+            echo 'GitHub release v7.0.0 already exists; refusing to replace it.' >&2
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Assemble release APK
+        run: ./gradlew --no-daemon --stacktrace assembleRelease
+
+      - name: Sign release APK with protected key
+        shell: bash
+        env:
+          RADIX_RELEASE_P12_BASE64: ${{ secrets.RADIX_RELEASE_P12_BASE64 }}
+          RADIX_RELEASE_P12_PASSWORD: ${{ secrets.RADIX_RELEASE_P12_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$RADIX_RELEASE_P12_BASE64" || -z "$RADIX_RELEASE_P12_PASSWORD" ]]; then
+            echo 'Missing repository Actions secrets for release signing.' >&2
+            exit 1
+          fi
+          umask 077
+          key="$RUNNER_TEMP/Radix-release.p12"
+          password_file="$RUNNER_TEMP/Radix-release.password"
+          trap 'rm -f "$key" "$password_file"' EXIT
+          printf '%s' "$RADIX_RELEASE_P12_BASE64" | base64 --decode > "$key"
+          printf '%s' "$RADIX_RELEASE_P12_PASSWORD" > "$password_file"
+          test -s "$key"
+          bash tools/sign-release.sh "$key" "$password_file" "$RUNNER_TEMP/Radix-release.apk"
+
+      - name: Verify release signing identity and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="$RUNNER_TEMP/Radix-release.apk"
+          verify_output="$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$apk")"
+          printf '%s\n' "$verify_output"
+          actual="$(printf '%s\n' "$verify_output" | awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print tolower($2); exit}')"
+          expected='785b9e3334078ed72a2a106e5dad849d80597d1dac929ce40f840671ca639020'
+          if [[ "$actual" != "$expected" ]]; then
+            echo 'The APK certificate does not match the established v6 release identity.' >&2
+            exit 1
+          fi
+          sha256sum "$apk" | awk '{print $1 "  Radix-release.apk"}' > "$RUNNER_TEMP/SHA256SUMS.txt"
+
+      - name: Write release notes
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/release-notes.md" <<'EOF'
+          ## What's new in 7.0.0
+
+          - Complete French, Spanish, and Portuguese localization across native app screens, generated teaching text, catalog copy, accessibility descriptions, and share cards.
+          - Offline-first behavior remains unchanged; the browser companion remains English-only.
+
+          ## Install
+
+          Download `Radix-release.apk` below on your Android device, open it, and allow installation when prompted. This release is signed with the established Radix release certificate for in-place upgrades.
+
+          Android CI tests, lint, and debug/release assembly passed. Device installation and device QA are not claimed.
+          EOF
+
+      - name: Publish v7.0.0 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v7.0.0 \
+            "$RUNNER_TEMP/Radix-release.apk" \
+            "$RUNNER_TEMP/SHA256SUMS.txt" \
+            --target "$GITHUB_SHA" \
+            --title 'Radix 7.0.0' \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --latest
