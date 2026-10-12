@@ -29,6 +29,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 
 private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB3D852),Color(0xFFBFA6F2),Color(0xFFE7BA76),Color(0xFF75C7B9),Color(0xFFB7C9F0),Color(0xFFE49D85))
+@Composable private fun studentActionHeight()=if(LocalLargeStudyControls.current)60.dp else 48.dp
 
 @Composable internal fun WorkingSheet(input: String, from: Int, initialTarget: Int, notify: (String) -> Unit, dismiss: () -> Unit) {
     var target by remember { mutableIntStateOf(initialTarget) }
@@ -64,7 +66,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                         Text("ANSWER · BASE $target",color=muted(),fontSize=10.sp,letterSpacing=1.sp)
                         Text(report.result.display,fontFamily=Mono,color=accent(),fontSize=28.sp,modifier=Modifier.padding(top=8.dp).horizontalScroll(rememberScrollState()))
                         Text(if(report.result.exact) "Exact" else "Truncated at 24 fractional places · approximate",color=muted(),fontSize=11.sp,modifier=Modifier.padding(top=7.dp))
-                        TextButton(onClick={clipboard.setText(AnnotatedString(AppStrings.translateBlock(report.text(),language)));notify("Full working copied.")}) {Icon(ImageVector.vectorResource(R.drawable.ic_copy),null,modifier=Modifier.size(15.dp));Text("  Copy working")}
+                        TextButton(onClick={clipboard.setText(AnnotatedString(AppStrings.translateBlock(report.text(),language)));notify("Full working copied.")},modifier=Modifier.heightIn(min=studentActionHeight())) {Icon(ImageVector.vectorResource(R.drawable.ic_copy),null,modifier=Modifier.size(15.dp));Text("  Copy working")}
                     }
                 }
                 WorkHeading("01","Expand the place values","Positions run from the point: … 2, 1, 0, −1, −2 … . A–Z represent values 10–35. Work on the magnitude first.")
@@ -99,15 +101,16 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                 lines.drop(page*16).take(16).forEach {Text(it,fontFamily=Mono,fontSize=11.sp,lineHeight=20.sp,maxLines=1)}
             }
             if(pages>1) Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-                TextButton(onClick={page--},enabled=page>0) {Text("Previous",fontSize=11.sp)}
+                TextButton(onClick={page--},enabled=page>0,modifier=Modifier.heightIn(min=studentActionHeight())) {Text("Previous",fontSize=11.sp)}
                 Text("${page+1}/$pages",fontFamily=Mono,fontSize=10.sp,color=muted(),modifier=Modifier.weight(1f))
-                TextButton(onClick={page++},enabled=page<pages-1) {Text("Next",fontSize=11.sp)}
+                TextButton(onClick={page++},enabled=page<pages-1,modifier=Modifier.heightIn(min=studentActionHeight())) {Text("Next",fontSize=11.sp)}
             }
         }
     }
 }
-@Composable private fun StudentChip(label: String, selected: Boolean, action: () -> Unit, modifier: Modifier=Modifier) {
-    Surface(onClick=action,shape=RoundedCornerShape(12.dp),color=if(selected)Lime else MaterialTheme.colorScheme.surfaceVariant,contentColor=if(selected)Ink else muted(),modifier=modifier.heightIn(min=48.dp)) {
+@Composable private fun StudentChip(label: String, selected: Boolean, action: () -> Unit, modifier: Modifier=Modifier, selectable:Boolean=true) {
+    val controlModifier=modifier.heightIn(min=studentActionHeight()).then(if(selectable)Modifier.semantics{this.selected=selected}else Modifier)
+    Surface(onClick=action,shape=RoundedCornerShape(12.dp),color=if(selected)Lime else MaterialTheme.colorScheme.surfaceVariant,contentColor=if(selected)Ink else muted(),modifier=controlModifier) {
         Box(contentAlignment=Alignment.Center) {Text(label,fontSize=12.sp,fontWeight=FontWeight.Bold)}
     }
 }
@@ -137,13 +140,13 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment=Alignment.CenterVertically) {
                     Text("YOUR LOGIC PLAYGROUND",fontSize=9.sp,letterSpacing=1.sp,color=muted(),modifier=Modifier.weight(1f))
-                    TextButton(onClick={examples=true}) {Text("24 examples",fontSize=11.sp)}
+                    TextButton(onClick={examples=true},modifier=Modifier.heightIn(min=studentActionHeight())) {Text("24 examples",fontSize=11.sp)}
                 }
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {(2..6).forEach {n->StudentChip("$n variables",vm.kVariables==n,{vm.selectKVariables(n);fresh()},Modifier.width(78.dp))}}
                 if(vm.kVariables>=5)Text(strings.landscapeKmapHint,fontSize=10.sp,color=muted(),lineHeight=16.sp,modifier=Modifier.padding(top=6.dp))
                 Row(Modifier.padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                     listOf(Triple("XOR · 2-var",2,"1,2"),Triple("Majority · 3-var",3,"3,5,6,7"),Triple("Primes · 4-var",4,"2,3,5,7,11,13")).forEach{(name,n,terms)->
-                        StudentChip(name,false,{vm.selectKVariables(n);vm.updateKTerms(terms);vm.updateKDontCare("");fresh()},Modifier.weight(1f))}
+                        StudentChip(name,false,{vm.selectKVariables(n);vm.updateKTerms(terms);vm.updateKDontCare("");fresh()},Modifier.weight(1f),selectable=false)}
                 }
                 Row(Modifier.padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                     listOf(KMapEngine.Form.SOP to "SOP · 1s",KMapEngine.Form.POS to "POS · 0s").forEach {(form,label)->StudentChip(label,vm.kForm==form,{vm.selectKForm(form);fresh()},Modifier.weight(1f))}
@@ -173,7 +176,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                 ) { Text("Load Σm / ΠM function", fontSize = 12.sp) }
                 Text(if(vm.kForm==KMapEngine.Form.SOP) "Group 1s. Xs may enlarge groups." else "Group 0s. Fixed literals use the opposite complement rule.",fontSize=12.sp,color=muted(),modifier=Modifier.padding(top=12.dp))
-                TextButton(onClick={showInputs=!showInputs},modifier=Modifier.fillMaxWidth()) {Text(if(showInputs)"Hide input lists" else "Edit ${if(vm.kForm==KMapEngine.Form.SOP)"minterms (1s)" else "maxterms (0s)"} and don't-cares",fontSize=11.sp)}
+                TextButton(onClick={showInputs=!showInputs},modifier=Modifier.fillMaxWidth().heightIn(min=studentActionHeight())) {Text(if(showInputs)"Hide input lists" else "Edit ${if(vm.kForm==KMapEngine.Form.SOP)"minterms (1s)" else "maxterms (0s)"} and don't-cares",fontSize=11.sp)}
                 if(showInputs) {
                     val keyboard=KeyboardOptions(keyboardType=KeyboardType.Ascii,autoCorrectEnabled=false,imeAction=ImeAction.Done)
                     OutlinedTextField(value=vm.kTerms,onValueChange={vm.updateKTerms(it);highlight=-1;exercise=null;revealed=true;selected=emptySet();groupCheck=null;manual=false},singleLine=true,label={Text(if(vm.kForm==KMapEngine.Form.SOP)"Minterms Σm · required 1s" else "Maxterms ΠM · required 0s")},keyboardOptions=keyboard,modifier=Modifier.fillMaxWidth(),isError=vm.kError!=null)
@@ -199,17 +202,17 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     else {vm.cycleKCell(index);exercise=null;revealed=true;highlight=-1}
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 }
-                Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {Text(if(manual)"Tap to select; values stay fixed." else "Tap: 0 → 1 → X → 0",fontSize=10.sp,color=muted(),modifier=Modifier.weight(1f));TextButton(onClick={vm.resetK();fresh()}) {Text("Reset to 0",fontSize=11.sp)}}
+                Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {Text(if(manual)"Tap to select; values stay fixed." else "Tap: 0 → 1 → X → 0",fontSize=10.sp,color=muted(),modifier=Modifier.weight(1f));TextButton(onClick={vm.resetK();fresh()},modifier=Modifier.heightIn(min=studentActionHeight())) {Text("Reset to 0",fontSize=11.sp)}}
                 Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick={manual=!manual;selected=emptySet();groupCheck=null},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp),enabled=vm.kError==null) {Text(if(manual)"Exit group check" else "Check a group",fontSize=11.sp)}
-                    OutlinedButton(onClick={showTruth=!showTruth},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)) {Text("Truth table",fontSize=11.sp)}
+                    OutlinedButton(onClick={manual=!manual;selected=emptySet();groupCheck=null},modifier=Modifier.weight(1f).heightIn(min=studentActionHeight()).semantics{selected=manual},shape=RoundedCornerShape(12.dp),enabled=vm.kError==null) {Text(if(manual)"Exit group check" else "Check a group",fontSize=11.sp)}
+                    OutlinedButton(onClick={showTruth=!showTruth},modifier=Modifier.weight(1f).heightIn(min=studentActionHeight()).semantics{selected=showTruth},shape=RoundedCornerShape(12.dp)) {Text(strings.text(if(showTruth)"Hide truth table"else"Truth table"),fontSize=11.sp)}
                 }
                 if(manual) {
                     Text("Select an adjacent power-of-two group (1–${1 shl vm.kVariables} cells), then check it.",fontSize=12.sp,color=muted(),lineHeight=18.sp,modifier=Modifier.padding(top=12.dp))
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text("${selected.size} selected",fontFamily=Mono,fontSize=11.sp,modifier=Modifier.weight(1f))
-                        TextButton(onClick={selected=emptySet();groupCheck=null}) {Text("Clear",fontSize=11.sp)}
-                        Button(onClick={groupCheck=KMapEngine.checkGroup(vm.kVariables,vm.kCells,selected,vm.kForm)},enabled=selected.isNotEmpty(),shape=RoundedCornerShape(12.dp)) {Text("Check",fontSize=11.sp)}
+                        TextButton(onClick={selected=emptySet();groupCheck=null},modifier=Modifier.heightIn(min=studentActionHeight())) {Text("Clear",fontSize=11.sp)}
+                        Button(onClick={groupCheck=KMapEngine.checkGroup(vm.kVariables,vm.kCells,selected,vm.kForm)},enabled=selected.isNotEmpty(),shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=studentActionHeight())) {Text("Check",fontSize=11.sp)}
                     }
                     groupCheck?.let {Text(it.message,color=if(it.valid)accent()else MaterialTheme.colorScheme.error,fontSize=12.sp,lineHeight=18.sp,modifier=Modifier.padding(top=10.dp))}
                 }
@@ -237,10 +240,10 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
             if(answer.groups.isNotEmpty()) {
                 Text("SELECTED PRIME ${if(vm.kForm==KMapEngine.Form.SOP)"IMPLICANTS"else"IMPLICATES"} · ${answer.groups.size}",color=muted(),fontSize=10.sp,letterSpacing=1.sp,modifier=Modifier.padding(top=12.dp))
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-                    TextButton(onClick={highlight=-1}) {Text("All groups",fontSize=11.sp)}
+                    TextButton(onClick={highlight=-1},modifier=Modifier.heightIn(min=studentActionHeight()).semantics{selected=highlight<0}) {Text("All groups",fontSize=11.sp)}
                     answer.groups.forEachIndexed {i,group->
                         val groupTerm=(if(vm.kForm==KMapEngine.Form.POS)"(${group.term})"else group.term).replace("'","′")
-                        OutlinedButton(onClick={highlight=if(highlight==i)-1 else i},border=BorderStroke(if(highlight==i)2.dp else 1.dp,groupColors[i%groupColors.size]),shape=RoundedCornerShape(12.dp)) {Text("G${i+1} · $groupTerm",fontFamily=Mono,fontSize=10.sp,maxLines=1)}
+                        OutlinedButton(onClick={highlight=if(highlight==i)-1 else i},border=BorderStroke(if(highlight==i)2.dp else 1.dp,groupColors[i%groupColors.size]),shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=studentActionHeight()).semantics{selected=highlight==i}) {Text("G${i+1} · $groupTerm",fontFamily=Mono,fontSize=10.sp,maxLines=1)}
                     }
                 }
                 answer.groups.forEachIndexed {i,group->
@@ -262,7 +265,7 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                     if(added!=null)notify(if(added)"K-map formula saved in Boolean solutions and backups."else"That formula was already saved; it was moved to the top.")
                 },enabled=vm.savedExpressions.size<50||savedDuplicate,modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)){Text("Save solution",fontSize=11.sp)}
             }
-            TextButton(onClick={savedOpen=true},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Saved Boolean solutions · ${vm.savedExpressions.size}",fontSize=11.sp)}
+            TextButton(onClick={savedOpen=true},modifier=Modifier.fillMaxWidth().heightIn(min=studentActionHeight())){Text("Saved Boolean solutions · ${vm.savedExpressions.size}",fontSize=11.sp)}
             Text("Save keeps the minimized formula and form; Copy working includes the groups, rules and full table.",fontSize=10.sp,color=muted(),lineHeight=16.sp)
             OutlinedButton(onClick={ShareCards.shareKMap(context,"F(${vm.kNames})",vm.kVariables,vm.kCells,vm.kForm.name,answer.expression.replace("'","′"),answer.note);notify("K-map solution shared as an image.")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)) {Text("Share solution image",fontSize=12.sp)}
         }

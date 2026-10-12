@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -156,7 +157,7 @@ private data class TourPage(val title: String, val body: String)
     Text(s.themeTitle, fontSize = 15.sp, fontWeight = FontWeight.Bold)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(0 to s.themeDark, 1 to s.themeLight, 2 to s.themeSystem).forEach { (mode, label) ->
-            OutlinedButton(onClick = { vm.setThemeMode(mode, false) }, modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+            OutlinedButton(onClick = { vm.setThemeMode(mode, false) }, modifier = Modifier.weight(1f).heightIn(min = 52.dp).semantics { selected = vm.themeMode == mode },
                 border = BorderStroke(if (vm.themeMode == mode) 2.dp else 1.dp, if (vm.themeMode == mode) accent() else outline()),
                 shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(horizontal = 4.dp)) { Text(label, fontSize = 11.sp, maxLines = 1) }
         }

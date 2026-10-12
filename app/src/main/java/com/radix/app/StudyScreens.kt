@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -75,7 +76,7 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
     StudyPage("Write logic.","Prove the idea.","THE BOOLEAN EXPRESSION LAB","Enter, solve, verify and follow every rule."){
         StudyCard("Your expression"){
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)){
-                (2..6).forEach{n->OutlinedButton(onClick={vm.setExpression(s.copy(variables=n))},modifier=Modifier.width(70.dp).heightIn(min=actionHeight())){Text("$n vars",fontSize=11.sp,color=if(n==s.variables)accent()else muted())}}
+                (2..6).forEach{n->OutlinedButton(onClick={vm.setExpression(s.copy(variables=n))},modifier=Modifier.width(70.dp).heightIn(min=actionHeight()).semantics{selected=n==s.variables}){Text("$n vars",fontSize=11.sp,color=if(n==s.variables)accent()else muted())}}
             }
             OutlinedTextField(value=s.left,onValueChange={vm.setExpression(s.copy(left=it))},label={Text("Expression F · A–Z, up to 6 variables")},textStyle=LocalTextStyle.current.copy(fontFamily=Mono),modifier=Modifier.fillMaxWidth(),minLines=2,maxLines=4)
             Text("Type any uppercase variable from A to Z, or tap a letter. Choose at least as many input lines as distinct variables.",fontSize=10.sp,color=muted(),lineHeight=16.sp)
@@ -130,8 +131,8 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)){
                     listOf("Steps","Truth table","K-map").forEachIndexed{index,label->
                         val action:@Composable ()->Unit={
-                            if(index==resultTab)Button(onClick={resultTab=index},modifier=Modifier.weight(1f).heightIn(min=actionHeight()),contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
-                            else OutlinedButton(onClick={resultTab=index},modifier=Modifier.weight(1f).heightIn(min=actionHeight()),contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
+                            if(index==resultTab)Button(onClick={resultTab=index},modifier=Modifier.weight(1f).heightIn(min=actionHeight()).semantics{selected=index==resultTab},contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
+                            else OutlinedButton(onClick={resultTab=index},modifier=Modifier.weight(1f).heightIn(min=actionHeight()).semantics{selected=index==resultTab},contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
                         }
                         action()
                     }
@@ -226,8 +227,8 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
     else{
         Text("SELECTED PRIME ${if(form==KMapEngine.Form.SOP)"IMPLICANTS"else"IMPLICATES"} · ${solution.groups.size}",fontSize=10.sp,color=muted(),letterSpacing=1.sp,modifier=Modifier.padding(top=10.dp))
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)){
-            OutlinedButton(onClick={onHighlight(-1)},modifier=Modifier.heightIn(min=44.dp)){Text("All groups",fontSize=11.sp)}
-            solution.groups.forEachIndexed{i,g->OutlinedButton(onClick={onHighlight(if(highlight==i)-1 else i)},border=BorderStroke(if(highlight==i)2.dp else 1.dp,expressionGroupColors[i%expressionGroupColors.size]),modifier=Modifier.heightIn(min=44.dp)){Text("G${i+1} · ${if(form==KMapEngine.Form.POS)"(${g.term})"else g.term}",fontSize=10.sp,fontFamily=Mono)}}
+            OutlinedButton(onClick={onHighlight(-1)},modifier=Modifier.heightIn(min=actionHeight()).semantics{selected=highlight<0}){Text("All groups",fontSize=11.sp)}
+            solution.groups.forEachIndexed{i,g->OutlinedButton(onClick={onHighlight(if(highlight==i)-1 else i)},border=BorderStroke(if(highlight==i)2.dp else 1.dp,expressionGroupColors[i%expressionGroupColors.size]),modifier=Modifier.heightIn(min=actionHeight()).semantics{selected=highlight==i}){Text("G${i+1} · ${if(form==KMapEngine.Form.POS)"(${g.term})"else g.term}",fontSize=10.sp,fontFamily=Mono)}}
         }
         solution.groups.forEachIndexed{i,g->
             StudyCard("G${i+1} · ${if(form==KMapEngine.Form.POS)"(${g.term})"else g.term}"){
@@ -244,8 +245,9 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
 private val expressionGroupColors=listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB3D852),Color(0xFFBFA6F2),Color(0xFFE7BA76),Color(0xFF75C7B9),Color(0xFFB7C9F0),Color(0xFFE49D85))
 
 @Composable private fun KMapFormButton(label:String,selected:Boolean,onClick:()->Unit,modifier:Modifier=Modifier){
-    if(selected)Button(onClick=onClick,modifier=modifier.heightIn(min=48.dp),contentPadding=PaddingValues(horizontal=5.dp)){Text(label,fontSize=10.sp,maxLines=1)}
-    else OutlinedButton(onClick=onClick,modifier=modifier.heightIn(min=48.dp),contentPadding=PaddingValues(horizontal=5.dp)){Text(label,fontSize=10.sp,maxLines=1)}
+    val controlModifier=modifier.heightIn(min=actionHeight()).semantics{this.selected=selected}
+    if(selected)Button(onClick=onClick,modifier=controlModifier,contentPadding=PaddingValues(horizontal=5.dp)){Text(label,fontSize=10.sp,maxLines=1)}
+    else OutlinedButton(onClick=onClick,modifier=controlModifier,contentPadding=PaddingValues(horizontal=5.dp)){Text(label,fontSize=10.sp,maxLines=1)}
 }
 
 @Composable private fun ExpressionMapGrid(names:String,cells:List<Int>,solution:KMapEngine.Solution,form:KMapEngine.Form,highlight:Int,showGroups:Boolean,showIndices:Boolean,current:Int){
@@ -421,8 +423,8 @@ private fun expressionMapText(source:String,r:ExpressionEngine.Report,form:KMapE
     val s=vm.representation;val clipboard=LocalClipboardManager.current;val strings=LocalStrings.current;val language=strings.languageCode;val result=remember(s){runCatching{RepresentationEngine.report(s.input,s.width,s.signed,s.mode)}}
     StudyPage("Same bits.","Different meaning.","THE NUMBER REPRESENTATION LAB","Choose a width. Read the value. Understand the sign."){
         StudyCard("Encode or decode"){
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(7.dp)){RepresentationEngine.widths.forEach{w->OutlinedButton(onClick={vm.setRepresentation(s.copy(width=w))},modifier=Modifier.heightIn(min=actionHeight())){Text("$w bits",fontSize=11.sp,color=if(w==s.width)accent()else muted())}}}
-            FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){listOf("decimal" to "Decimal", "bits" to "Binary word", "gray" to "Gray code").forEach{(key,name)->OutlinedButton(onClick={vm.setRepresentation(s.copy(mode=key,input=when(key){"decimal"->"-13";"bits"->"11110011";else->"0110"},width=maxOf(8,s.width)))},modifier=Modifier.heightIn(min=actionHeight())){Text(name,fontSize=11.sp,color=if(key==s.mode)accent()else muted())}}}
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(7.dp)){RepresentationEngine.widths.forEach{w->OutlinedButton(onClick={vm.setRepresentation(s.copy(width=w))},modifier=Modifier.heightIn(min=actionHeight()).semantics{selected=w==s.width}){Text("$w bits",fontSize=11.sp,color=if(w==s.width)accent()else muted())}}}
+            FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)){listOf("decimal" to "Decimal", "bits" to "Binary word", "gray" to "Gray code").forEach{(key,name)->OutlinedButton(onClick={vm.setRepresentation(s.copy(mode=key,input=when(key){"decimal"->"-13";"bits"->"11110011";else->"0110"},width=maxOf(8,s.width)))},modifier=Modifier.heightIn(min=actionHeight()).semantics{selected=key==s.mode}){Text(name,fontSize=11.sp,color=if(key==s.mode)accent()else muted())}}}
             Row(verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text("Two’s-complement interpretation",fontSize=13.sp);StudyNote("Off = unsigned decimal input/range")};Switch(checked=s.signed,onCheckedChange={vm.setRepresentation(s.copy(signed=it))},modifier=Modifier.semantics{contentDescription=strings.text("Use signed two’s-complement interpretation")})}
             OutlinedTextField(value=s.input,onValueChange={vm.setRepresentation(s.copy(input=it))},label={Text(if(s.mode=="decimal")"Whole decimal integer"else if(s.mode=="gray")"Gray-code word"else"Binary word")},modifier=Modifier.fillMaxWidth(),textStyle=LocalTextStyle.current.copy(fontFamily=Mono),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Ascii),minLines=1,maxLines=3)
             result.exceptionOrNull()?.let{StudyNote(it.message?:"Check input.",true)}
@@ -468,13 +470,13 @@ private val shortAnswerPrompts=listOf(
             StudyNote("${vm.gameXp} XP as ${vm.gameProfiles.getOrNull(vm.gameActive)?.name?:"Player"} · Easy 10, Intermediate 20, Advanced 30 per card + streak bonus.")
             vm.lastAward?.let{award->Row(verticalAlignment=Alignment.CenterVertically){Text(award,color=accent(),fontSize=16.sp,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f));TextButton(onClick=vm::clearAward,modifier=Modifier.heightIn(min=actionHeight())){Text("Nice!",fontSize=11.sp)}}}
             StudyNote("A correct check counts as mastered. Revealing an answer does not. Streaks celebrate practice days — they never punish a missed day.")
-            FlowRow(horizontalArrangement=Arrangement.spacedBy(7.dp)){tierNames.forEachIndexed{tier,name->TextButton(onClick={vm.setPracticeTier(tier)},modifier=Modifier.heightIn(min=actionHeight())){Text(name,fontSize=11.sp,fontWeight=if(tier==vm.practiceTier)FontWeight.Bold else FontWeight.Normal,color=if(tier==vm.practiceTier)accent()else muted())}}}
+            FlowRow(horizontalArrangement=Arrangement.spacedBy(7.dp)){tierNames.forEachIndexed{tier,name->TextButton(onClick={vm.setPracticeTier(tier)},modifier=Modifier.heightIn(min=actionHeight()).semantics{selected=tier==vm.practiceTier}){Text(name,fontSize=11.sp,fontWeight=if(tier==vm.practiceTier)FontWeight.Bold else FontWeight.Normal,color=if(tier==vm.practiceTier)accent()else muted())}}}
             StudyNote("${options.size} cards at this level · ${options.count{it.id in vm.practiceProgress}} mastered here")
-            FlowRow(horizontalArrangement=Arrangement.spacedBy(7.dp)){(listOf("All")+PracticeCatalog.questions.map{it.category}.distinct()).forEach{cat->TextButton(onClick={filter=cat;val next=PracticeCatalog.questions.indexOfFirst{(vm.practiceTier==0||it.tier==vm.practiceTier-1)&&(cat=="All"||it.category==cat)};if(next>=0)vm.selectQuestion(next)},modifier=Modifier.heightIn(min=actionHeight())){Text(cat,fontSize=11.sp,color=if(cat==filter)accent()else muted())}}}
+            FlowRow(horizontalArrangement=Arrangement.spacedBy(7.dp)){(listOf("All")+PracticeCatalog.questions.map{it.category}.distinct()).forEach{cat->TextButton(onClick={filter=cat;val next=PracticeCatalog.questions.indexOfFirst{(vm.practiceTier==0||it.tier==vm.practiceTier-1)&&(cat=="All"||it.category==cat)};if(next>=0)vm.selectQuestion(next)},modifier=Modifier.heightIn(min=actionHeight()).semantics{selected=cat==filter}){Text(cat,fontSize=11.sp,color=if(cat==filter)accent()else muted())}}}
             Box{OutlinedButton(onClick={chooser=true},enabled=options.isNotEmpty(),modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight())){Text("Choose study card · ${vm.practiceIndex+1}/${PracticeCatalog.questions.size}",fontSize=12.sp)};DropdownMenu(expanded=chooser,onDismissRequest={chooser=false}){options.forEach{question->DropdownMenuItem(text={Text((if(question.id in vm.practiceProgress)"✓ "else"")+question.title,fontSize=13.sp)},onClick={vm.selectQuestion(PracticeCatalog.questions.indexOf(question));chooser=false})}}}
         }
         StudyCard(q.title){Text((q.category+" · "+listOf("EASY","INTERMEDIATE","ADVANCED")[q.tier]).uppercase(),fontSize=10.sp,color=accent(),letterSpacing=1.sp);Text(q.prompt,fontSize=17.sp,lineHeight=25.sp)
-            q.choices.forEachIndexed{i,answer->OutlinedButton(onClick={chosen=i;checked=false},enabled=!revealed,shape=RoundedCornerShape(13.dp),border=BorderStroke(if(chosen==i)2.dp else 1.dp,if(chosen==i)accent()else outline()),modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight())){Text(answer,fontSize=13.sp,modifier=Modifier.fillMaxWidth())}}
+            q.choices.forEachIndexed{i,answer->OutlinedButton(onClick={chosen=i;checked=false},enabled=!revealed,shape=RoundedCornerShape(13.dp),border=BorderStroke(if(chosen==i)2.dp else 1.dp,if(chosen==i)accent()else outline()),modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight()).semantics{selected=chosen==i}){Text(answer,fontSize=13.sp,modifier=Modifier.fillMaxWidth())}}
             Button(onClick={checked=true;if(chosen==q.answer&&!revealed){vm.completeQuestion(q.id);haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)}},enabled=chosen!=null&&!revealed,modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight())){Text("Check my answer",fontSize=13.sp)}
             if(checked)Text(if(chosen==q.answer)"✓ Correct. Here’s why."else"Not yet. Try the hint and check again.",color=if(chosen==q.answer)accent()else MaterialTheme.colorScheme.error,fontSize=14.sp,fontWeight=FontWeight.Bold)
             if(checked&&chosen==q.answer||revealed)StudyNote(q.explanation)

@@ -187,7 +187,7 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
                         Column(Modifier.weight(1f),horizontalAlignment=Alignment.CenterHorizontally){
                             Text(g.gate.name,fontSize=10.sp,fontWeight=FontWeight.Bold,maxLines=1)
                             Text(out?.let{if(it)"1"else"0"}?:"–",fontFamily=Mono,fontSize=18.sp,fontWeight=FontWeight.Bold,color=if(out==true)accent()else muted())
-                            TextButton(onClick={vm.builderDelete(g.id);notify("${g.gate} removed.")},contentPadding=PaddingValues(0.dp),modifier=Modifier.height(22.dp)){Text("× remove",fontSize=8.sp)}
+                            TextButton(onClick={vm.builderDelete(g.id);notify("${g.gate} removed.")},contentPadding=PaddingValues(0.dp),modifier=Modifier.heightIn(min=48.dp)){Text("× remove",fontSize=9.sp)}
                         }
                         Surface(onClick={
                             if(vm.builderWiring)vm.builderTapSource(g.id,0)else notify("Turn wiring mode ON, then tap this output.")

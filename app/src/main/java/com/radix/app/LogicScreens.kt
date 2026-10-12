@@ -17,11 +17,14 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+
+@Composable private fun logicActionHeight()=if(LocalLargeStudyControls.current)60.dp else 48.dp
 
 @Composable internal fun LogicScreen(vm:RadixViewModel,notify:(String)->Unit){
     var chooser by remember {mutableStateOf(false)}
@@ -30,7 +33,7 @@ import kotlinx.coroutines.delay
         Hero("Small circuits.","Big ideas.","THE DIGITAL LOGIC STUDIO","Tap an input. Follow a wire. Understand the output.")
         Row(Modifier.fillMaxWidth().guideAnchor("logic-tabs"),horizontalArrangement=Arrangement.spacedBy(6.dp)){
             listOf("Gates","Combinational","Sequential").forEachIndexed{i,title->
-                Surface(onClick={vm.logicSection=i;vm.persistLogic()},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp),color=if(vm.logicSection==i)Lime else MaterialTheme.colorScheme.surfaceVariant,contentColor=if(vm.logicSection==i)Ink else muted()){
+                Surface(onClick={vm.logicSection=i;vm.persistLogic()},modifier=Modifier.weight(1f).heightIn(min=48.dp).semantics{selected=vm.logicSection==i},shape=RoundedCornerShape(12.dp),color=if(vm.logicSection==i)Lime else MaterialTheme.colorScheme.surfaceVariant,contentColor=if(vm.logicSection==i)Ink else muted()){
                     Box(contentAlignment=Alignment.Center){Text(title,fontSize=10.sp,fontWeight=FontWeight.Bold)}
                 }
             }
@@ -50,8 +53,10 @@ import kotlinx.coroutines.delay
         Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=24.dp)){
             Text("Choose your next aha.",fontFamily=Grotesk,fontSize=26.sp,fontWeight=FontWeight.Bold,modifier=Modifier.padding(bottom=16.dp))
             val items=when(vm.logicSection){0->LogicCatalog.gates.map{it.gate.name to it.description};1->LogicCatalog.circuits.map{it.id to it.title};else->LogicCatalog.sequential.map{it.id to it.title}}
+            val currentId=when(vm.logicSection){0->vm.gateId;1->vm.circuitId;else->vm.sequentialId}
             items.forEach{(id,description)->
-                Surface(onClick={when(vm.logicSection){0->vm.chooseGate(id);1->vm.chooseCircuit(id);else->vm.chooseSequential(id)};chooser=false},shape=RoundedCornerShape(14.dp),color=MaterialTheme.colorScheme.surfaceVariant,modifier=Modifier.fillMaxWidth().padding(bottom=8.dp)){
+                val isCurrent=id==currentId
+                Surface(onClick={when(vm.logicSection){0->vm.chooseGate(id);1->vm.chooseCircuit(id);else->vm.chooseSequential(id)};chooser=false},shape=RoundedCornerShape(14.dp),color=if(isCurrent)accent().copy(alpha=0.12f)else MaterialTheme.colorScheme.surfaceVariant,border=BorderStroke(if(isCurrent)2.dp else 1.dp,if(isCurrent)accent()else outline()),modifier=Modifier.fillMaxWidth().padding(bottom=8.dp).semantics{selected=isCurrent}){
                     Column(Modifier.padding(16.dp)){Text(if(vm.logicSection==0)id else description,fontSize=14.sp,fontWeight=FontWeight.Bold);if(vm.logicSection==0)Text(description,fontSize=11.sp,color=muted(),modifier=Modifier.padding(top=5.dp))}
                 }
             }
@@ -96,8 +101,8 @@ private fun localizedTable(text:String,language:String)=text.split('\n').joinToS
                 }
             }
         }
-        if(pages>1)Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){TextButton(onClick={page--},enabled=page>0){Text("Previous",fontSize=11.sp)};Text("${page+1}/$pages",fontFamily=Mono,fontSize=10.sp,modifier=Modifier.weight(1f));TextButton(onClick={page++},enabled=page<pages-1){Text("Next",fontSize=11.sp)}}
-        if(current>=0&&current/16!=page)TextButton(onClick={page=current/16}){Text("Show current input row",fontSize=11.sp)}
+        if(pages>1)Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){TextButton(onClick={page--},enabled=page>0,modifier=Modifier.heightIn(min=logicActionHeight())){Text("Previous",fontSize=11.sp)};Text("${page+1}/$pages",fontFamily=Mono,fontSize=10.sp,modifier=Modifier.weight(1f));TextButton(onClick={page++},enabled=page<pages-1,modifier=Modifier.heightIn(min=logicActionHeight())){Text("Next",fontSize=11.sp)}}
+        if(current>=0&&current/16!=page)TextButton(onClick={page=current/16},modifier=Modifier.heightIn(min=logicActionHeight())){Text("Show current input row",fontSize=11.sp)}
     }
 }
 private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)=title+"\n"+headers.joinToString("\t")+"\n"+rows.joinToString("\n"){it.joinToString("\t")}
@@ -107,7 +112,7 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
     val rows=remember(g,n){(0 until(1 shl n)).map{c->val i=LogicEngine.bits(c,n);i.map{if(it)"1"else"0"}+if(LogicEngine.gate(g,i))"1"else"0"}}
     LogicCard {
         Text(info.description,fontSize=13.sp,color=muted())
-        if(n>1)Row(Modifier.fillMaxWidth().padding(vertical=12.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)){(2..4).forEach{w->OutlinedButton(onClick={vm.chooseGateWidth(w)},modifier=Modifier.weight(1f),border=BorderStroke(if(n==w)2.dp else 1.dp,if(n==w)accent()else outline()),shape=RoundedCornerShape(12.dp)){Text("$w inputs",fontSize=10.sp)}}}else Spacer(Modifier.height(12.dp))
+        if(n>1)Row(Modifier.fillMaxWidth().padding(vertical=12.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)){(2..4).forEach{w->OutlinedButton(onClick={vm.chooseGateWidth(w)},modifier=Modifier.weight(1f).heightIn(min=if(LocalLargeStudyControls.current)60.dp else 48.dp).semantics{selected=n==w},border=BorderStroke(if(n==w)2.dp else 1.dp,if(n==w)accent()else outline()),shape=RoundedCornerShape(12.dp)){Text("$w inputs",fontSize=10.sp)}}}else Spacer(Modifier.height(12.dp))
         BitControls(names,vm.gateInputs,vm::toggleGateInput);LogicOutputs(listOf("Y"),listOf(if(out)1 else 0))
         Box(Modifier.fillMaxWidth().guideAnchor("logic-diagram")){GateDiagram(g,vm.gateInputs,out)}
         Text(if(n<=2)info.formula else when(g){LogicEngine.Gate.XOR->"Y = ${names.joinToString(" ⊕ ")}";LogicEngine.Gate.XNOR->"Y = (${names.joinToString(" ⊕ ")})′";else->"${g.name}: ${if(g in listOf(LogicEngine.Gate.AND,LogicEngine.Gate.NAND))"all inputs"else"any input"}${if(g in listOf(LogicEngine.Gate.NAND,LogicEngine.Gate.NOR))", then invert"else""}"},fontFamily=Mono,fontSize=13.sp,color=accent())
@@ -178,14 +183,14 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
         }
         if (pages > 1) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { page-- }, enabled = page > 0) { Text("Previous", fontSize = 11.sp) }
+                TextButton(onClick = { page-- }, enabled = page > 0, modifier = Modifier.heightIn(min = logicActionHeight())) { Text("Previous", fontSize = 11.sp) }
                 Text("${page + 1}/$pages", fontFamily = Mono, fontSize = 10.sp, modifier = Modifier.weight(1f))
-                TextButton(onClick = { page++ }, enabled = page < pages - 1) { Text("Next", fontSize = 11.sp) }
+                TextButton(onClick = { page++ }, enabled = page < pages - 1, modifier = Modifier.heightIn(min = logicActionHeight())) { Text("Next", fontSize = 11.sp) }
             }
         }
         TextButton(
             onClick = { page = current / 16 },
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+            modifier = Modifier.fillMaxWidth().heightIn(min = logicActionHeight())
         ) { Text("Show current input row ($current)", fontSize = 11.sp) }
     }
 
@@ -274,11 +279,11 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
     Column(Modifier.fillMaxWidth().padding(top=12.dp)){
         Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)){
             Button(onClick={vm.livePlaying=!vm.livePlaying},modifier=Modifier.weight(1f).heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)){Text(if(vm.livePlaying)"⏸ Stop live clock"else"▶ Live clock",fontSize=11.sp)}
-            listOf(1,2,4).forEach{speed->OutlinedButton(onClick={vm.chooseLiveSpeed(speed)},border=BorderStroke(if(vm.liveSpeed==speed)2.dp else 1.dp,if(vm.liveSpeed==speed)accent()else outline()),shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=48.dp)){Text("${speed}×",fontSize=11.sp)}}
+            listOf(1,2,4).forEach{speed->OutlinedButton(onClick={vm.chooseLiveSpeed(speed)},border=BorderStroke(if(vm.liveSpeed==speed)2.dp else 1.dp,if(vm.liveSpeed==speed)accent()else outline()),shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=if(LocalLargeStudyControls.current)60.dp else 48.dp).semantics{selected=vm.liveSpeed==speed}){Text("${speed}×",fontSize=11.sp)}}
         }
         Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp),modifier=Modifier.padding(top=8.dp)){
             Text("Period",fontSize=11.sp,color=muted())
-            listOf(100,200,1000).forEach{p->OutlinedButton(onClick={vm.setLivePeriod(p)},border=BorderStroke(if(vm.livePeriodNs==p)2.dp else 1.dp,if(vm.livePeriodNs==p)accent()else outline()),shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=44.dp)){Text("${p}ns",fontSize=10.sp)}}
+            listOf(100,200,1000).forEach{p->OutlinedButton(onClick={vm.setLivePeriod(p)},border=BorderStroke(if(vm.livePeriodNs==p)2.dp else 1.dp,if(vm.livePeriodNs==p)accent()else outline()),shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=if(LocalLargeStudyControls.current)60.dp else 48.dp).semantics{selected=vm.livePeriodNs==p}){Text("${p}ns",fontSize=10.sp)}}
         }
         Text("Nanosecond timeline · Q sampled at edges",fontFamily=Mono,fontSize=10.sp,color=muted(),modifier=Modifier.padding(top=10.dp))
         ticks.forEach{t->Text("t=${t.t}ns  CLK=${if(t.clock)1 else 0}  Q=${t.outputs.joinToString(""){it?.toString()?:"X"}}",fontFamily=Mono,fontSize=11.sp,lineHeight=19.sp)}

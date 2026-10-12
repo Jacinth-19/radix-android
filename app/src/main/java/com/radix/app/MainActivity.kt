@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -283,7 +284,7 @@ private fun SourceCard(vm: RadixViewModel, parsed: BaseConverter.Parsed, notify:
                 listOf(2, 8, 10, 16).forEach { base ->
                     val selected = vm.sourceBase == base
                     Surface(onClick = { vm.selectSource(base); haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) },
-                        modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.weight(1f).heightIn(min = 48.dp).semantics { this.selected = vm.sourceBase == base }, shape = RoundedCornerShape(12.dp),
                         color = if (selected) Lime else MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = if (selected) Ink else muted()) {
                         Box(contentAlignment = Alignment.Center) {
@@ -291,7 +292,7 @@ private fun SourceCard(vm: RadixViewModel, parsed: BaseConverter.Parsed, notify:
                         }
                     }
                 }
-                Surface(onClick = chooseSource, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(48.dp),
+                Surface(onClick = chooseSource, shape = RoundedCornerShape(12.dp), modifier = Modifier.size(48.dp).semantics { selected = vm.sourceBase !in listOf(2, 8, 10, 16) },
                     color = if (vm.sourceBase !in listOf(2, 8, 10, 16)) Lime else MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = if (vm.sourceBase !in listOf(2, 8, 10, 16)) Ink else muted()) {
                     Box(contentAlignment = Alignment.Center) {
@@ -491,7 +492,7 @@ private fun BottomBar(vm: RadixViewModel) {
                 listOf(0 to LocalStrings.current.tabConvert, 4 to LocalStrings.current.tabLogic, 3 to LocalStrings.current.tabKmaps, 5 to LocalStrings.current.tabMore).forEach { (index, label) ->
                     val active = (if(vm.tab in listOf(1,2,6,7,8,9,10,11,12,13,14,15,16,17))5 else vm.tab) == index
                     val icon = when (index) { 0 -> ImageVector.vectorResource(R.drawable.ic_swap); 4 -> ImageVector.vectorResource(R.drawable.ic_sparkle); 3 -> ImageVector.vectorResource(R.drawable.ic_grid); else -> ImageVector.vectorResource(R.drawable.ic_more) }
-                    Surface(onClick = { vm.tab = index }, modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                    Surface(onClick = { vm.tab = index }, modifier = Modifier.weight(1f).heightIn(min = 56.dp).semantics { selected = active },
                         color = if (active) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
                         shape = RoundedCornerShape(14.dp)) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -514,7 +515,7 @@ private fun BasePicker(selected: Int, output: Boolean, dismiss: () -> Unit, choo
             (2..36).toList().chunked(5).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 8.dp)) {
                     row.forEach { base ->
-                        Surface(onClick = { choose(base) }, modifier = Modifier.weight(1f).heightIn(min = 54.dp),
+                        Surface(onClick = { choose(base) }, modifier = Modifier.weight(1f).heightIn(min = 54.dp).semantics { this.selected = base == selected },
                             shape = RoundedCornerShape(12.dp), color = if (base == selected) Lime else MaterialTheme.colorScheme.surfaceVariant,
                             contentColor = if (base == selected) Ink else MaterialTheme.colorScheme.onSurface) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -581,7 +582,8 @@ private fun BitLabScreen(vm: RadixViewModel) {
                 }
                 Spacer(Modifier.height(18.dp))
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
-                    val bitRows = (7 downTo 0).toList().chunked(if (maxWidth < 400.dp) 4 else 8)
+                    // Keep eight across only when each switch can retain a 48 dp touch target.
+                    val bitRows = (7 downTo 0).toList().chunked(if (maxWidth < 440.dp) 4 else 8)
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         bitRows.forEach { bitRow ->
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
