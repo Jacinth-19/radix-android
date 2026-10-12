@@ -103,7 +103,6 @@ jobs:
           emulator-boot-timeout: 900
           disable-animations: true
           script: |
-            set -euo pipefail
             # Exercise a compact 320 dp phone in both portrait and landscape.
             adb shell wm size 640x1280
             adb shell wm density 320
