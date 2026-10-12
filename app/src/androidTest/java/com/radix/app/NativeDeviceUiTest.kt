@@ -16,6 +16,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertTrue
@@ -99,9 +100,9 @@ class NativeDeviceUiTest {
 
         val wiringMode = composeRule.onNodeWithContentDescription(localized("Toggle wiring mode"))
         wiringMode.assertIsOff()
-        wiringMode.performClick()
+        wiringMode.performTouchInput { click() }
         wiringMode.assertIsOn()
-        wiringMode.performClick()
+        wiringMode.performTouchInput { click() }
         wiringMode.assertIsOff()
 
         val inputADescription = localized("External input A, 0")
