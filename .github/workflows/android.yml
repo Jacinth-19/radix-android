@@ -59,7 +59,7 @@ jobs:
         run: |
           set +e
           ./gradlew --no-daemon --stacktrace \
-            testDebugUnitTest testReleaseUnitTest \
+            testDebugUnitTest testReleaseUnitTest compileDebugAndroidTestKotlin \
             lintDebug lintRelease \
             assembleDebug assembleRelease 2>&1 | tee android-build.log
           gradle_status=${PIPESTATUS[0]}
@@ -97,7 +97,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
-          target: default
+          target: google_apis
           arch: x86_64
           profile: pixel_2
           emulator-boot-timeout: 900
