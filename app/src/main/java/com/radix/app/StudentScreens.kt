@@ -204,8 +204,8 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
                 }
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {Text(if(manual)"Tap to select; values stay fixed." else "Tap: 0 → 1 → X → 0",fontSize=10.sp,color=muted(),modifier=Modifier.weight(1f));TextButton(onClick={vm.resetK();fresh()},modifier=Modifier.heightIn(min=studentActionHeight())) {Text("Reset to 0",fontSize=11.sp)}}
                 Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick={manual=!manual;selected=emptySet();groupCheck=null},modifier=Modifier.weight(1f).heightIn(min=studentActionHeight()).semantics{selected=manual},shape=RoundedCornerShape(12.dp),enabled=vm.kError==null) {Text(if(manual)"Exit group check" else "Check a group",fontSize=11.sp)}
-                    OutlinedButton(onClick={showTruth=!showTruth},modifier=Modifier.weight(1f).heightIn(min=studentActionHeight()).semantics{selected=showTruth},shape=RoundedCornerShape(12.dp)) {Text(strings.text(if(showTruth)"Hide truth table"else"Truth table"),fontSize=11.sp)}
+                    OutlinedButton(onClick={manual=!manual;selected=emptySet();groupCheck=null},modifier=Modifier.weight(1f).heightIn(min=studentActionHeight()).semantics{this.selected=manual},shape=RoundedCornerShape(12.dp),enabled=vm.kError==null) {Text(if(manual)"Exit group check" else "Check a group",fontSize=11.sp)}
+                    OutlinedButton(onClick={showTruth=!showTruth},modifier=Modifier.weight(1f).heightIn(min=studentActionHeight()).semantics{this.selected=showTruth},shape=RoundedCornerShape(12.dp)) {Text(strings.text(if(showTruth)"Hide truth table"else"Truth table"),fontSize=11.sp)}
                 }
                 if(manual) {
                     Text("Select an adjacent power-of-two group (1–${1 shl vm.kVariables} cells), then check it.",fontSize=12.sp,color=muted(),lineHeight=18.sp,modifier=Modifier.padding(top=12.dp))
@@ -240,10 +240,10 @@ private val groupColors = listOf(Color(0xFF8AB9F4),Color(0xFFEDA5C5),Color(0xFFB
             if(answer.groups.isNotEmpty()) {
                 Text("SELECTED PRIME ${if(vm.kForm==KMapEngine.Form.SOP)"IMPLICANTS"else"IMPLICATES"} · ${answer.groups.size}",color=muted(),fontSize=10.sp,letterSpacing=1.sp,modifier=Modifier.padding(top=12.dp))
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top=8.dp),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-                    TextButton(onClick={highlight=-1},modifier=Modifier.heightIn(min=studentActionHeight()).semantics{selected=highlight<0}) {Text("All groups",fontSize=11.sp)}
+                    TextButton(onClick={highlight=-1},modifier=Modifier.heightIn(min=studentActionHeight()).semantics{this.selected=highlight<0}) {Text("All groups",fontSize=11.sp)}
                     answer.groups.forEachIndexed {i,group->
                         val groupTerm=(if(vm.kForm==KMapEngine.Form.POS)"(${group.term})"else group.term).replace("'","′")
-                        OutlinedButton(onClick={highlight=if(highlight==i)-1 else i},border=BorderStroke(if(highlight==i)2.dp else 1.dp,groupColors[i%groupColors.size]),shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=studentActionHeight()).semantics{selected=highlight==i}) {Text("G${i+1} · $groupTerm",fontFamily=Mono,fontSize=10.sp,maxLines=1)}
+                        OutlinedButton(onClick={highlight=if(highlight==i)-1 else i},border=BorderStroke(if(highlight==i)2.dp else 1.dp,groupColors[i%groupColors.size]),shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=studentActionHeight()).semantics{this.selected=highlight==i}) {Text("G${i+1} · $groupTerm",fontFamily=Mono,fontSize=10.sp,maxLines=1)}
                     }
                 }
                 answer.groups.forEachIndexed {i,group->
