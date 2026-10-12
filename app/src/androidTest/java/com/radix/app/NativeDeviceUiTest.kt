@@ -107,12 +107,14 @@ class NativeDeviceUiTest {
         wiringMode.performTouchInput { click() }
         wiringMode.assertIsOff()
 
-        val inputADescription = localized("External input A, 0")
+        val inputADescription = localized("External input A, 0. Tap to toggle.")
         val inputA = composeRule.onNodeWithContentDescription(inputADescription)
         inputA.performScrollTo()
         assertMinimumTarget(inputA, minWidthDp = 48f, minHeightDp = 48f)
         inputA.performClick()
-        composeRule.onNodeWithContentDescription(localized("External input A, 1")).assertExists()
+        composeRule.onNodeWithContentDescription(
+            localized("External input A, 1. Tap to toggle.")
+        ).assertExists()
     }
 
     private fun openHome() {
