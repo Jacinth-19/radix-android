@@ -113,19 +113,39 @@ class NativeDeviceUiTest {
     }
 
     private fun openHome() {
-        composeRule.waitUntil(timeoutMillis = 15_000) {
+        composeRule.waitUntil(timeoutMillis = 20_000) {
             hasTextNode(strings.skip) ||
                 hasTextNode(strings.tabConvert) ||
                 hasTextNode(strings.keepExploring)
         }
         if (hasTextNode(strings.skip)) {
             composeRule.onNodeWithText(strings.skip).performClick()
-            composeRule.waitForIdle()
+        }
+        // Completing onboarding can briefly expose the What's New sheet before the home
+        // tab is actionable. Wait for either state rather than racing its LaunchedEffect.
+        composeRule.waitUntil(timeoutMillis = 20_000) {
+            hasTextNode(strings.keepExploring) || hasTextNode(strings.tabConvert)
         }
         if (hasTextNode(strings.keepExploring)) {
             composeRule.onNodeWithText(strings.keepExploring).performClick()
         }
-        composeRule.waitUntil(timeoutMillis = 15_000) { hasTextNode(strings.tabConvert) }
+        val homeReady = runCatching {
+            composeRule.waitUntil(timeoutMillis = 20_000) { hasTextNode(strings.tabConvert) }
+        }
+        if (homeReady.isFailure) {
+            val visibleTexts = runCatching {
+                composeRule.onAllNodes(
+                    SemanticsMatcher.keyIsDefined(SemanticsProperties.Text),
+                    useUnmergedTree = true
+                ).fetchSemanticsNodes().flatMap { node ->
+                    node.config.getOrElse(SemanticsProperties.Text) { emptyList() }
+                }.map { it.text }.distinct().take(50).joinToString(" | ")
+            }.getOrElse { "<semantics unavailable: ${it.message}>" }
+            throw AssertionError(
+                "Home tab did not appear (locale=${strings.languageCode}; " +
+                    "wait=${homeReady.exceptionOrNull()?.message}; visible=$visibleTexts)"
+            )
+        }
     }
 
     private fun hasTextNode(text: String): Boolean =
