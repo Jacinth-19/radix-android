@@ -100,6 +100,7 @@ class NativeDeviceUiTest {
         composeRule.onNodeWithContentDescription(localized("XOR input 1, wired")).assertExists()
 
         val wiringMode = composeRule.onNodeWithContentDescription(localized("Toggle wiring mode"))
+        wiringMode.performScrollTo()
         wiringMode.assertIsOff()
         wiringMode.performTouchInput { click() }
         wiringMode.assertIsOn()
