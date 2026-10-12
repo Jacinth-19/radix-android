@@ -193,6 +193,15 @@ class LocaleTextTest {
         assertEquals("Dígitos de 0 a 9, A a Z · frações permitidas",AppStrings.forLang("pt").text("Digits 0–9, A–Z · fractions welcome"))
     }
 
+    @Test fun builderLimitAndSwipeableCanvasCopyStayLocalized() {
+        assertEquals("12 portes maximum ; supprimez-en une pour faire de la place.",AppStrings.forLang("fr").text("Maximum 12 gates; remove one to make room."))
+        assertEquals("Máximo: 12 puertas; elimina una para dejar sitio.",AppStrings.forLang("es").text("Maximum 12 gates; remove one to make room."))
+        assertEquals("Máximo de 12 portas; remova uma para liberar espaço.",AppStrings.forLang("pt").text("Maximum 12 gates; remove one to make room."))
+        assertEquals("En portrait, faites défiler un canevas large ; passez en paysage pour voir et organiser davantage à la fois.",AppStrings.forLang("fr").landscapeBuilderHint)
+        assertEquals("En vertical, desliza el lienzo ancho; gira a horizontal para ver y organizar más elementos a la vez.",AppStrings.forLang("es").landscapeBuilderHint)
+        assertEquals("No modo retrato, deslize horizontalmente a área de trabalho; gire para paisagem para ver e organizar mais elementos de uma vez.",AppStrings.forLang("pt").landscapeBuilderHint)
+    }
+
     @Test fun generatedValidationTeachingAndClipboardCopyAreLocalized() {
         assertEquals(
             "Fuera de rango: los valores sin signo de 8 bits van de 0 a 255. No se aplicó ningún desbordamiento circular.",

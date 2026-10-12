@@ -44,7 +44,7 @@ import kotlin.math.roundToInt
 @Composable private fun LabNote(text:String,error:Boolean=false){Text(text,color=if(error)MaterialTheme.colorScheme.error else muted(),fontSize=12.sp,lineHeight=19.sp)}
 
 // ---------------- Circuit builder ----------------
-private val GATE_W=116.dp;private val GATE_H=74.dp;private val PIN=26.dp;private val PIN_GAP=4.dp
+private val GATE_W=152.dp;private val GATE_H=104.dp;private val PIN=48.dp;private val PIN_GAP=4.dp
 private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
     val total=count*pinPx+(count-1)*gapPx;val top=cy-total/2
     return (0 until count).map{top+pinPx/2+it*(pinPx+gapPx)}
@@ -66,12 +66,14 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
             OutlinedButton(onClick={vm.builderClear();pulse=null},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),shape=RoundedCornerShape(12.dp)){Text("Clear the canvas",fontSize=12.sp)}
         }
         LabCard("Gate palette · tap to place"){
+            val atLimit=board.gates.size>=BuilderEngine.MAX_GATES
             FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){
                 LogicEngine.Gate.entries.forEach{g->
-                    Button(onClick={vm.builderAdd(g);pulse=null;haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=48.dp)){Text(g.name,fontSize=11.sp)}
+                    Button(onClick={vm.builderAdd(g);pulse=null;haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},enabled=!atLimit,shape=RoundedCornerShape(12.dp),modifier=Modifier.heightIn(min=48.dp)){Text(g.name,fontSize=11.sp)}
                 }
             }
             LabNote("Binary gates take 2 inputs here; chain them for wider functions. NOT and BUFFER take 1.")
+            if(atLimit)LabNote("Maximum 12 gates; remove one to make room.")
         }
         LabCard("Canvas · ${board.gates.size}/${BuilderEngine.MAX_GATES} gates"){
             Row(verticalAlignment=Alignment.CenterVertically){
@@ -121,13 +123,18 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
 @Composable private fun BuilderCanvas(vm:RadixViewModel,eval:BuilderEngine.Eval?,notify:(String)->Unit){
     val strings=LocalStrings.current
     val haptic=LocalHapticFeedback.current;val density=LocalDensity.current
-    BoxWithConstraints(Modifier.fillMaxWidth().height(430.dp).clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.45f))) {
-        val wPx=with(density){maxWidth.toPx()};val hPx=with(density){maxHeight.toPx()}
+    BoxWithConstraints(Modifier.fillMaxWidth().height(560.dp).clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.45f))) {
+        val canvasWidth=maxOf(maxWidth,520.dp)
+        val wPx=with(density){canvasWidth.toPx()};val hPx=with(density){maxHeight.toPx()}
         val gwPx=with(density){GATE_W.toPx()};val ghPx=with(density){GATE_H.toPx()};val pinPx=with(density){PIN.toPx()};val gapPx=with(density){PIN_GAP.toPx()}
-        val board=vm.builderBoard
-        fun gateCenter(g:BuilderEngine.Placed)=Offset(g.x*wPx,g.y*hPx)
-        fun extDot(i:Int)=Offset((i+0.5f)/4*wPx,52.dp.value*density.density)
-        val probeDot=Offset(wPx/2,hPx-52.dp.value*density.density)
+        val minGateX=(gwPx/2f/wPx).coerceIn(0f,0.5f);val maxGateX=1f-minGateX
+        val minGateY=(with(density){60.dp.toPx()}+ghPx/2f)/hPx;val maxGateY=1f-minGateY
+        Row(Modifier.fillMaxSize().horizontalScroll(rememberScrollState())) {
+            Box(Modifier.width(canvasWidth).fillMaxHeight()) {
+                val board=vm.builderBoard
+                fun gateCenter(g:BuilderEngine.Placed)=Offset(g.x.coerceIn(minGateX,maxGateX)*wPx,g.y.coerceIn(minGateY,maxGateY)*hPx)
+        fun extDot(i:Int)=Offset((i+0.5f)/4*wPx,56.dp.value*density.density)
+        val probeDot=Offset(wPx/2,hPx-56.dp.value*density.density)
         fun outDot(id:Int):Offset = if(id==BuilderEngine.EXT_IN)Offset.Zero else {val c=gateCenter(board.gates.first{it.id==id});Offset(c.x+gwPx/2,c.y)}
         fun inDot(id:Int,pin:Int):Offset{
             if(id==BuilderEngine.PROBE)return probeDot
@@ -152,15 +159,16 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
                 else{vm.builderToggleExt(i)};haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
             },shape=RoundedCornerShape(10.dp),color=if(board.ext[i])Lime else panel(),contentColor=if(board.ext[i])Ink else MaterialTheme.colorScheme.onSurface,
                 border=BorderStroke(if(pending)3.dp else 1.dp,if(pending)accent()else outline()),
-                modifier=Modifier.offset{IntOffset(((i+0.5f)/4*wPx-32.dp.value*density.density).roundToInt(),(8.dp.value*density.density).roundToInt())}.size(64.dp,44.dp).semantics{contentDescription=strings.text("External input ${BuilderEngine.inputName(i)}, ${if(board.ext[i])1 else 0}")}){
+                modifier=Modifier.offset{IntOffset(((i+0.5f)/4*wPx-32.dp.value*density.density).roundToInt(),(8.dp.value*density.density).roundToInt())}.size(64.dp,48.dp).semantics{contentDescription=strings.text("External input ${BuilderEngine.inputName(i)}, ${if(board.ext[i])1 else 0}")}){
                 Column(Modifier.fillMaxSize(),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){Text(BuilderEngine.inputName(i),fontFamily=Mono,fontSize=10.sp);Text(if(board.ext[i])"1"else"0",fontFamily=Mono,fontSize=16.sp,fontWeight=FontWeight.Bold)}
             }
         }
         // Gates (draggable).
         board.gates.forEach{g->
             val arity=BuilderEngine.arity(g.gate);val out=eval?.gateOut?.get(g.id)
-            Box(Modifier.offset{IntOffset((g.x*wPx-gwPx/2).roundToInt(),(g.y*hPx-ghPx/2).roundToInt())}.size(GATE_W,GATE_H)
-                .pointerInput(g.id,wPx,hPx){detectDragGestures(onDrag={change,amount->change.consume();val cur=vm.builderBoard.gates.first{it.id==g.id};vm.builderMove(g.id,cur.x+amount.x/wPx,cur.y+amount.y/hPx)})}){
+            val center=gateCenter(g)
+            Box(Modifier.offset{IntOffset((center.x-gwPx/2).roundToInt(),(center.y-ghPx/2).roundToInt())}.size(GATE_W,GATE_H)
+                .pointerInput(g.id,wPx,hPx){detectDragGestures(onDrag={change,amount->change.consume();val cur=vm.builderBoard.gates.first{it.id==g.id};val current=gateCenter(cur);vm.builderMove(g.id,((current.x+amount.x)/wPx).coerceIn(minGateX,maxGateX),((current.y+amount.y)/hPx).coerceIn(minGateY,maxGateY))})}){
                 Surface(shape=RoundedCornerShape(12.dp),color=panel(),border=BorderStroke(1.dp,outline()),modifier=Modifier.fillMaxSize()){
                     Row(Modifier.fillMaxSize().padding(4.dp),verticalAlignment=Alignment.CenterVertically){
                         Column(Modifier.width(PIN),verticalArrangement=Arrangement.Center,horizontalAlignment=Alignment.CenterHorizontally){
@@ -196,8 +204,10 @@ private fun pinCenters(count:Int,cy:Float,pinPx:Float,gapPx:Float):List<Float>{
             if(vm.builderWiring){if(vm.builderPending!=null)vm.builderTapTarget(BuilderEngine.PROBE,0)else notify("Pick a glowing output first.")}
             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         },shape=RoundedCornerShape(12.dp),color=if(eval?.probe==true)Lime else panel(),contentColor=if(eval?.probe==true)Ink else MaterialTheme.colorScheme.onSurface,border=BorderStroke(1.dp,outline()),
-            modifier=Modifier.offset{IntOffset((wPx/2-48.dp.value*density.density).roundToInt(),(hPx-44.dp.value*density.density).roundToInt())}.size(96.dp,36.dp).semantics{contentDescription=strings.text("Output probe, ${if(eval?.probe==true)1 else 0}")}){
+            modifier=Modifier.offset{IntOffset((wPx/2-48.dp.value*density.density).roundToInt(),(hPx-56.dp.value*density.density).roundToInt())}.size(96.dp,48.dp).semantics{contentDescription=strings.text("Output probe, ${if(eval?.probe==true)1 else 0}")}){
             Box(contentAlignment=Alignment.Center){Text("Y = ${eval?.probe?.let{if(it)1 else 0}?:"–"}",fontFamily=Mono,fontSize=14.sp,fontWeight=FontWeight.Bold)}
+        }
+            }
         }
     }
 }

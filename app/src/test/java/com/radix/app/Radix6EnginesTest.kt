@@ -37,7 +37,10 @@ class Radix6EnginesTest {
         assertThrows(IllegalArgumentException::class.java){FloatLab.parseHex("3F80",32)}
     }
     @Test fun builderPresetsAreValidAndCorrect(){
-        BuilderEngine.presets().forEach{(_,board)->assertTrue(BuilderEngine.validate(board).isEmpty())}
+        BuilderEngine.presets().forEach{(_,board)->
+            assertTrue(BuilderEngine.validate(board).isEmpty())
+            assertTrue(board.gates.all{it.x in 0.18f..0.82f&&it.y in 0.2f..0.8f})
+        }
         val xor=BuilderEngine.presetXorFromNand()
         listOf(listOf(false,false) to false,listOf(false,true) to true,listOf(true,false) to true,listOf(true,true) to false).forEach{(inputs,want)->
             assertEquals(want,BuilderEngine.evaluate(xor.copy(ext=inputs+listOf(false,false))).probe)}
@@ -52,6 +55,20 @@ class Radix6EnginesTest {
         assertEquals(false,BuilderEngine.evaluate(mux.copy(ext=listOf(false,false,true,false))).probe)
         assertEquals(true,BuilderEngine.evaluate(mux.copy(ext=listOf(true,false,true,false))).probe)
         assertEquals(false,BuilderEngine.evaluate(mux.copy(ext=listOf(true,true,false,false))).probe)
+    }
+    @Test fun builderPaletteAddsOnlyVisibleSlotsAndEnforcesTheLimit(){
+        var board=BuilderEngine.Board(emptyList(),emptyList(),List(4){false})
+        repeat(BuilderEngine.MAX_GATES){board=BuilderEngine.addGate(board,LogicEngine.Gate.AND)}
+        assertEquals(BuilderEngine.MAX_GATES,board.gates.size)
+        assertEquals(BuilderEngine.MAX_GATES,board.gates.map{it.id}.distinct().size)
+        assertEquals(BuilderEngine.MAX_GATES,board.gates.map{it.x to it.y}.distinct().size)
+        assertTrue(board.gates.all{it.x in 0.18f..0.82f&&it.y in 0.2f..0.8f})
+        val x=board.gates.map{it.x}.distinct().sorted()
+        val y=board.gates.map{it.y}.distinct().sorted()
+        assertTrue(x.zipWithNext().all{(left,right)->(right-left)*520f>=152f})
+        assertTrue(y.zipWithNext().all{(top,bottom)->(bottom-top)*560f>=104f})
+        assertTrue(board.gates.all{it.y*560f-52f>=56f&&it.y*560f+52f<=504f})
+        assertThrows(IllegalArgumentException::class.java){BuilderEngine.addGate(board,LogicEngine.Gate.OR)}
     }
     @Test fun builderValidationCatchesWiringMistakes(){
         val half=BuilderEngine.presetHalfAdder()

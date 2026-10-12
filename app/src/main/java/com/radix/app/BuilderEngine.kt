@@ -77,8 +77,26 @@ internal object BuilderEngine {
     }
     // ---- Presets (positions are canvas fractions 0..1) ----
     private fun preset(gates:List<LogicEngine.Gate>,wires:List<Wire>):Board{
-        val placed=gates.mapIndexed{i,g->Placed(i,g,0.12f+0.76f*(i%3)/2,0.08f+0.5f*(i/3))}
+        // Keep the preset gates between the fixed input strip and the output probe.
+        // Two columns also leave enough horizontal room on the portrait canvas.
+        val rows=(gates.size+1)/2
+        val placed=gates.mapIndexed{i,g->
+            val x=if(i%2==0)0.28f else 0.72f
+            val y=if(rows==1)0.5f else if(i/2==0)0.28f else 0.68f
+            Placed(i,g,x,y)
+        }
         return Board(placed,wires,List(4){false})
+    }
+    /** Add a gate in an unused canvas slot without covering the fixed I/O lanes. */
+    fun addGate(board:Board,gate:LogicEngine.Gate):Board{
+        require(board.gates.size<MAX_GATES){"The builder is limited to $MAX_GATES gates."}
+        val id=(board.gates.maxOfOrNull{it.id}?:-1)+1
+        val usedSlots=board.gates.map{((it.id%MAX_GATES)+MAX_GATES)%MAX_GATES}.toSet()
+        val slot=(0 until MAX_GATES).firstOrNull{it !in usedSlots}?:error("No free gate slot.")
+        val x=listOf(0.18f,0.5f,0.82f)[slot%3]
+        // Four 104 dp rows fit between the 56 dp input and probe lanes on a 560 dp canvas.
+        val y=listOf(0.2f,0.4f,0.6f,0.8f)[slot/3]
+        return board.copy(gates=board.gates+Placed(id,gate,x,y))
     }
     /** XOR from four NANDs: classic teaching build. Inputs A,B; probe Y. */
     fun presetXorFromNand():Board = preset(listOf(LogicEngine.Gate.NAND,LogicEngine.Gate.NAND,LogicEngine.Gate.NAND,LogicEngine.Gate.NAND),listOf(
