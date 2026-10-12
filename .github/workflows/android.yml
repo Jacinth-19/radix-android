@@ -108,6 +108,52 @@ jobs:
             adb shell wm density 320
             ./gradlew --no-daemon --stacktrace connectedDebugAndroidTest
 
+      - name: Summarize hosted-device test results
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          roots = [
+              Path("app/build/outputs/androidTest-results/connected"),
+              Path("app/build/test-results/connectedAndroidTest"),
+          ]
+          reports = [report for root in roots if root.exists() for report in root.rglob("TEST-*.xml")]
+          failures = []
+          total = failed = 0
+          for report in reports:
+              try:
+                  suite = ET.parse(report).getroot()
+              except (ET.ParseError, OSError):
+                  continue
+              total += int(suite.get("tests", 0))
+              failed += int(suite.get("failures", 0)) + int(suite.get("errors", 0))
+              for case in suite.iter("testcase"):
+                  problem = case.find("failure")
+                  if problem is None:
+                      problem = case.find("error")
+                  if problem is not None:
+                      detail = problem.get("message", "") + chr(10) + (problem.text or "")
+                      failures.append(f"{suite.get('name')}#{case.get('name')}: {detail[:2400]}")
+
+          summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          if reports:
+              summary.write_text("## Hosted Android UI tests" + chr(10) + chr(10) + f"{total - failed}/{total} passed; {failed} failed." + chr(10))
+          else:
+              summary.write_text("## Hosted Android UI tests" + chr(10) + chr(10) + "No instrumentation XML report was produced; inspect the emulator step output." + chr(10))
+          if failures:
+              for failure in failures:
+                  encoded = failure.replace("%", "%25").replace(chr(13), "%0D").replace(chr(10), "%0A")
+                  print(f"::error title=Hosted Android UI test failure::{encoded}")
+          elif reports:
+              print(f"Hosted Android UI tests: {total}/{total} passed.")
+          else:
+              print("No hosted-device instrumentation XML report found.")
+          PY
+
       - name: Upload APKs and Android reports
         if: always()
         uses: actions/upload-artifact@v7
