@@ -33,87 +33,99 @@ class NativeDeviceUiTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 
+    private val strings: Strings
+        get() = AppStrings.forLang(
+            AppStrings.systemLanguage(composeRule.activity.resources.configuration.locales)
+        )
+
+    private fun localized(source: String): String = strings.text(source)
+
     @Test
     fun compactLayoutsTouchAndAccessibilitySemanticsWorkAcrossRoutesAndRotation() {
         openHome()
-        composeRule.onNode(hasText("Convert") and hasClickAction()).assert(
+        composeRule.onNode(hasText(strings.tabConvert) and hasClickAction()).assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Selected, true)
         )
 
         // The 8-bit switches must remain comfortably tappable at 320 dp, and expose
         // both their identity and changing on/off state to accessibility services.
-        composeRule.onNode(hasText("More") and hasClickAction()).performClick()
-        composeRule.onNodeWithText("The 8-bit playground").performScrollTo().performClick()
+        composeRule.onNode(hasText(strings.tabMore) and hasClickAction()).performClick()
+        composeRule.onNodeWithText(localized("The 8-bit playground")).performScrollTo().performClick()
         composeRule.onNodeWithText("All off").performScrollTo().performClick()
-        val bit7 = composeRule.onNodeWithContentDescription("Toggle bit 7, weight 128")
+        val bit7Description = localized("Toggle bit 7, weight 128")
+        val bit7 = composeRule.onNodeWithContentDescription(bit7Description)
         bit7.performScrollTo()
-        bit7.assert(hasStateDescription("Off"))
+        bit7.assert(hasStateDescription(localized("Off")))
         assertMinimumTarget(bit7, minWidthDp = 48f, minHeightDp = 56f)
         bit7.performClick()
-        composeRule.onNodeWithContentDescription("Toggle bit 7, weight 128").assert(hasStateDescription("On"))
+        composeRule.onNodeWithContentDescription(bit7Description)
+            .assert(hasStateDescription(localized("On")))
 
         setOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE, Configuration.ORIENTATION_LANDSCAPE)
-        val rotatedBit7 = composeRule.onNodeWithContentDescription("Toggle bit 7, weight 128")
+        val rotatedBit7 = composeRule.onNodeWithContentDescription(bit7Description)
         rotatedBit7.performScrollTo()
         assertMinimumTarget(rotatedBit7, minWidthDp = 48f, minHeightDp = 56f)
         rotatedBit7.performClick()
-        composeRule.onNodeWithContentDescription("Toggle bit 7, weight 128").assert(hasStateDescription("Off"))
+        composeRule.onNodeWithContentDescription(bit7Description)
+            .assert(hasStateDescription(localized("Off")))
         setOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, Configuration.ORIENTATION_PORTRAIT)
 
         // K-map cells report a useful label and selected state, not only their visible digit.
-        composeRule.onNode(hasText("K-maps") and hasClickAction()).performClick()
+        composeRule.onNode(hasText(strings.tabKmaps) and hasClickAction()).performClick()
         composeRule.onNodeWithText("Reset to 0").performScrollTo().performClick()
-        val zeroCell = composeRule.onNodeWithContentDescription(
-            "Minterm m0, A=0, B=0, output 0. Tap to cycle"
-        )
+        val zeroCellDescription = localized("Minterm m0, A=0, B=0, output 0. Tap to cycle")
+        val zeroCell = composeRule.onNodeWithContentDescription(zeroCellDescription)
         zeroCell.performScrollTo()
-        zeroCell.assert(hasStateDescription("Not selected"))
+        zeroCell.assert(hasStateDescription(localized("Not selected")))
         assertMinimumTarget(zeroCell, minWidthDp = 48f, minHeightDp = 76f)
         zeroCell.performClick()
         composeRule.onNodeWithContentDescription(
-            "Minterm m0, A=0, B=0, output 1. Tap to cycle"
+            localized("Minterm m0, A=0, B=0, output 1. Tap to cycle")
         ).assertExists()
         composeRule.onNodeWithText("Check a group").performScrollTo().performClick()
         val groupCell = composeRule.onNodeWithContentDescription(
-            "Minterm m0, A=0, B=0, output 1. Select group cell"
+            localized("Minterm m0, A=0, B=0, output 1. Select group cell")
         )
         groupCell.performScrollTo().performClick()
-        groupCell.assert(hasStateDescription("Selected"))
+        groupCell.assert(hasStateDescription(localized("Selected")))
 
         // The circuit builder exposes labelled pins and large external-input targets;
         // switch semantics and input state both update after real touch actions.
-        composeRule.onNode(hasText("More") and hasClickAction()).performClick()
-        composeRule.onNodeWithText("Circuit builder").performScrollTo().performClick()
+        composeRule.onNode(hasText(strings.tabMore) and hasClickAction()).performClick()
+        composeRule.onNodeWithText(localized("Circuit builder")).performScrollTo().performClick()
         composeRule.onNodeWithText("Half adder (probe = Sum)").performScrollTo().performClick()
         composeRule.onNodeWithText("Canvas · 2/12 gates").performScrollTo()
-        composeRule.onNodeWithContentDescription("XOR input 1, wired").assertExists()
+        composeRule.onNodeWithContentDescription(localized("XOR input 1, wired")).assertExists()
 
-        val wiringMode = composeRule.onNodeWithContentDescription("Toggle wiring mode")
+        val wiringMode = composeRule.onNodeWithContentDescription(localized("Toggle wiring mode"))
         wiringMode.assertIsOff()
         wiringMode.performClick()
         wiringMode.assertIsOn()
         wiringMode.performClick()
         wiringMode.assertIsOff()
 
-        val inputA = composeRule.onNodeWithContentDescription("External input A, 0")
+        val inputADescription = localized("External input A, 0")
+        val inputA = composeRule.onNodeWithContentDescription(inputADescription)
         inputA.performScrollTo()
         assertMinimumTarget(inputA, minWidthDp = 48f, minHeightDp = 48f)
         inputA.performClick()
-        composeRule.onNodeWithContentDescription("External input A, 1").assertExists()
+        composeRule.onNodeWithContentDescription(localized("External input A, 1")).assertExists()
     }
 
     private fun openHome() {
         composeRule.waitUntil(timeoutMillis = 15_000) {
-            hasTextNode("Skip") || hasTextNode("A NEW PERSPECTIVE ON NUMBERS") || hasTextNode("Convert")
+            hasTextNode(strings.skip) ||
+                hasTextNode(strings.tabConvert) ||
+                hasTextNode(strings.keepExploring)
         }
-        if (hasTextNode("Skip")) {
-            composeRule.onNodeWithText("Skip").performClick()
+        if (hasTextNode(strings.skip)) {
+            composeRule.onNodeWithText(strings.skip).performClick()
             composeRule.waitForIdle()
         }
-        if (hasTextNode("Keep exploring")) {
-            composeRule.onNodeWithText("Keep exploring").performClick()
+        if (hasTextNode(strings.keepExploring)) {
+            composeRule.onNodeWithText(strings.keepExploring).performClick()
         }
-        composeRule.waitUntil(timeoutMillis = 15_000) { hasTextNode("Convert") }
+        composeRule.waitUntil(timeoutMillis = 15_000) { hasTextNode(strings.tabConvert) }
     }
 
     private fun hasTextNode(text: String): Boolean =
