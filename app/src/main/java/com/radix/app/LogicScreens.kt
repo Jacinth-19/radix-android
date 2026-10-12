@@ -286,35 +286,46 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
     }
 }
 @Composable internal fun MoreScreen(vm:RadixViewModel,help:()->Unit){
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=24.dp)){
+    val entries=listOf(
+        Triple("Settings, reminders & backup","Theme, automatic system language, haptics, notifications and portable study data",{vm.tab=10}),
+        Triple("Visual helper & app tour","Illustrated lessons and replayable highlights",help),
+        Triple("The 8-bit playground","Build a byte, one switch at a time",{vm.tab=2}),
+        Triple("Learning path & progress","${vm.practiceProgress.size} of ${PracticeCatalog.questions.size} checks mastered · 7 steps from number systems to sequential logic",{vm.tab=16}),
+        Triple("Conversion history","${vm.conversionHistory.size} recent local conversions",{vm.tab=17}),
+        Triple("Saved conversions","${vm.saved.size} saved numbers",{vm.tab=1}),
+        Triple("Boolean expression lab","Solve, verify, derive SOP/POS and inspect a live gate diagram",{vm.tab=6}),
+        Triple("Logic practice hub","${PracticeCatalog.questions.size} leveled objective cards + written self-checks",{vm.tab=8}),
+        Triple("Circuit builder","Drag gates, wire them, simulate and inspect a truth table",{vm.tab=13}),
+        Triple("IEEE-754 float lab","Sign, exponent, fraction — every float decoded",{vm.tab=14}),
+        Triple("Leaderboard & rewards","Level ${vm.gameLevel} · ${vm.gameXp} XP · ${vm.gameProfiles.size} players",{vm.tab=15}),
+        Triple("Boolean laws lab","Every law verified live on every row",{vm.tab=11}),
+        Triple("Base arithmetic lab","+ − × ÷ in any base, with column working",{vm.tab=12}),
+        Triple("Number representations","One’s & two’s complement, widths, Gray and BCD",{vm.tab=7}),
+        Triple("Circuit checkpoints","${vm.sessions.size} named inputs/clock/memory sessions",{vm.tab=9})
+    )
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=48.dp),
+        verticalArrangement=Arrangement.spacedBy(14.dp)
+    ){
         Hero("A little extra.","A lot to explore.","YOUR LEARNING TOOLBOX","Everything offline. Everything within a tap.")
-        val entries=listOf(
-            Triple("Settings, reminders & backup","Theme, automatic system language, haptics, notifications and portable study data",{vm.tab=10}),
-            Triple("Learning path & progress","${vm.practiceProgress.size} of ${PracticeCatalog.questions.size} checks mastered · 7 steps from number systems to sequential logic",{vm.tab=16}),
-            Triple("Conversion history","${vm.conversionHistory.size} recent local conversions",{vm.tab=17}),
-            Triple("Saved conversions","${vm.saved.size} saved numbers",{vm.tab=1}),
-            Triple("Boolean expression lab","Solve, verify, derive SOP/POS and inspect a live gate diagram",{vm.tab=6}),
-            Triple("Logic practice hub","${PracticeCatalog.questions.size} leveled objective cards + written self-checks",{vm.tab=8}),
-            Triple("Circuit builder","Drag gates, wire them, simulate and inspect a truth table",{vm.tab=13}),
-            Triple("IEEE-754 float lab","Sign, exponent, fraction — every float decoded",{vm.tab=14}),
-            Triple("Leaderboard & rewards","Level ${vm.gameLevel} · ${vm.gameXp} XP · ${vm.gameProfiles.size} players",{vm.tab=15}),
-            Triple("Boolean laws lab","Every law verified live on every row",{vm.tab=11}),
-            Triple("Base arithmetic lab","+ − × ÷ in any base, with column working",{vm.tab=12}),
-            Triple("Number representations","One’s & two’s complement, widths, Gray and BCD",{vm.tab=7}),
-            Triple("Circuit checkpoints","${vm.sessions.size} named inputs/clock/memory sessions",{vm.tab=9}),
-            Triple("The 8-bit playground","Build a byte, one switch at a time",{vm.tab=2}),
-            Triple("Visual helper & app tour","Illustrated lessons and replayable highlights",help)
-        )
         BoxWithConstraints(Modifier.fillMaxWidth()){
             val wide=maxWidth>=760.dp
-            @Composable fun card(index:Int,title:String,detail:String,action:()->Unit,modifier:Modifier){
-                Surface(onClick=action,shape=RoundedCornerShape(18.dp),color=panel(),border=BorderStroke(1.dp,outline()),modifier=modifier.padding(bottom=12.dp).heightIn(min=86.dp).then(if(index==entries.size-1)Modifier.guideAnchor("more-help")else Modifier)){
-                    Row(Modifier.padding(18.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(title,fontWeight=FontWeight.Bold,fontSize=15.sp);Text(detail,color=muted(),fontSize=11.sp,lineHeight=17.sp,modifier=Modifier.padding(top=5.dp))};Text("→",color=accent(),fontSize=24.sp)}
+            @Composable fun card(title:String,detail:String,action:()->Unit,modifier:Modifier){
+                val anchor=if(title=="Visual helper & app tour")Modifier.guideAnchor("more-help")else Modifier
+                Surface(onClick=action,shape=RoundedCornerShape(18.dp),color=panel(),border=BorderStroke(1.dp,outline()),modifier=modifier.heightIn(min=96.dp).then(anchor)){
+                    Row(Modifier.padding(horizontal=18.dp,vertical=16.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(title,fontWeight=FontWeight.Bold,fontSize=16.sp);Text(detail,color=muted(),fontSize=12.sp,lineHeight=18.sp,modifier=Modifier.padding(top=6.dp))};Text("→",color=accent(),fontSize=24.sp)}
                 }
             }
-            if(wide)entries.withIndex().chunked(2).forEach{row->Row(horizontalArrangement=Arrangement.spacedBy(12.dp)){row.forEach{(i,e)->card(i,e.first,e.second,e.third,Modifier.weight(1f))};if(row.size<2)Spacer(Modifier.weight(1f))}}
-            else entries.forEachIndexed{i,(title,detail,action)->card(i,title,detail,action,Modifier.fillMaxWidth())}
+            if(wide){
+                Column(verticalArrangement=Arrangement.spacedBy(14.dp)){
+                    entries.withIndex().chunked(2).forEach{row->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(14.dp)){row.forEach{(_,e)->card(e.first,e.second,e.third,Modifier.weight(1f))};if(row.size<2)Spacer(Modifier.weight(1f))}}
+                }
+            }else{
+                Column(verticalArrangement=Arrangement.spacedBy(14.dp)){
+                    entries.forEach{(title,detail,action)->card(title,detail,action,Modifier.fillMaxWidth())}
+                }
+            }
         }
-        Text("Radix 7.0 · no ads, accounts or Internet permission",color=muted(),fontSize=11.sp,modifier=Modifier.padding(top=12.dp))
+        Text("Radix 7.0 · no ads, accounts or Internet permission",color=muted(),fontSize=11.sp)
     }
 }
