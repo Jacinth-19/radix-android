@@ -100,7 +100,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_2
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 1200
           disable-animations: true
           script: |
             # Exercise a compact 320 dp phone in both portrait and landscape.
@@ -151,6 +151,7 @@ jobs:
           elif reports:
               print(f"Hosted Android UI tests: {total}/{total} passed.")
           else:
+              print("::error title=Hosted Android UI report missing::No instrumentation XML report was produced; check emulator startup and connected-test logs.")
               print("No hosted-device instrumentation XML report found.")
           PY
 
