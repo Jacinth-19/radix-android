@@ -113,7 +113,7 @@ class NativeDeviceUiTest {
     }
 
     private fun openHome() {
-        composeRule.waitUntil(timeoutMillis = 20_000) {
+        waitForUi("startup, onboarding, or home") {
             hasTextNode(strings.skip) ||
                 hasTextNode(strings.tabConvert) ||
                 hasTextNode(strings.keepExploring)
@@ -123,30 +123,34 @@ class NativeDeviceUiTest {
         }
         // Completing onboarding can briefly expose the What's New sheet before the home
         // tab is actionable. Wait for either state rather than racing its LaunchedEffect.
-        composeRule.waitUntil(timeoutMillis = 20_000) {
+        waitForUi("onboarding completion or What's New") {
             hasTextNode(strings.keepExploring) || hasTextNode(strings.tabConvert)
         }
         if (hasTextNode(strings.keepExploring)) {
             composeRule.onNodeWithText(strings.keepExploring).performClick()
         }
-        val homeReady = runCatching {
-            composeRule.waitUntil(timeoutMillis = 20_000) { hasTextNode(strings.tabConvert) }
-        }
-        if (homeReady.isFailure) {
-            val visibleTexts = runCatching {
-                composeRule.onAllNodes(
-                    SemanticsMatcher.keyIsDefined(SemanticsProperties.Text),
-                    useUnmergedTree = true
-                ).fetchSemanticsNodes().flatMap { node ->
-                    node.config.getOrElse(SemanticsProperties.Text) { emptyList() }
-                }.map { it.text }.distinct().take(50).joinToString(" | ")
-            }.getOrElse { "<semantics unavailable: ${it.message}>" }
+        waitForUi("home tab") { hasTextNode(strings.tabConvert) }
+    }
+
+    private fun waitForUi(state: String, condition: () -> Boolean) {
+        val wait = runCatching { composeRule.waitUntil(timeoutMillis = 20_000, condition = condition) }
+        if (wait.isFailure) {
             throw AssertionError(
-                "Home tab did not appear (locale=${strings.languageCode}; " +
-                    "wait=${homeReady.exceptionOrNull()?.message}; visible=$visibleTexts)"
+                "Timed out waiting for $state; locale=${strings.languageCode}; " +
+                    "deviceLocales=${composeRule.activity.resources.configuration.locales.toLanguageTags()}; " +
+                    "visible=${semanticsTextSnapshot()}; failure=${wait.exceptionOrNull()?.message}"
             )
         }
     }
+
+    private fun semanticsTextSnapshot(): String = runCatching {
+        composeRule.onAllNodes(
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Text),
+            useUnmergedTree = true
+        ).fetchSemanticsNodes().flatMap { node ->
+            node.config.getOrElse(SemanticsProperties.Text) { emptyList() }
+        }.map { it.text }.distinct().take(50).joinToString(" | ")
+    }.getOrElse { "<semantics unavailable: ${it.message}>" }
 
     private fun hasTextNode(text: String): Boolean =
         composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
