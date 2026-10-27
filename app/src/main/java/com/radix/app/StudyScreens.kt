@@ -134,11 +134,8 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
                         val tabModifier=Modifier.weight(1f).heightIn(min=actionHeight())
                             .then(if(index==2)Modifier.testTag("expression-kmap-tab")else Modifier)
                             .semantics{selected=index==resultTab}
-                        val action:@Composable ()->Unit={
-                            if(index==resultTab)Button(onClick={resultTab=index},modifier=tabModifier,contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
-                            else OutlinedButton(onClick={resultTab=index},modifier=tabModifier,contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
-                        }
-                        action()
+                        if(index==resultTab)Button(onClick={resultTab=index},modifier=tabModifier,contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
+                        else OutlinedButton(onClick={resultTab=index},modifier=tabModifier,contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
                     }
                 }
                 when(resultTab){

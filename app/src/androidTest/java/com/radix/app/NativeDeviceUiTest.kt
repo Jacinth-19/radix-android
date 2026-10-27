@@ -207,10 +207,11 @@ class NativeDeviceUiTest {
 
         composeRule.onNodeWithContentDescription(localized("Expression input A 1. Tap to toggle."))
             .performScrollTo().performClick()
+        composeRule.mainClock.advanceTimeBy(5_000)
+        composeRule.waitForIdle()
         val kMapTab=composeRule.onNodeWithTag("expression-kmap-tab")
         kMapTab.assert(hasClickAction())
-        kMapTab.performScrollTo()
-        kMapTab.performTouchInput { click() }
+        kMapTab.performScrollTo().performClick()
         composeRule.waitForIdle()
         kMapTab.assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected,true))
         assertTextPresent(localized("Gate-level circuit · live"))
