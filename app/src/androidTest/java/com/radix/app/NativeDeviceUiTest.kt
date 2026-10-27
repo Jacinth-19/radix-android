@@ -6,7 +6,6 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
@@ -159,8 +158,11 @@ class NativeDeviceUiTest {
         composeRule.onNodeWithText(localized("Settings, reminders & backup")).performScrollTo().performClick()
         composeRule.onNodeWithText(localized("Appearance")).performScrollTo().assertExists()
         composeRule.onNodeWithText(localized("Theme")).assertExists()
-        composeRule.onNodeWithText("Theme, automatic system language, haptics, notifications and portable study data")
-            .assertDoesNotExist()
+        assertTrue(
+            "The old language note must not appear under Appearance",
+            composeRule.onAllNodesWithText("Theme, automatic system language, haptics, notifications and portable study data")
+                .fetchSemanticsNodes().isEmpty()
+        )
     }
 
     @Test
@@ -233,8 +235,14 @@ class NativeDeviceUiTest {
         composeRule.onNodeWithText("10: 4  ·  2: 100").assertExists()
 
         composeRule.onNode(hasText("DEC") and hasClickAction()).performScrollTo().performClick()
-        composeRule.onNodeWithText(localized("First number")).performScrollTo().performTextClearance().performTextInput("24")
-        composeRule.onNodeWithText(localized("Second number")).performScrollTo().performTextClearance().performTextInput("5")
+        val firstNumber=composeRule.onNodeWithText(localized("First number"))
+        firstNumber.performScrollTo()
+        firstNumber.performTextClearance()
+        firstNumber.performTextInput("24")
+        val secondNumber=composeRule.onNodeWithText(localized("Second number"))
+        secondNumber.performScrollTo()
+        secondNumber.performTextClearance()
+        secondNumber.performTextInput("5")
         chooseOperator("+")
         composeRule.onNodeWithText("29").assertExists()
         composeRule.onNodeWithText("11101").assertExists()
