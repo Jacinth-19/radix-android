@@ -14,6 +14,7 @@ import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -204,8 +205,10 @@ class NativeDeviceUiTest {
 
         composeRule.onNodeWithContentDescription(localized("Expression input A 1. Tap to toggle."))
             .performScrollTo().performClick()
-        val kMapTab=composeRule.onNode(hasText(localized("K-map")) and hasClickAction())
-        kMapTab.performScrollTo().performClick()
+        val kMapTab=composeRule.onNodeWithTag("expression-kmap-tab")
+        kMapTab.assert(hasClickAction())
+        kMapTab.performScrollTo()
+        kMapTab.performTouchInput { click() }
         composeRule.waitForIdle()
         kMapTab.assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected,true))
         assertTextPresent(localized("Gate-level circuit · live"))

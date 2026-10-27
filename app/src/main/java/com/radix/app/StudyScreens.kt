@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -130,9 +131,12 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
             StudyCard("Solution workspace"){
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)){
                     listOf("Steps","Truth table","K-map").forEachIndexed{index,label->
+                        val tabModifier=Modifier.weight(1f).heightIn(min=actionHeight())
+                            .then(if(index==2)Modifier.testTag("expression-kmap-tab")else Modifier)
+                            .semantics{selected=index==resultTab}
                         val action:@Composable ()->Unit={
-                            if(index==resultTab)Button(onClick={resultTab=index},modifier=Modifier.weight(1f).heightIn(min=actionHeight()).semantics{selected=index==resultTab},contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
-                            else OutlinedButton(onClick={resultTab=index},modifier=Modifier.weight(1f).heightIn(min=actionHeight()).semantics{selected=index==resultTab},contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
+                            if(index==resultTab)Button(onClick={resultTab=index},modifier=tabModifier,contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
+                            else OutlinedButton(onClick={resultTab=index},modifier=tabModifier,contentPadding=PaddingValues(horizontal=3.dp)){Text(label,fontSize=10.sp,maxLines=1)}
                         }
                         action()
                     }
