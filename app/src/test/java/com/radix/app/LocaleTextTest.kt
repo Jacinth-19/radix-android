@@ -80,6 +80,21 @@ class LocaleTextTest {
         assertEquals("Truncado tras 24 decimales · aproximado",AppStrings.forLang("es").text("Truncated at 24 fractional places · approximate"))
     }
 
+    @Test fun newToolboxArithmeticAndBcdDisplayCopyRemainsLocalized() {
+        assertEquals("Entraînement et autoévaluations",AppStrings.forLang("fr").text("Practice & self-tests"))
+        assertEquals("Laboratorio completo de circuitos",AppStrings.forLang("es").text("Full circuit lab"))
+        assertEquals("Decodificador BCD de 4 entradas e 7 saídas",AppStrings.forLang("pt").text("BCD 4-in / 7-out decoder"))
+        assertEquals("Afficheur à sept segments",AppStrings.forLang("fr").text("Seven-segment display"))
+        assertEquals("Entrada BCD no válida (10–15)",AppStrings.forLang("es").text("Invalid BCD input (10–15)"))
+        assertEquals("DECIMAL · BASE 10",AppStrings.forLang("es").text("DENARY · BASE 10"))
+        assertEquals("Additionnez, soustrayez, multipliez et divisez en binaire, décimal et autres bases.",AppStrings.forLang("fr").text("Add, subtract, multiply and divide in binary, denary and other bases."))
+        assertEquals("Entrée de l’expression A 1. Touchez pour inverser.",AppStrings.forLang("fr").text("Expression input A 1. Tap to toggle."))
+        assertEquals("Theme, haptics, notifications and portable study data",AppStrings.forLang("en").text("Theme, haptics, notifications and portable study data"))
+        assertEquals("Vos données restent sur l’appareil. Découvrez les outils mieux organisés, l’afficheur BCD et l’arithmétique multibase :",AppStrings.forLang("fr").whatsNewIntro)
+        assertEquals("the arithmetic lab adds, subtracts, multiplies and divides in binary, denary and more.",AppStrings.forLang("en").tourConvertBody.substringAfter("History to revisit conversions; "))
+        assertEquals(true,AppStrings.forLang("en").tourPracticeBody.contains("written subjective self-checks"))
+    }
+
     @Test fun localizedCanvasShareAndVerifierCopyPreservesMeaning() {
         assertEquals("Étage D Q2",AppStrings.forLang("fr").text("D stage Q2"))
         assertEquals("puertas NOR acopladas en cruz",AppStrings.forLang("es").text("cross-coupled nor gates"))

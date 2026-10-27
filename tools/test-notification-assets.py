@@ -45,7 +45,8 @@ assert 'private fun language(ctx:Context):String=AppStrings.systemLanguage(ctx.r
 assert 'internal val effectiveLanguage:String get()=AppStrings.systemLanguage()' in view_model
 assert 'prefs.contains("app_language")' in view_model and 'remove("app_language")' in view_model
 assert 'putString("app_language"' not in view_model and 'setLanguage(' not in view_model
-assert 'LocaleList.getDefault()' in strings and strings.count('systemLanguageNote=') == 4
+assert 'LocaleList.getDefault()' in strings and 'systemLanguageNote' not in strings
+assert 'StudyNote(strings.systemLanguageNote)' not in study_screens
 assert 'ptStrings=enStrings.copy(' in strings and '"pt"' in strings and 'Portuguese' in strings
 assert 'LanguageSection(' not in ui and 'LanguageSection(' not in study_screens
 assert 'LocalConfiguration.current.locales' in activity and 'AppStrings.forLang(systemLanguage)' in activity

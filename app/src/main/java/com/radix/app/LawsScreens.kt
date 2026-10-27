@@ -17,6 +17,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.math.BigInteger
 import kotlin.math.roundToInt
 
 private data class Law(val name: String, val statement: String, val left: String, val right: String, val vars: Int)
@@ -135,6 +136,19 @@ private val lawGroups = listOf(
                 report?.let { r ->
                     Text("ANSWER · BASE $base", color = muted(), fontSize = 10.sp, letterSpacing = 1.sp, modifier = Modifier.padding(top = 16.dp))
                     Text(if (op == '÷' || op == '/') "${r.quotient} remainder ${r.remainder}" else r.result, fontFamily = Mono, color = accent(), fontSize = 28.sp, modifier = Modifier.padding(top = 6.dp).horizontalScroll(rememberScrollState()))
+                    val denaryResult=BigInteger(r.result,base).toString(10)
+                    val binaryResult=BigInteger(r.result,base).toString(2)
+                    Text(strings.text("Equivalent answers"),fontSize=12.sp,fontWeight=FontWeight.Bold,modifier=Modifier.padding(top=12.dp))
+                    Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)){
+                        Column(Modifier.weight(1f)){Text(strings.text("DENARY · BASE 10"),fontSize=9.sp,color=muted());Text(denaryResult,fontFamily=Mono,fontSize=18.sp,color=accent())}
+                        Column(Modifier.weight(1f)){Text(strings.text("BINARY · BASE 2"),fontSize=9.sp,color=muted());Text(binaryResult,fontFamily=Mono,fontSize=18.sp,color=accent())}
+                    }
+                    r.remainder?.let{remainder->
+                        val denaryRemainder=BigInteger(remainder,base).toString(10)
+                        val binaryRemainder=BigInteger(remainder,base).toString(2)
+                        Text(strings.text("Remainder"),fontSize=10.sp,color=muted(),modifier=Modifier.padding(top=6.dp))
+                        Text("10: $denaryRemainder  ·  2: $binaryRemainder",fontFamily=Mono,fontSize=11.sp,color=accent())
+                    }
                     r.steps.forEachIndexed { i, step -> Text("${i + 1}. $step", fontFamily = Mono, fontSize = 11.sp, lineHeight = 19.sp, modifier = Modifier.padding(top = 6.dp)) }
                     TextButton(onClick = {
                         clipboard.setText(AnnotatedString(AppStrings.translateBlock("${r.a} ${r.op} ${r.b} (base $base) = ${if (r.quotient != null) "${r.quotient} rem ${r.remainder}" else r.result}\n" + r.steps.joinToString("\n"),language)))

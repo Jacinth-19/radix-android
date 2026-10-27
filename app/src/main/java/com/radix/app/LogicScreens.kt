@@ -2,6 +2,7 @@
 package com.radix.app
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -31,6 +33,7 @@ import kotlinx.coroutines.delay
     var saveSession by remember{mutableStateOf(false)}
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=24.dp)){
         Hero("Small circuits.","Big ideas.","THE DIGITAL LOGIC STUDIO","Tap an input. Follow a wire. Understand the output.")
+        Text("Rotate the device to landscape for more room in wide gate and circuit diagrams; portrait remains swipeable.",fontSize=11.sp,color=muted(),lineHeight=17.sp)
         Row(Modifier.fillMaxWidth().guideAnchor("logic-tabs"),horizontalArrangement=Arrangement.spacedBy(6.dp)){
             listOf("Gates","Combinational","Sequential").forEachIndexed{i,title->
                 Surface(onClick={vm.logicSection=i;vm.persistLogic()},modifier=Modifier.weight(1f).heightIn(min=48.dp).semantics{selected=vm.logicSection==i},shape=RoundedCornerShape(12.dp),color=if(vm.logicSection==i)Lime else MaterialTheme.colorScheme.surfaceVariant,contentColor=if(vm.logicSection==i)Ink else muted()){
@@ -202,6 +205,39 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
     ) { Text("Copy this page (${rows.size} rows)", fontSize = 12.sp) }
 }
+@Composable private fun SevenSegmentBar(active:Boolean,modifier:Modifier){
+    Box(modifier.background(if(active)Lime else Color(0xFF29332C),RoundedCornerShape(8.dp)))
+}
+
+@Composable private fun SevenSegmentPreview(inputValue:Int,outputs:Map<String,Boolean>){
+    val strings=LocalStrings.current
+    val valid=inputValue in 0..9
+    val names=listOf("a","b","c","d","e","f","g")
+    val readout=names.joinToString(", "){name->"$name=${if(outputs[name]==true)1 else 0}"}
+    Row(Modifier.fillMaxWidth().padding(top=16.dp,bottom=6.dp),horizontalArrangement=Arrangement.spacedBy(18.dp),verticalAlignment=Alignment.CenterVertically){
+        Box(
+            Modifier.size(width=108.dp,height=174.dp).clip(RoundedCornerShape(18.dp)).background(Color(0xFF101510))
+                .semantics(mergeDescendants=true){contentDescription="${strings.text("Seven-segment display")}: ${if(valid)inputValue else strings.text("Invalid BCD input")}; $readout"}
+        ){
+            SevenSegmentBar(outputs["a"]==true,Modifier.align(Alignment.TopCenter).offset(y=12.dp).size(width=58.dp,height=10.dp))
+            SevenSegmentBar(outputs["b"]==true,Modifier.align(Alignment.TopStart).offset(x=85.dp,y=27.dp).size(width=9.dp,height=52.dp))
+            SevenSegmentBar(outputs["c"]==true,Modifier.align(Alignment.TopStart).offset(x=85.dp,y=95.dp).size(width=9.dp,height=52.dp))
+            SevenSegmentBar(outputs["d"]==true,Modifier.align(Alignment.TopCenter).offset(y=152.dp).size(width=58.dp,height=10.dp))
+            SevenSegmentBar(outputs["e"]==true,Modifier.align(Alignment.TopStart).offset(x=14.dp,y=95.dp).size(width=9.dp,height=52.dp))
+            SevenSegmentBar(outputs["f"]==true,Modifier.align(Alignment.TopStart).offset(x=14.dp,y=27.dp).size(width=9.dp,height=52.dp))
+            SevenSegmentBar(outputs["g"]==true,Modifier.align(Alignment.TopCenter).offset(y=82.dp).size(width=58.dp,height=10.dp))
+        }
+        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(5.dp)){
+            Text(strings.text("Seven-segment display"),fontWeight=FontWeight.Bold,fontSize=14.sp)
+            Text(strings.text("BCD input · 8421"),fontSize=9.sp,color=muted(),letterSpacing=.5.sp)
+            Text("${inputValue.toString(2).padStart(4,'0')}  ·  $inputValue",fontFamily=Mono,fontSize=18.sp,color=accent())
+            if(!valid)Text(strings.text("Invalid BCD input (10–15)"),fontSize=11.sp,color=MaterialTheme.colorScheme.error,lineHeight=16.sp)
+            Text(strings.text("Active high · 1 lights a segment"),fontSize=10.sp,color=muted(),lineHeight=15.sp)
+            Text("a–g: "+names.joinToString(" "){"$it${if(outputs[it]==true)"1"else"0"}"},fontFamily=Mono,fontSize=10.sp,color=muted())
+        }
+    }
+}
+
 @Composable private fun CombinationalPanel(vm:RadixViewModel,notify:(String)->Unit){
     val strings=LocalStrings.current
     val c=LogicCatalog.circuits.first{it.id==vm.circuitId};val result=remember(c,vm.circuitInputs){LogicEngine.evaluate(c,vm.circuitInputs)}
@@ -213,6 +249,7 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
         Text("No memory: outputs follow the current inputs.",color=muted(),fontSize=12.sp,lineHeight=19.sp,modifier=Modifier.padding(bottom=12.dp))
         if(c.inputs.size>=12)Text(strings.landscapeCircuitHint,fontSize=10.sp,color=muted(),lineHeight=16.sp,modifier=Modifier.padding(bottom=10.dp))
         BitControls(c.inputs,vm.circuitInputs,vm::toggleCircuitInput);LogicOutputs(c.outputs.keys.toList(),result.outputs.values.map{if(it)1 else 0})
+        if(c.id=="bcd-7seg")SevenSegmentPreview(LogicEngine.code(vm.circuitInputs),result.outputs)
         TextButton(onClick={expanded=!expanded},modifier=Modifier.heightIn(min=48.dp)){Text(if(expanded)"Switch to phone-friendly block view"else"Explore the gate-level diagram",fontSize=11.sp)}
         Box(Modifier.fillMaxWidth().guideAnchor("logic-diagram")){CircuitDiagram(c,result,expanded)}
         if(expanded)Text("Swipe ↔ to follow all gates. Crossing wires connect only at dotted pin junctions.",fontSize=10.sp,color=muted(),lineHeight=17.sp)
@@ -291,22 +328,39 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
     }
 }
 @Composable internal fun MoreScreen(vm:RadixViewModel,help:()->Unit){
-    val entries=listOf(
-        Triple("Settings, reminders & backup","Theme, automatic system language, haptics, notifications and portable study data",{vm.tab=10}),
-        Triple("Visual helper & app tour","Illustrated lessons and replayable highlights",help),
-        Triple("The 8-bit playground","Build a byte, one switch at a time",{vm.tab=2}),
-        Triple("Learning path & progress","${vm.practiceProgress.size} of ${PracticeCatalog.questions.size} checks mastered · 7 steps from number systems to sequential logic",{vm.tab=16}),
-        Triple("Conversion history","${vm.conversionHistory.size} recent local conversions",{vm.tab=17}),
-        Triple("Saved conversions","${vm.saved.size} saved numbers",{vm.tab=1}),
-        Triple("Boolean expression lab","Solve, verify, derive SOP/POS and inspect a live gate diagram",{vm.tab=6}),
-        Triple("Logic practice hub","${PracticeCatalog.questions.size} leveled objective cards + written self-checks",{vm.tab=8}),
-        Triple("Circuit builder","Drag gates, wire them, simulate and inspect a truth table",{vm.tab=13}),
-        Triple("IEEE-754 float lab","Sign, exponent, fraction — every float decoded",{vm.tab=14}),
-        Triple("Leaderboard & rewards","Level ${vm.gameLevel} · ${vm.gameXp} XP · ${vm.gameProfiles.size} players",{vm.tab=15}),
-        Triple("Boolean laws lab","Every law verified live on every row",{vm.tab=11}),
-        Triple("Base arithmetic lab","+ − × ÷ in any base, with column working",{vm.tab=12}),
-        Triple("Number representations","One’s & two’s complement, widths, Gray and BCD",{vm.tab=7}),
-        Triple("Circuit checkpoints","${vm.sessions.size} named inputs/clock/memory sessions",{vm.tab=9})
+    val settings=Triple(
+        "Settings, reminders & backup",
+        "Theme, haptics, notifications and portable study data",
+        {vm.tab=10}
+    )
+    val openLogic={vm.logicSection=1;vm.persistLogic();vm.tab=4}
+    val sections=listOf(
+        "Learn & track progress" to listOf(
+            Triple("Learning path & progress","Follow seven steps from number systems to sequential logic; review mastery by topic.",{vm.tab=16}),
+            Triple("Conversion history","Reopen or delete recent valid conversions saved on this device.",{vm.tab=17}),
+            Triple("Practice & self-tests","Objective quizzes plus written subjective self-checks across three levels.",{vm.tab=8})
+        ),
+        "Number tools" to listOf(
+            Triple("Base arithmetic lab","Add, subtract, multiply and divide in binary, denary and other bases.",{vm.tab=12}),
+            Triple("Number representations","One’s & two’s complement, widths, Gray and BCD",{vm.tab=7}),
+            Triple("The 8-bit playground","Build a byte, one switch at a time",{vm.tab=2}),
+            Triple("Saved conversions","${vm.saved.size} saved numbers",{vm.tab=1}),
+            Triple("IEEE-754 float lab","Sign, exponent, fraction — every float decoded",{vm.tab=14})
+        ),
+        "Logic & circuit labs" to listOf(
+            Triple("Full circuit lab","Gates, combinational and sequential logic; rotate to landscape for wide diagrams and timing.",openLogic),
+            Triple("BCD 4-in / 7-out decoder","Four 8-4-2-1 inputs drive seven active-high display segments.",{vm.logicSection=1;vm.chooseCircuit("bcd-7seg");vm.tab=4}),
+            Triple("Circuit builder","Add gates, edit inputs, connect wires and simulate; landscape gives the canvas more room.",{vm.tab=13}),
+            Triple("Expression-to-circuit lab","Type a Boolean expression, change live inputs and inspect its gate-level circuit.",{vm.tab=6}),
+            Triple("Boolean laws lab","Every law verified live on every row",{vm.tab=11}),
+            Triple("Circuit checkpoints","${vm.sessions.size} saved input, clock and memory states",{vm.tab=9})
+        ),
+        "Progress & rewards" to listOf(
+            Triple("Leaderboard & rewards","Level ${vm.gameLevel} · ${vm.gameXp} XP · ${vm.gameProfiles.size} players",{vm.tab=15})
+        ),
+        "Quick tools" to listOf(
+            Triple("Visual helper & app tour","Illustrated lessons and replayable highlights",help)
+        )
     )
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=48.dp),
@@ -314,21 +368,26 @@ private fun tableText(title:String,headers:List<String>,rows:List<List<String>>)
     ){
         Hero("A little extra.","A lot to explore.","YOUR LEARNING TOOLBOX","Everything offline. Everything within a tap.")
         BoxWithConstraints(Modifier.fillMaxWidth()){
-            val wide=maxWidth>=760.dp
+            val wide=maxWidth>=600.dp
             @Composable fun card(title:String,detail:String,action:()->Unit,modifier:Modifier){
                 val anchor=if(title=="Visual helper & app tour")Modifier.guideAnchor("more-help")else Modifier
                 Surface(onClick=action,shape=RoundedCornerShape(18.dp),color=panel(),border=BorderStroke(1.dp,outline()),modifier=modifier.heightIn(min=96.dp).then(anchor)){
                     Row(Modifier.padding(horizontal=18.dp,vertical=16.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(title,fontWeight=FontWeight.Bold,fontSize=16.sp);Text(detail,color=muted(),fontSize=12.sp,lineHeight=18.sp,modifier=Modifier.padding(top=6.dp))};Text("→",color=accent(),fontSize=24.sp)}
                 }
             }
-            if(wide){
-                Column(verticalArrangement=Arrangement.spacedBy(14.dp)){
-                    entries.withIndex().chunked(2).forEach{row->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(14.dp)){row.forEach{(_,e)->card(e.first,e.second,e.third,Modifier.weight(1f))};if(row.size<2)Spacer(Modifier.weight(1f))}}
-                }
-            }else{
-                Column(verticalArrangement=Arrangement.spacedBy(14.dp)){
+            @Composable fun group(title:String,entries:List<Triple<String,String,()->Unit>>){
+                Text(title,fontSize=18.sp,fontWeight=FontWeight.Bold,fontFamily=Grotesk,modifier=Modifier.padding(top=10.dp,bottom=8.dp))
+                if(wide){
+                    Column(verticalArrangement=Arrangement.spacedBy(14.dp)){
+                        entries.chunked(2).forEach{row->Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(14.dp)){row.forEach{e->card(e.first,e.second,e.third,Modifier.weight(1f))};if(row.size<2)Spacer(Modifier.weight(1f))}}
+                    }
+                }else Column(verticalArrangement=Arrangement.spacedBy(14.dp)){
                     entries.forEach{(title,detail,action)->card(title,detail,action,Modifier.fillMaxWidth())}
                 }
+            }
+            Column(verticalArrangement=Arrangement.spacedBy(14.dp)){
+                card(settings.first,settings.second,settings.third,Modifier.fillMaxWidth())
+                sections.forEach{(title,entries)->group(title,entries)}
             }
         }
         Text("Radix 7.0 · no ads, accounts or Internet permission",color=muted(),fontSize=11.sp)

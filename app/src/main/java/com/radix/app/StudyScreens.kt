@@ -56,7 +56,7 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
 @Composable private fun StudyValue(label:String,value:String){Column{Text(label,color=muted(),fontSize=10.sp,letterSpacing=1.sp);Text(value,fontFamily=Mono,fontSize=23.sp,lineHeight=31.sp,color=accent(),modifier=Modifier.fillMaxWidth())}}
 
 @Composable internal fun ExpressionScreen(vm:RadixViewModel,notify:(String)->Unit){
-    val s=vm.expression;val clipboard=LocalClipboardManager.current;val haptic=LocalHapticFeedback.current;val language=LocalStrings.current.languageCode
+    val s=vm.expression;val clipboard=LocalClipboardManager.current;val haptic=LocalHapticFeedback.current;val strings=LocalStrings.current;val language=strings.languageCode
     var bits by remember(s.variables){mutableStateOf(List(s.variables){it==0})}
     var submitted by remember(s.left,s.right,s.variables){mutableStateOf(false)}
     var resultTab by remember(s.left,s.variables){mutableIntStateOf(0)}
@@ -105,7 +105,7 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
         if(submitted&&r!=null){
             StudyCard("Live input values"){
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-                    bits.forEachIndexed{i,v->FilledTonalButton(onClick={bits=bits.mapIndexed{j,b->if(i==j)!b else b};haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},modifier=Modifier.width(58.dp).heightIn(min=if(vm.largeControls)78.dp else 64.dp),shape=RoundedCornerShape(13.dp)){
+                    bits.forEachIndexed{i,v->FilledTonalButton(onClick={bits=bits.mapIndexed{j,b->if(i==j)!b else b};haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},modifier=Modifier.width(58.dp).heightIn(min=if(vm.largeControls)78.dp else 64.dp).semantics{contentDescription=strings.text("Expression input ${r.names[i]} ${if(v)1 else 0}. Tap to toggle.")},shape=RoundedCornerShape(13.dp)){
                         Column(horizontalAlignment=Alignment.CenterHorizontally){Text(r.names[i].toString(),fontSize=10.sp);Text(if(v)"1"else"0",fontFamily=Mono,fontSize=25.sp)}
                     }}
                 }
@@ -369,10 +369,15 @@ private fun expressionMapText(source:String,r:ExpressionEngine.Report,form:KMapE
         5->{vm.logicSection=1;vm.persistLogic();vm.tab=4}
         else->{vm.logicSection=2;vm.persistLogic();vm.tab=4}
     }}
+    val (xpIntoLevel,xpForLevel)=GameEngine.progressToNext(vm.gameXp)
+    val gameLines=GameEngine.scoreLines(vm.gameProfiles.getOrNull(vm.gameActive)?.name?:"Player",vm.gameXp,done,total,vm.streakDays)
     StudyPage("From digits to memory.","One idea at a time.","YOUR GUIDED LEARNING PATH","A flexible route from number systems through sequential logic."){
         StudyCard("Your overall progress"){
             Text("$done of $total practice cards mastered",fontSize=15.sp,fontWeight=FontWeight.Bold)
             LinearProgressIndicator(progress={if(total==0)0f else done.toFloat()/total},modifier=Modifier.fillMaxWidth().height(9.dp).clip(RoundedCornerShape(6.dp)))
+            Text("Level ${vm.gameLevel} · ${GameEngine.levelName(vm.gameLevel)} · ${vm.gameXp} XP",fontSize=13.sp,fontWeight=FontWeight.Bold,color=accent())
+            LinearProgressIndicator(progress={if(xpForLevel==0)0f else xpIntoLevel.toFloat()/xpForLevel},modifier=Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(5.dp)))
+            StudyNote(gameLines[1]);StudyNote(gameLines[3])
             StudyNote("No steps are locked. Follow the sequence or jump directly to any tool.")
             OutlinedButton(onClick={openStep(steps.indexOfFirst { (_,categories,_) -> PracticeCatalog.questions.filter{it.category in categories}.any{it.id !in vm.practiceProgress} }.coerceAtLeast(0))},modifier=Modifier.fillMaxWidth().heightIn(min=actionHeight())){Text("Continue the path",fontSize=12.sp)}
         }
@@ -529,8 +534,6 @@ private val shortAnswerPrompts=listOf(
         }
         StudyCard("Appearance"){
             ThemeSection(vm)
-            HorizontalDivider(color=outline(),modifier=Modifier.padding(vertical=6.dp))
-            StudyNote(strings.systemLanguageNote)
         }
         StudyCard("Reminders & inbox"){
             ReminderSection(vm,notify)

@@ -6,6 +6,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.click
@@ -17,6 +18,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -115,6 +118,142 @@ class NativeDeviceUiTest {
         composeRule.onNodeWithContentDescription(
             localized("External input A, 1. Tap to toggle.")
         ).assertExists()
+    }
+
+    @Test
+    fun moreGroupsToolsAndMakesHistoryLearningPracticeAndSettingsDiscoverable() {
+        openHome()
+        openMore()
+        listOf(
+            "Learn & track progress",
+            "Number tools",
+            "Logic & circuit labs",
+            "Progress & rewards",
+            "Quick tools",
+            "Learning path & progress",
+            "Conversion history",
+            "Practice & self-tests",
+            "Base arithmetic lab",
+            "Full circuit lab",
+            "BCD 4-in / 7-out decoder",
+            "Expression-to-circuit lab",
+            "Circuit builder"
+        ).forEach { title ->
+            composeRule.onNodeWithText(localized(title)).performScrollTo().assertExists()
+        }
+
+        composeRule.onNodeWithText(localized("Conversion history")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Recent activity"), substring = true).performScrollTo().assertExists()
+
+        openMore()
+        composeRule.onNodeWithText(localized("Learning path & progress")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Your overall progress")).performScrollTo().assertExists()
+        composeRule.onNodeWithText(localized("Continue the path")).performScrollTo().assertExists()
+
+        openMore()
+        composeRule.onNodeWithText(localized("Practice & self-tests")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Check my answer")).performScrollTo().assertExists()
+        composeRule.onNodeWithText(localized("Subjective · short-answer checkpoint")).performScrollTo().assertExists()
+
+        openMore()
+        composeRule.onNodeWithText(localized("Settings, reminders & backup")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Appearance")).performScrollTo().assertExists()
+        composeRule.onNodeWithText(localized("Theme")).assertExists()
+        composeRule.onNodeWithText("Theme, automatic system language, haptics, notifications and portable study data")
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun bcdDecoderShowsLiveSevenSegmentPreviewAndSurvivesLandscapeRotation() {
+        openHome()
+        openMore()
+        composeRule.onNodeWithText(localized("Full circuit lab")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Combinational")).assertExists()
+
+        openMore()
+        composeRule.onNodeWithText(localized("BCD 4-in / 7-out decoder")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("BCD input · 8421")).performScrollTo().assertExists()
+        composeRule.onNodeWithText(localized("a–g: a1 b1 c1 d1 e1 f1 g0")).assertExists()
+        val displayLabel=localized("Seven-segment display")
+        composeRule.onNodeWithContentDescription(
+            "$displayLabel: 0", substring = true
+        ).assertExists()
+
+        composeRule.onNodeWithContentDescription(localized("Input D 0. Tap to toggle."))
+            .performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("a–g: a0 b1 c1 d0 e0 f0 g0")).assertExists()
+        composeRule.onNodeWithContentDescription(
+            "$displayLabel: 1", substring = true
+        ).assertExists()
+
+        setOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE, Configuration.ORIENTATION_LANDSCAPE)
+        composeRule.onNodeWithText(localized("Rotate the device to landscape for more room in wide gate and circuit diagrams; portrait remains swipeable."))
+            .assertExists()
+        composeRule.onNodeWithText(localized("Seven-segment display")).performScrollTo().assertExists()
+        setOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, Configuration.ORIENTATION_PORTRAIT)
+    }
+
+    @Test
+    fun expressionToCircuitEntryKeepsLiveInputsAndGateDiagramInSync() {
+        openHome()
+        openMore()
+        composeRule.onNodeWithText(localized("Expression-to-circuit lab")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Solve")).performScrollTo().performClick()
+
+        composeRule.onNodeWithContentDescription(localized("Expression input A 1. Tap to toggle."))
+            .performScrollTo().performClick()
+        composeRule.onNodeWithContentDescription(localized("Expression input A 0. Tap to toggle."))
+            .assertExists()
+
+        composeRule.onNodeWithText(localized("K-map")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Gate-level circuit · live")).performScrollTo().assertExists()
+        composeRule.onNodeWithText(
+            localized("Inputs: A=0 · B=0. Group gates update as the switches change."),
+            substring = true
+        ).performScrollTo().assertExists()
+    }
+
+    @Test
+    fun arithmeticLabShowsAdditionSubtractionMultiplicationAndDivisionInBinaryAndDenary() {
+        openHome()
+        openMore()
+        composeRule.onNodeWithText(localized("Base arithmetic lab")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Equivalent answers")).performScrollTo().assertExists()
+
+        // The lab opens in binary with 1011 + 0111 = 10010 (18 denary).
+        composeRule.onNodeWithText("18").assertExists()
+        composeRule.onNodeWithText("10010").assertExists()
+        chooseOperator("−")
+        composeRule.onNodeWithText("4").assertExists()
+        composeRule.onNodeWithText("100").assertExists()
+        chooseOperator("×")
+        composeRule.onNodeWithText("77").assertExists()
+        composeRule.onNodeWithText("1001101").assertExists()
+        chooseOperator("÷")
+        composeRule.onNodeWithText("10: 4  ·  2: 100").assertExists()
+
+        composeRule.onNode(hasText("DEC") and hasClickAction()).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("First number")).performScrollTo().performTextClearance().performTextInput("24")
+        composeRule.onNodeWithText(localized("Second number")).performScrollTo().performTextClearance().performTextInput("5")
+        chooseOperator("+")
+        composeRule.onNodeWithText("29").assertExists()
+        composeRule.onNodeWithText("11101").assertExists()
+        chooseOperator("−")
+        composeRule.onNodeWithText("19").assertExists()
+        composeRule.onNodeWithText("10011").assertExists()
+        chooseOperator("×")
+        composeRule.onNodeWithText("120").assertExists()
+        composeRule.onNodeWithText("1111000").assertExists()
+        chooseOperator("÷")
+        composeRule.onNodeWithText("10: 4  ·  2: 100").assertExists()
+    }
+
+    private fun openMore() {
+        composeRule.onNode(hasText(strings.tabMore) and hasClickAction()).performClick()
+    }
+
+    private fun chooseOperator(symbol:String) {
+        composeRule.onNode(hasText(symbol) and hasClickAction()).performScrollTo().performClick()
     }
 
     private fun openHome() {
