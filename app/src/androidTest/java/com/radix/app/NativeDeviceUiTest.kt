@@ -204,11 +204,11 @@ class NativeDeviceUiTest {
         openMore()
         composeRule.onNodeWithText(localized("Expression-to-circuit lab")).performScrollTo().performClick()
         composeRule.onNodeWithText(localized("Solve")).performScrollTo().performClick()
+        composeRule.mainClock.advanceTimeBy(5_000)
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithContentDescription(localized("Expression input A 1. Tap to toggle."))
             .performScrollTo().performClick()
-        composeRule.mainClock.advanceTimeBy(5_000)
-        composeRule.waitForIdle()
         val kMapTab=composeRule.onNodeWithTag("expression-kmap-tab")
         kMapTab.assert(hasClickAction())
         kMapTab.performScrollTo().performClick()
@@ -267,7 +267,7 @@ class NativeDeviceUiTest {
 
     private fun assertTextPresent(text: String) {
         assertTrue(
-            "Expected a visible text node matching '$text'",
+            "Expected a visible text node matching '$text'; visible=${semanticsTextSnapshot()}",
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
         )
     }
