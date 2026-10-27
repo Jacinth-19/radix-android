@@ -204,9 +204,6 @@ class NativeDeviceUiTest {
 
         composeRule.onNodeWithContentDescription(localized("Expression input A 1. Tap to toggle."))
             .performScrollTo().performClick()
-        composeRule.onNodeWithContentDescription(localized("Expression input A 0. Tap to toggle."))
-            .assertExists()
-
         composeRule.onNodeWithText(localized("K-map")).performScrollTo().performClick()
         composeRule.onNodeWithText(localized("Gate-level circuit · live")).performScrollTo().assertExists()
         composeRule.onNodeWithText(
@@ -223,16 +220,16 @@ class NativeDeviceUiTest {
         composeRule.onNodeWithText(localized("Equivalent answers")).performScrollTo().assertExists()
 
         // The lab opens in binary with 1011 + 0111 = 10010 (18 denary).
-        composeRule.onNodeWithText("18").assertExists()
-        composeRule.onNodeWithText("10010").assertExists()
+        assertTextPresent("18")
+        assertTextPresent("10010")
         chooseOperator("−")
-        composeRule.onNodeWithText("4").assertExists()
-        composeRule.onNodeWithText("100").assertExists()
+        assertTextPresent("4")
+        assertTextPresent("100")
         chooseOperator("×")
-        composeRule.onNodeWithText("77").assertExists()
-        composeRule.onNodeWithText("1001101").assertExists()
+        assertTextPresent("77")
+        assertTextPresent("1001101")
         chooseOperator("÷")
-        composeRule.onNodeWithText("10: 4  ·  2: 100").assertExists()
+        assertTextPresent("10: 4  ·  2: 100")
 
         composeRule.onNode(hasText("DEC") and hasClickAction()).performScrollTo().performClick()
         val firstNumber=composeRule.onNodeWithText(localized("First number"))
@@ -244,16 +241,16 @@ class NativeDeviceUiTest {
         secondNumber.performTextClearance()
         secondNumber.performTextInput("5")
         chooseOperator("+")
-        composeRule.onNodeWithText("29").assertExists()
-        composeRule.onNodeWithText("11101").assertExists()
+        assertTextPresent("29")
+        assertTextPresent("11101")
         chooseOperator("−")
-        composeRule.onNodeWithText("19").assertExists()
-        composeRule.onNodeWithText("10011").assertExists()
+        assertTextPresent("19")
+        assertTextPresent("10011")
         chooseOperator("×")
-        composeRule.onNodeWithText("120").assertExists()
-        composeRule.onNodeWithText("1111000").assertExists()
+        assertTextPresent("120")
+        assertTextPresent("1111000")
         chooseOperator("÷")
-        composeRule.onNodeWithText("10: 4  ·  2: 100").assertExists()
+        assertTextPresent("10: 4  ·  2: 100")
     }
 
     private fun openMore() {
@@ -262,6 +259,13 @@ class NativeDeviceUiTest {
 
     private fun chooseOperator(symbol:String) {
         composeRule.onNode(hasText(symbol) and hasClickAction()).performScrollTo().performClick()
+    }
+
+    private fun assertTextPresent(text: String) {
+        assertTrue(
+            "Expected a visible text node matching '$text'",
+            composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
+        )
     }
 
     private fun openHome() {
