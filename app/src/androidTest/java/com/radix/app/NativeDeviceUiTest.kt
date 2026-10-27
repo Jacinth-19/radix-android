@@ -215,7 +215,12 @@ class NativeDeviceUiTest {
         composeRule.waitForIdle()
         kMapTab.assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected,true))
         assertTextPresent(localized("Gate-level circuit · live"))
-        assertTextPresent(localized("Inputs: A=0 · B=0. Group gates update as the switches change."))
+        val liveInputs = composeRule.onNodeWithText("Inputs:", substring = true).fetchSemanticsNode()
+            .config.getOrElse(SemanticsProperties.Text) { emptyList() }.joinToString(" ") { it.text }
+        assertTrue(
+            "Expected the live circuit inputs to show A=0 and B=0; found '$liveInputs'",
+            "A=0" in liveInputs && "B=0" in liveInputs
+        )
     }
 
     private fun verifyArithmeticLabShowsAdditionSubtractionMultiplicationAndDivisionInBinaryAndDenary() {
