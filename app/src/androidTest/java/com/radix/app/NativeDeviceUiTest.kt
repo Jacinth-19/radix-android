@@ -46,8 +46,16 @@ class NativeDeviceUiTest {
     private fun localized(source: String): String = strings.text(source)
 
     @Test
-    fun compactLayoutsTouchAndAccessibilitySemanticsWorkAcrossRoutesAndRotation() {
+    fun hostedDeviceRoutesRetainTouchAccessibilityAndLearningCoverage() {
         openHome()
+        verifyCompactLayoutsTouchAndAccessibilitySemanticsWorkAcrossRoutesAndRotation()
+        verifyMoreGroupsToolsAndMakesHistoryLearningPracticeAndSettingsDiscoverable()
+        verifyBcdDecoderShowsLiveSevenSegmentPreviewAndSurvivesLandscapeRotation()
+        verifyExpressionToCircuitEntryKeepsLiveInputsAndGateDiagramInSync()
+        verifyArithmeticLabShowsAdditionSubtractionMultiplicationAndDivisionInBinaryAndDenary()
+    }
+
+    private fun verifyCompactLayoutsTouchAndAccessibilitySemanticsWorkAcrossRoutesAndRotation() {
         composeRule.onNode(hasText(strings.tabConvert) and hasClickAction()).assert(
             SemanticsMatcher.expectValue(SemanticsProperties.Selected, true)
         )
@@ -120,9 +128,7 @@ class NativeDeviceUiTest {
         ).assertExists()
     }
 
-    @Test
-    fun moreGroupsToolsAndMakesHistoryLearningPracticeAndSettingsDiscoverable() {
-        openHome()
+    private fun verifyMoreGroupsToolsAndMakesHistoryLearningPracticeAndSettingsDiscoverable() {
         openMore()
         listOf(
             "Learn & track progress",
@@ -166,9 +172,7 @@ class NativeDeviceUiTest {
         )
     }
 
-    @Test
-    fun bcdDecoderShowsLiveSevenSegmentPreviewAndSurvivesLandscapeRotation() {
-        openHome()
+    private fun verifyBcdDecoderShowsLiveSevenSegmentPreviewAndSurvivesLandscapeRotation() {
         openMore()
         composeRule.onNodeWithText(localized("Full circuit lab")).performScrollTo().performClick()
         composeRule.onNodeWithText(localized("Combinational")).assertExists()
@@ -196,9 +200,7 @@ class NativeDeviceUiTest {
         setOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, Configuration.ORIENTATION_PORTRAIT)
     }
 
-    @Test
-    fun expressionToCircuitEntryKeepsLiveInputsAndGateDiagramInSync() {
-        openHome()
+    private fun verifyExpressionToCircuitEntryKeepsLiveInputsAndGateDiagramInSync() {
         openMore()
         composeRule.onNodeWithText(localized("Expression-to-circuit lab")).performScrollTo().performClick()
         composeRule.onNodeWithText(localized("Solve")).performScrollTo().performClick()
@@ -215,9 +217,7 @@ class NativeDeviceUiTest {
         assertTextPresent(localized("Inputs: A=0 · B=0. Group gates update as the switches change."))
     }
 
-    @Test
-    fun arithmeticLabShowsAdditionSubtractionMultiplicationAndDivisionInBinaryAndDenary() {
-        openHome()
+    private fun verifyArithmeticLabShowsAdditionSubtractionMultiplicationAndDivisionInBinaryAndDenary() {
         openMore()
         composeRule.onNodeWithText(localized("Base arithmetic lab")).performScrollTo().performClick()
         composeRule.onNodeWithText(localized("Equivalent answers")).performScrollTo().assertExists()
