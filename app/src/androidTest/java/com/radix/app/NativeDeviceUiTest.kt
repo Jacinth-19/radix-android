@@ -204,12 +204,12 @@ class NativeDeviceUiTest {
 
         composeRule.onNodeWithContentDescription(localized("Expression input A 1. Tap to toggle."))
             .performScrollTo().performClick()
-        composeRule.onNodeWithText(localized("K-map")).performScrollTo().performClick()
-        composeRule.onNodeWithText(localized("Gate-level circuit · live")).performScrollTo().assertExists()
-        composeRule.onNodeWithText(
-            localized("Inputs: A=0 · B=0. Group gates update as the switches change."),
-            substring = true
-        ).performScrollTo().assertExists()
+        val kMapTab=composeRule.onNode(hasText(localized("K-map")) and hasClickAction())
+        kMapTab.performScrollTo().performClick()
+        composeRule.waitForIdle()
+        kMapTab.assert(SemanticsMatcher.expectValue(SemanticsProperties.Selected,true))
+        assertTextPresent(localized("Gate-level circuit · live"))
+        assertTextPresent(localized("Inputs: A=0 · B=0. Group gates update as the switches change."))
     }
 
     @Test
