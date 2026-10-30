@@ -88,10 +88,25 @@ jobs:
           emulator-boot-timeout: 1200
           disable-animations: true
           script: |
-            # Exercise a compact 320 dp phone in both portrait and landscape.
+            set -euo pipefail
+            # Wait for a responsive booted guest before exercising a compact 320 dp phone.
+            adb devices -l
+            adb wait-for-device
+            booted=''
+            for attempt in $(seq 1 90); do
+              booted="$(adb shell getprop sys.boot_completed 2>/dev/null || true)"
+              booted="${booted//$'\r'/}"
+              if [ "$booted" = '1' ]; then break; fi
+              sleep 2
+            done
+            if [ "$booted" != '1' ]; then
+              echo 'Android emulator did not report sys.boot_completed=1.' >&2
+              adb devices -l || true
+              exit 1
+            fi
             adb shell wm size 640x1280
             adb shell wm density 320
-            ./gradlew --no-daemon --stacktrace connectedDebugAndroidTest
+            ./gradlew --no-daemon --stacktrace connectedDebugAndroidTest 2>&1 | tee android-instrumentation.log
 
       - name: Summarize hosted-device test results
         if: always()
@@ -148,6 +163,7 @@ jobs:
           if-no-files-found: warn
           path: |
             android-build.log
+            android-instrumentation.log
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/release/*.apk
             app/build/reports/tests/testDebugUnitTest/**
