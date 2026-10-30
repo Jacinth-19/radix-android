@@ -19,15 +19,42 @@ This repository contains an offline-first Kotlin/Jetpack Compose Android app and
 
 The separate offline logic reference is generated at `design/DIGITAL-LOGIC-REFERENCE.html`; the learner workbook is `design/STUDENT-WORKBOOK.md`. Source and bundled third-party asset notices, including the optional CC0 notification chime, are in `design/ASSET-LICENSES.md`.
 
+## Getting started: a complete learner's route
+
+### Install and set up
+
+1. Use an Android device or emulator on **Android 8.0 (API 26) or newer**. This app is fully offline and does not request Internet access.
+2. For the **current source build**, open the latest successful **Android compile and test** run for this branch in GitHub Actions, download the `radix-android-<commit>` artifact, unzip it, and install `app-debug.apk` on the device. The debug APK is unsigned by the release key. If Android blocks the install, allow your file manager/browser to install unknown apps for this one install, then turn that permission back off.
+3. The checked-in `Radix-release.apk` is a historical **6.0.0** build, not the current 7.0 source. Do not use it to judge current features. If it is already installed, export a backup first; installing a debug-signed APK over the differently signed release app may require uninstalling the old app, which deletes its local data.
+4. Take the illustrated tour from the helper when offered (or open **More → Visual helper & app tour**). Use **Settings** from the top bar or the first card in More to pick a theme, larger controls, optional haptics, and reminder preferences.
+
+### Try the core tools
+
+1. **Convert a value:** open the converter, enter an integer, fraction, or repeating value, choose source and destination bases (2–36), and inspect the exact working. Try `255` from base 10 to base 2, then use Randomize. Save useful results; reopen recent conversions from history. Use the 8-bit playground to toggle bits and send the byte back to the converter.
+2. **Learn expressions:** in **More → Boolean expression lab**, enter a formula such as `A'B + AB'` (XOR), compare two expressions, and inspect the truth table, simplified SOP/POS, minterm/maxterm notation, and derivation. NOT accepts apostrophe, prime, or `!`; OR is `+`; AND is `.` or adjacency; XOR accepts `XOR`, `^`, or `⊕`; parentheses control grouping. Start with 2–3 variables; the lab supports 2–6.
+3. **Make a K-map:** open the K-map tool from the Boolean lab or the learning tools. Pick 2–6 variables, choose SOP or POS, enter minterms/maxterms and optional don't-cares, then review exact groups. Try selecting/highlighting groups, showing cell indices, checking a manual group, undo/redo, and saving the minimized formula to the shared Boolean-solution library. Five- and six-variable maps are easier in landscape.
+4. **Explore logic:** open the logic lab, choose a gate or circuit, toggle inputs, and watch outputs, diagrams, and tables respond. Try a MUX/DEMUX, comparator, parity circuit, and BCD-to-seven-segment. Use the clock controls in sequential models to distinguish a clock level from a rising edge. Rotate to landscape for wide circuits; very large tables are paged rather than loaded all at once.
+5. **Build and represent:** use the builder for interactive gates/circuits and teaching-delay behavior; open number representations for fixed-width unsigned/two's-complement, Gray, and BCD; use base arithmetic and Boolean laws for worked examples.
+6. **Practice deliberately:** open practice/progress, choose a level, attempt a question before revealing its hint or explanation, then use Check. A reveal by itself does not count as mastery. Written short-answer prompts are self-checked against model answers rather than automatically graded. Follow the guided topic path and revisit missed concepts to build local mastery and streaks.
+7. **Keep your work:** save expressions, conversions, and named circuit checkpoints as you go. Export a JSON backup from Settings before changing devices or uninstalling. Restore validates the file and asks before replacing current study data; it does **not** merge. The JSON backup is plain, unencrypted text, so store or share it accordingly. There is no account or automatic cloud sync.
+8. **Make it comfortable:** the Android UI uses the first supported system locale (English, French, Spanish, or Portuguese; otherwise English). Change your Android system language to switch; there is no in-app language selector. In Settings, adjust theme, larger controls, haptics, reminders, and tips. Android's notification permission and channel settings remain in control of reminder delivery/sound.
+
+### Suggested first 30 minutes
+
+- Convert `42` between decimal, binary, octal, and hexadecimal; explain the place values to yourself.
+- Build `A'B + AB'`, confirm it is XOR, and simplify it in a K-map.
+- Simulate a 4:1 MUX and a D flip-flop; explain why changing data while the clock is high is not another rising edge.
+- Complete one practice set without revealing answers first, then save a circuit checkpoint and export a backup.
+
 ## Notification sound and offline behavior
 
 The study reminder uses a short bundled confirmation sound from Kenney's Interface Sounds collection, licensed CC0 1.0; it is packaged in the app, not streamed. Source 7.0 includes an in-app notification preview and a direct link to Android's channel controls. Android's channel controls remain authoritative: a user can silence or replace the sound. When upgrading, the app carries forward an existing channel's muted/low-importance state or a custom/silent sound before creating the new sound-capable channel. The selected 0.295-second clip was not auditioned or device-tested during this source update. The app keeps its no-Internet-permission posture.
 
 ## Source validation and current work status
 
-Current scope, non-compiling test results and known limits are tracked in [`design/DEVELOPMENT-STATUS.md`](design/DEVELOPMENT-STATUS.md). This session is intentionally **not compiling** the Android app, at the user's direction. The historical native APK audit is version-6-specific and must not be presented as a version-7 build/audit.
+Current scope and known limits are tracked in [`design/DEVELOPMENT-STATUS.md`](design/DEVELOPMENT-STATUS.md). GitHub Actions now runs on pushes to this working branch, pull requests to `main`, and manual dispatch. It runs native JVM tests, Android debug/release assembly and lint, a compact Android emulator UI test, plus the independent engine, asset and Playwright browser-companion suites. Download debug/release APKs and reports from the successful run's `radix-android-<commit>` artifact. The checked-in signed APK and historical native APK audit are version-6-specific and must not be presented as a version-7 build/audit.
 
-The non-compiling validation commands are:
+For quick local engine/asset checks, run:
 
 ```sh
 node tools/test-engine.js
@@ -55,7 +82,7 @@ python3 -m http.server 3000 --bind 127.0.0.1 --directory web  # separate termina
 .venv/bin/python tools/test-study-ui.py
 ```
 
-These suites do not prove native Android runtime behavior. Native JVM tests, Android assembly/R8/lint, signed APK audit, TalkBack/font-scaling, device behavior and upgrade/data-retention checks remain separate evidence requirements. **Do not compile until the user authorizes it.**
+The Playwright suites validate the **browser companion**, not the Compose Android app. Passing CI does not certify a signed release APK or replace hands-on device QA for TalkBack, large font scales, installed-app upgrades/data retention, or real notification delivery and sound.
 
 ## Repository map
 
