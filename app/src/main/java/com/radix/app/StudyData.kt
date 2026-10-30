@@ -73,7 +73,7 @@ internal object StudyData {
         return StudyBackup(saves,sessions,progress,StudyMap(n,cells,form,names),expression,representation,prefs,converter,savedExpressions,conversionHistory)
     }
     fun encode(b:StudyBackup):String = StudyJson.write(linkedMapOf(
-        "format" to "radix-study","version" to 1,"appVersion" to "7.0.0",
+        "format" to "radix-study","version" to 1,"appVersion" to "7.0.1",
         "saved" to b.saved.map{mapOf("id" to it.id,"input" to it.input,"base" to it.base)},"savedExpressions" to b.savedExpressions.map{mapOf("id" to it.id,"variables" to it.variables,"expression" to it.expression,"form" to it.form)},"conversionHistory" to b.conversionHistory.map{mapOf("id" to it.id,"input" to it.input,"base" to it.base)},"sessions" to b.sessions.map(::sessionMap),"progress" to b.progress.sorted(),
         "kmap" to mapOf("variables" to b.kmap.variables,"cells" to b.kmap.cells,"form" to b.kmap.form,"names" to b.kmap.names),
         "expression" to mapOf("variables" to b.expression.variables,"left" to b.expression.left,"right" to b.expression.right,"form" to b.expression.form),

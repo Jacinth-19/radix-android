@@ -1,8 +1,8 @@
-# Radix 7.0 — source tree
+# Radix 7.0.1 — source tree
 
 **One number. Every base. A digital-logic studio that keeps your learning.**
 
-This repository contains an offline-first Kotlin/Jetpack Compose Android app and a self-contained HTML companion. Android source targets API 26+, compiles against API 36, and intentionally has no `INTERNET` permission. The current source release metadata is **7.0.0 / versionCode 7**. GitHub Actions builds and packages the current source on this branch; the checked-in signed APK and `design/VERIFICATION.md` describe the prior **6.0.0 / versionCode 6** artifact and are historical evidence, not verification of current source.
+This repository contains an offline-first Kotlin/Jetpack Compose Android app and a self-contained HTML companion. Android source targets API 26+, compiles against API 36, and intentionally has no `INTERNET` permission. The current source release metadata is **7.0.1 / versionCode 8**. GitHub Actions builds and tests the current source on this branch; the checked-in `Radix-release.apk` and `design/VERIFICATION.md` describe the historical **6.0.0 / versionCode 6** artifact, not the current source. The current signed APK is published through the protected GitHub Actions release workflow.
 
 ## Current learning tools
 
@@ -24,8 +24,8 @@ The separate offline logic reference is generated at `design/DIGITAL-LOGIC-REFER
 ### Install and set up
 
 1. Use an Android device or emulator on **Android 8.0 (API 26) or newer**. This app is fully offline and does not request Internet access.
-2. For the **current source build**, open the latest successful **Android compile and test** run for this branch in GitHub Actions, download the `radix-android-<commit>` artifact, unzip it, and install `app-debug.apk` on the device. The debug APK is unsigned by the release key. If Android blocks the install, allow your file manager/browser to install unknown apps for this one install, then turn that permission back off.
-3. The checked-in `Radix-release.apk` is a historical **6.0.0** build, not the current 7.0 source. Do not use it to judge current features. If it is already installed, export a backup first; installing a debug-signed APK over the differently signed release app may require uninstalling the old app, which deletes its local data.
+2. For the current signed release, download `Radix-release.apk` from the [Radix 7.0.1 GitHub release](https://github.com/Jacinth-19/radix-android/releases/download/v7.0.1/Radix-release.apk). Optionally verify it against the `SHA256SUMS.txt` asset in that release. Open the APK on the device and approve installation when Android prompts; the established release certificate allows an in-place upgrade from the prior signed release.
+3. For an **unsigned current-source debug build**, open the latest successful **Android compile and test** run for this branch in GitHub Actions, download the `radix-android-<commit>` artifact, unzip it, and install `app-debug.apk`. A debug APK is not signed with the release key and may not install over the signed release. The checked-in `Radix-release.apk` is still a historical **6.0.0** artifact; do not use it to judge current features.
 4. Take the illustrated tour from the helper when offered (or open **More → Visual helper & app tour**). Use **Settings** from the top bar or the first card in More to pick a theme, larger controls, optional haptics, and reminder preferences.
 
 ### Try the core tools
@@ -52,7 +52,7 @@ The study reminder uses a short bundled confirmation sound from Kenney's Interfa
 
 ## Source validation and current work status
 
-Current scope and known limits are tracked in [`design/DEVELOPMENT-STATUS.md`](design/DEVELOPMENT-STATUS.md). GitHub Actions now runs on pushes to this working branch, pull requests to `main`, and manual dispatch. It runs native JVM tests, Android debug/release assembly and lint, a compact Android emulator UI test, plus the independent engine, asset and Playwright browser-companion suites. Download debug/release APKs and reports from the successful run's `radix-android-<commit>` artifact. The checked-in signed APK and historical native APK audit are version-6-specific and must not be presented as a version-7 build/audit.
+Current scope and known limits are tracked in [`design/DEVELOPMENT-STATUS.md`](design/DEVELOPMENT-STATUS.md). GitHub Actions runs on pushes to this working branch, pull requests to `main`, and manual dispatch. It runs native JVM tests, Android debug/release assembly and lint, a compact Android emulator UI test, plus the independent engine, asset and Playwright browser-companion suites. Unsigned debug/release APKs and reports are available from a successful run's `radix-android-<commit>` artifact; the protected release job signs and publishes version 7.0.1 only after the complete build-and-test job succeeds. The checked-in signed APK and historical native APK audit are version-6-specific and must not be presented as current release evidence.
 
 For quick local engine/asset checks, run:
 

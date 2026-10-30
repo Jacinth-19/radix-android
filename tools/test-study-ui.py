@@ -156,7 +156,7 @@ with sync_playwright() as p:
     page.locator('[data-student="undo"]').click()
     passed('Invalid K-map draft/error history restores honestly without changing the last valid cells')
     # Backup: export, validation, nonmutation, explicit replacement.
-    nav('preferences');action('backup-copy');export=page.evaluate('navigator.clipboard.readText()');data=json.loads(export);assert data['format']=='radix-study' and data['version']==1 and data['appVersion']=='7.0.0';assert 'history' not in export and 'password' not in export.lower() and 'keystore' not in export.lower()
+    nav('preferences');action('backup-copy');export=page.evaluate('navigator.clipboard.readText()');data=json.loads(export);assert data['format']=='radix-study' and data['version']==1 and data['appVersion']=='7.0.1';assert 'history' not in export and 'password' not in export.lower() and 'keystore' not in export.lower()
     before=storage();validate(export);expect(page.locator('#backup-result')).to_contain_text('Valid:');assert storage()==before;review();close();assert storage()==before
     passed('Portable backup exports only intended study fields; validation/review/cancel never mutate local data')
     with page.expect_download() as download:action('backup-download')

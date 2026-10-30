@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 
-internal const val APP_VERSION_CODE = 7
-internal const val APP_VERSION_NAME = "7.0"
+internal const val APP_VERSION_CODE = 8
+internal const val APP_VERSION_NAME = "7.0.1"
 
 @Composable internal fun SplashScreen() {
     val s = LocalStrings.current

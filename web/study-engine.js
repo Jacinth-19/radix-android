@@ -86,6 +86,6 @@ function decode(text){
  const c=obj(o.converter,'Converter'),converter={number:str(c.number,'Current number',600),base:int(c.base,'Source base',2,36),custom:c.custom==null?null:int(c.custom,'Custom base',2,36),bits:int(c.bits,'Bit lab value',0,255),dark:bool(c.dark,'Theme')};
  return {saved,savedExpressions:solutions,conversionHistory:history,sessions:ss,progress:pg,kmap:{variables:n,cells,form,names},expression,representation,settings,converter};
 }
-const Backup={readJson,session,sessions,progress,savedExpressions,conversionHistory,decode,encode:data=>{const out={savedExpressions:[],conversionHistory:[],...data};if(out.kmap)out.kmap={...out.kmap,names:out.kmap.names||K.names(out.kmap.variables)};if(out.expression)out.expression={...out.expression,form:out.expression.form||'SOP'};return JSON.stringify({format:'radix-study',version:1,appVersion:'7.0.0',...out},null,2)}};
+const Backup={readJson,session,sessions,progress,savedExpressions,conversionHistory,decode,encode:data=>{const out={savedExpressions:[],conversionHistory:[],...data};if(out.kmap)out.kmap={...out.kmap,names:out.kmap.names||K.names(out.kmap.variables)};if(out.expression)out.expression={...out.expression,form:out.expression.form||'SOP'};return JSON.stringify({format:'radix-study',version:1,appVersion:'7.0.1',...out},null,2)}};
 const api={Expression,Representation,History,Backup,clone:structClone};if(typeof module!=='undefined'&&module.exports)module.exports=api;if(typeof window!=='undefined')window.RadixStudy=api;
 })();

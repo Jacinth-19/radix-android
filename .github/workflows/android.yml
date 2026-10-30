@@ -225,13 +225,13 @@ jobs:
             design/study-ux-checks.json
             ${{ runner.temp }}/radix-web-server.log
 
-  release-v7:
-    name: Sign and publish v7.0.0
+  release-v7-0-1:
+    name: Sign and publish v7.0.1
     needs: build
     if: >-
       github.event_name == 'push' &&
-      github.ref == 'refs/heads/arena/1469181a-radix-android' &&
-      startsWith(github.event.head_commit.message, 'release: v7.0.0')
+      github.ref == 'refs/heads/arena/55c0e92a-radix-android' &&
+      startsWith(github.event.head_commit.message, 'release: v7.0.1')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -260,10 +260,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'versionCode = 7' app/build.gradle.kts
-          grep -Fq 'versionName = "7.0.0"' app/build.gradle.kts
-          if gh release view v7.0.0 >/dev/null 2>&1; then
-            echo 'GitHub release v7.0.0 already exists; refusing to replace it.' >&2
+          grep -Fq 'versionCode = 8' app/build.gradle.kts
+          grep -Fq 'versionName = "7.0.1"' app/build.gradle.kts
+          if gh release view v7.0.1 >/dev/null 2>&1; then
+            echo 'GitHub release v7.0.1 already exists; refusing to replace it.' >&2
             exit 1
           fi
         env:
@@ -302,7 +302,7 @@ jobs:
           actual="$(printf '%s\n' "$verify_output" | awk -F': ' '/Signer #1 certificate SHA-256 digest:/ {print tolower($2); exit}')"
           expected='785b9e3334078ed72a2a106e5dad849d80597d1dac929ce40f840671ca639020'
           if [[ "$actual" != "$expected" ]]; then
-            echo 'The APK certificate does not match the established v6 release identity.' >&2
+            echo 'The APK certificate does not match the established Radix release identity.' >&2
             exit 1
           fi
           sha256sum "$apk" | awk '{print $1 "  Radix-release.apk"}' > "$RUNNER_TEMP/SHA256SUMS.txt"
@@ -311,26 +311,26 @@ jobs:
         shell: bash
         run: |
           cat > "$RUNNER_TEMP/release-notes.md" <<'EOF'
-          ## What's new in 7.0.0
+          ## What's new in 7.0.1
 
-          - Complete French, Spanish, and Portuguese localization across native app screens, generated teaching text, catalog copy, accessibility descriptions, and share cards.
-          - Offline-first behavior remains unchanged; the browser companion remains English-only.
+          - Live Boolean-expression inputs now behave and announce as accessible on/off switches, with a compact-device touch regression test.
+          - Offline-first behavior and saved-study data formats remain compatible.
 
           ## Install
 
           Download `Radix-release.apk` below on your Android device, open it, and allow installation when prompted. This release is signed with the established Radix release certificate for in-place upgrades.
 
-          Android CI tests, lint, and debug/release assembly passed. Device installation and device QA are not claimed.
+          GitHub Actions passed JVM unit tests, lint, debug/release APK assembly, compact Android emulator UI tests, and browser companion regression suites. Physical-device installation and device QA are not claimed.
           EOF
 
-      - name: Publish v7.0.0 release
+      - name: Publish v7.0.1 release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create v7.0.0 \
+          gh release create v7.0.1 \
             "$RUNNER_TEMP/Radix-release.apk" \
             "$RUNNER_TEMP/SHA256SUMS.txt" \
             --target "$GITHUB_SHA" \
-            --title 'Radix 7.0.0' \
+            --title 'Radix 7.0.1' \
             --notes-file "$RUNNER_TEMP/release-notes.md" \
             --latest
