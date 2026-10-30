@@ -106,7 +106,17 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
         if(submitted&&r!=null){
             StudyCard("Live input values"){
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-                    bits.forEachIndexed{i,v->FilledTonalButton(onClick={bits=bits.mapIndexed{j,b->if(i==j)!b else b};haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},modifier=Modifier.width(58.dp).heightIn(min=if(vm.largeControls)78.dp else 64.dp).semantics{contentDescription=strings.text("Expression input ${r.names[i]} ${if(v)1 else 0}. Tap to toggle.")},shape=RoundedCornerShape(13.dp)){
+                    bits.forEachIndexed{i,v->Surface(
+                        onClick={bits=bits.mapIndexed{j,b->if(i==j)!b else b};haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},
+                        modifier=Modifier.width(58.dp).heightIn(min=if(vm.largeControls)78.dp else 64.dp).semantics{
+                            contentDescription=strings.text("Expression input ${r.names[i]} ${if(v)1 else 0}. Tap to toggle.")
+                            stateDescription=strings.text(if(v)"On"else"Off")
+                            role=androidx.compose.ui.semantics.Role.Switch
+                        },
+                        color=MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor=MaterialTheme.colorScheme.onSecondaryContainer,
+                        shape=RoundedCornerShape(13.dp)
+                    ){
                         Column(horizontalAlignment=Alignment.CenterHorizontally){Text(r.names[i].toString(),fontSize=10.sp);Text(if(v)"1"else"0",fontFamily=Mono,fontSize=25.sp)}
                     }}
                 }
