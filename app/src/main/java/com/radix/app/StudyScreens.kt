@@ -40,7 +40,7 @@ import kotlinx.coroutines.withContext
 internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
 @Composable private fun actionHeight()=if(LocalLargeStudyControls.current)60.dp else 48.dp
 @Composable private fun StudyPage(first:String,second:String,eyebrow:String,subtitle:String,body:@Composable ColumnScope.()->Unit){
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal=20.dp).padding(bottom=24.dp),horizontalAlignment=Alignment.CenterHorizontally){
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).testTag("study-page-scroll").padding(horizontal=20.dp).padding(bottom=24.dp),horizontalAlignment=Alignment.CenterHorizontally){
         Column(Modifier.widthIn(max=980.dp).fillMaxWidth()){Hero(first,second,eyebrow,subtitle);body()}
     }
 }

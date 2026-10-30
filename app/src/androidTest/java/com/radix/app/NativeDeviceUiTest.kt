@@ -210,6 +210,9 @@ class NativeDeviceUiTest {
         // Bring the whole live-input card into the unobscured viewport before testing a
         // physical touch; scroll-to on the switch alone can leave it beneath the snackbar.
         composeRule.onNodeWithText(localized("Live input values")).performScrollTo()
+        // Scroll the page once more so the switch clears the bottom navigation inset;
+        // performScrollTo alone can leave a bottom-aligned target under that bar.
+        composeRule.onNodeWithTag("study-page-scroll").performTouchInput { swipeUp() }
         val inputA = composeRule.onNodeWithTag("expression-input-A")
         inputA.performScrollTo().assertIsOn()
         inputA.performTouchInput { click() }
