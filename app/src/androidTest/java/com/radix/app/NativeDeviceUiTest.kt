@@ -210,14 +210,11 @@ class NativeDeviceUiTest {
         // Bring the whole live-input card into the unobscured viewport before testing a
         // physical touch; scroll-to on the switch alone can leave it beneath the snackbar.
         composeRule.onNodeWithText(localized("Live input values")).performScrollTo()
-        val inputA = composeRule.onNodeWithContentDescription(
-            localized("Expression input A 1. Tap to toggle.")
-        )
-        inputA.performScrollTo().performTouchInput { click() }
+        val inputA = composeRule.onNodeWithTag("expression-input-A")
+        inputA.performScrollTo().assertIsOn()
+        inputA.performTouchInput { click() }
         composeRule.waitForIdle()
-        composeRule.onNodeWithContentDescription(
-            localized("Expression input A 0. Tap to toggle.")
-        ).assertExists()
+        inputA.assertIsOff()
 
         val kMapTab=composeRule.onNodeWithTag("expression-kmap-tab")
         kMapTab.assert(hasClickAction())

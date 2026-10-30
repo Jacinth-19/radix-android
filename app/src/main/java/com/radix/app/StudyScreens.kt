@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -23,7 +24,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.stateDescription
@@ -110,12 +110,16 @@ internal val LocalLargeStudyControls=staticCompositionLocalOf{false}
             StudyCard("Live input values"){
                 Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)){
                     bits.forEachIndexed{i,v->Surface(
-                        onClick={bits=bits.mapIndexed{j,b->if(i==j)!b else b};haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)},
-                        modifier=Modifier.width(58.dp).heightIn(min=if(vm.largeControls)78.dp else 64.dp).semantics{
-                            contentDescription=strings.text("Expression input ${r.names[i]} ${if(v)1 else 0}. Tap to toggle.")
-                            stateDescription=strings.text(if(v)"On"else"Off")
-                            role=Role.Switch
-                        },
+                        modifier=Modifier.width(58.dp).heightIn(min=if(vm.largeControls)78.dp else 64.dp)
+                            .toggleable(value=v,role=Role.Switch){checked->
+                                bits=bits.mapIndexed{j,b->if(i==j)checked else b}
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            }
+                            .testTag("expression-input-${r.names[i]}")
+                            .semantics{
+                                contentDescription=strings.text("Expression input ${r.names[i]} ${if(v)1 else 0}. Tap to toggle.")
+                                stateDescription=strings.text(if(v)"On"else"Off")
+                            },
                         color=MaterialTheme.colorScheme.secondaryContainer,
                         contentColor=MaterialTheme.colorScheme.onSecondaryContainer,
                         shape=RoundedCornerShape(13.dp)
