@@ -1,5 +1,6 @@
 package com.radix.app
 
+import android.content.ClipboardManager
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import androidx.compose.ui.geometry.Offset
@@ -31,9 +32,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Compact-device coverage for touch targets, rotation, and TalkBack-facing Compose semantics.
- * This verifies the accessibility tree and state updates; it does not synthesize or listen to
- * TalkBack speech.
+ * Hosted-device smoke coverage across native learning routes, data workflows, touch targets,
+ * rotation, and TalkBack-facing Compose semantics. It verifies the accessibility tree and state
+ * updates; it does not synthesize or listen to TalkBack speech or replace physical-device QA.
  */
 @RunWith(AndroidJUnit4::class)
 class NativeDeviceUiTest {
@@ -55,6 +56,10 @@ class NativeDeviceUiTest {
         verifyBcdDecoderShowsLiveSevenSegmentPreviewAndSurvivesLandscapeRotation()
         verifyExpressionToCircuitEntryKeepsLiveInputsAndGateDiagramInSync()
         verifyArithmeticLabShowsAdditionSubtractionMultiplicationAndDivisionInBinaryAndDenary()
+        verifyConverterSavedValuesAndHistoryWorkEndToEnd()
+        verifyRepresentationsFloatAndBooleanLawsAreUsable()
+        verifyCircuitCheckpointsAndLeaderboardProfilesPersist()
+        verifyPortableBackupCanBeValidatedWithoutReplacingData()
     }
 
     private fun verifyCompactLayoutsTouchAndAccessibilitySemanticsWorkAcrossRoutesAndRotation() {
@@ -172,6 +177,11 @@ class NativeDeviceUiTest {
             composeRule.onAllNodesWithText("Theme, automatic system language, haptics, notifications and portable study data")
                 .fetchSemanticsNodes().isEmpty()
         )
+
+        openMore()
+        composeRule.onNodeWithText(localized("Visual helper & app tour")).performScrollTo().performClick()
+        composeRule.onNodeWithText("Start the visual app tour").performScrollTo().assertExists()
+        composeRule.onNodeWithText("Ready to explore").performScrollTo().performClick()
     }
 
     private fun verifyBcdDecoderShowsLiveSevenSegmentPreviewAndSurvivesLandscapeRotation() {
@@ -278,6 +288,108 @@ class NativeDeviceUiTest {
         assertTextPresent("1111000")
         chooseOperator("÷")
         assertTextPresent("10: 4  ·  2: 100")
+    }
+
+    private fun verifyConverterSavedValuesAndHistoryWorkEndToEnd() {
+        // Convert a known value, save it, reopen it, and confirm recent history is separate.
+        composeRule.onNodeWith(hasText(strings.tabConvert) and hasClickAction()).performClick()
+        val number = composeRule.onNodeWithContentDescription(localized("Number to convert in base 10"))
+        number.performScrollTo()
+        number.performTextClearance()
+        number.performTextInput("255")
+        composeRule.mainClock.advanceTimeBy(1_000)
+        composeRule.waitForIdle()
+        assertTextPresent("11111111")
+        assertTextPresent("FF")
+        composeRule.onNodeWithText("Save").performScrollTo().performClick()
+
+        openMore()
+        composeRule.onNodeWithText(localized("Saved conversions")).performScrollTo().performClick()
+        assertTextPresent("255")
+        composeRule.onNodeWithText("Open conversion", substring = true).performScrollTo().performClick()
+        val restored = composeRule.onNodeWithContentDescription(localized("Number to convert in base 10"))
+        restored.performScrollTo()
+        assertTrue("Saved conversion should reopen as 255", hasTextNode("255"))
+
+        openMore()
+        composeRule.onNodeWithText(localized("Conversion history")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Recent activity"), substring = true).performScrollTo().assertExists()
+        assertTextPresent("255")
+    }
+
+    private fun verifyRepresentationsFloatAndBooleanLawsAreUsable() {
+        openMore()
+        composeRule.onNodeWithText(localized("Number representations")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("One word, two interpretations")).performScrollTo().assertExists()
+        val signed = composeRule.onNodeWithContentDescription(
+            localized("Use signed two’s-complement interpretation")
+        )
+        signed.performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("One word, two interpretations")).assertExists()
+        composeRule.onNodeWithText("16 bits").performScrollTo().performClick()
+        assertTextPresent("16-BIT BINARY WORD")
+
+        openMore()
+        composeRule.onNodeWithText(localized("IEEE-754 float lab")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("THE IEEE-754 FLOAT LAB")).performScrollTo().assertExists()
+        assertTextPresent("HEX 3DCC CCCD")
+        composeRule.onNodeWithText("Double · 64-bit").performScrollTo().performClick()
+        assertTextPresent("HEX 3FB9 9999 9999 999A")
+
+        openMore()
+        composeRule.onNodeWithText(localized("Boolean laws lab")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("THE BOOLEAN LAWS LAB")).performScrollTo().assertExists()
+        val verifyLaw = composeRule.onAllNodesWithText("Tap to verify live").onFirst()
+        verifyLaw.performScrollTo().performClick()
+        composeRule.onNodeWithText("Holds in all", substring = true).performScrollTo().assertExists()
+    }
+
+    private fun verifyCircuitCheckpointsAndLeaderboardProfilesPersist() {
+        openMore()
+        composeRule.onNodeWithText(localized("Full circuit lab")).performScrollTo().performClick()
+        composeRule.onNodeWithText("Save session", substring = true).performScrollTo().performClick()
+        val checkpointName = "Arena QA ${System.currentTimeMillis()}"
+        val sessionName = composeRule.onNodeWithText("Session name · up to 40 characters")
+        sessionName.performTextClearance()
+        sessionName.performTextInput(checkpointName)
+        composeRule.onNodeWithText("Save session").performClick()
+
+        openMore()
+        composeRule.onNodeWithText(localized("Circuit checkpoints")).performScrollTo().performClick()
+        composeRule.onNodeWithText(checkpointName).performScrollTo().assertExists()
+        composeRule.onNodeWithText("Restore").performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        openMore()
+        composeRule.onNodeWithText(localized("Leaderboard & rewards")).performScrollTo().performClick()
+        composeRule.onNodeWithText(localized("Household table · same device")).performScrollTo().assertExists()
+        val qaPlayer = "QA ${System.currentTimeMillis()}"
+        val playerName = composeRule.onNodeWithText("New player name")
+        playerName.performScrollTo().performTextInput(qaPlayer)
+        composeRule.onNodeWithText("Add player", substring = true).performScrollTo().performClick()
+        composeRule.onNodeWithText(qaPlayer).performScrollTo().assertExists()
+    }
+
+    private fun verifyPortableBackupCanBeValidatedWithoutReplacingData() {
+        openMore()
+        composeRule.onNodeWithText(localized("Settings, reminders & backup")).performScrollTo().performClick()
+        composeRule.onNodeWithText("Create a portable backup").performScrollTo().assertExists()
+        composeRule.onNodeWithText("Updates & version").performScrollTo().assertExists()
+        composeRule.onNodeWithText(strings.updateCurrent("7.0.1", 8)).performScrollTo().assertExists()
+        composeRule.onNodeWithText("Copy backup text").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        val clipboard = composeRule.activity.getSystemService(ClipboardManager::class.java)
+        val copiedBackup = clipboard.primaryClip?.getItemAt(0)?.text?.toString().orEmpty()
+        assertTrue("Copied backup should identify app version 7.0.1", "7.0.1" in copiedBackup && "appVersion" in copiedBackup)
+        val json = """{"format":"radix-study","version":1,"saved":[],"sessions":[],"progress":[],"kmap":{"variables":2,"cells":[0,0,0,0],"form":"SOP","names":"AB"},"expression":{"variables":2,"left":"A'B + AB'","right":"A XOR B","form":"SOP"},"representation":{"width":8,"signed":true,"mode":"decimal","input":"-13"},"settings":{"haptics":true,"largeControls":false},"converter":{"number":"0","base":10,"custom":null,"bits":0,"dark":false}}"""
+        val paste = composeRule.onNodeWithText("Or paste backup JSON")
+        paste.performScrollTo().performTextInput(json)
+        composeRule.onNodeWithText("Validate backup").performScrollTo().performClick()
+        composeRule.onNodeWithText("✓ Valid:", substring = true).performScrollTo().assertExists()
+        composeRule.onNodeWithText("Review replacement & restore").performScrollTo().performClick()
+        composeRule.onNodeWithText("Replace local study data?").assertExists()
+        composeRule.onNodeWithText("Cancel").performClick()
+        composeRule.onNodeWithText("✓ Valid:", substring = true).performScrollTo().assertExists()
     }
 
     private fun openMore() {
