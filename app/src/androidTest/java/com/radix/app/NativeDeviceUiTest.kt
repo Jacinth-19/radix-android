@@ -2,6 +2,7 @@ package com.radix.app
 
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -211,9 +212,16 @@ class NativeDeviceUiTest {
         // Bring the whole live-input card into the unobscured viewport before testing a
         // physical touch; scroll-to on the switch alone can leave it beneath the snackbar.
         composeRule.onNodeWithText(localized("Live input values")).performScrollTo()
-        // Scroll the page once more so the switch clears the bottom navigation inset;
-        // performScrollTo alone can leave a bottom-aligned target under that bar.
-        composeRule.onNodeWithTag("study-page-scroll").performTouchInput { swipeUp() }
+        // Scroll just enough to clear the bottom navigation inset; performScrollTo alone
+        // can leave a bottom-aligned target under that bar on a compact phone.
+        composeRule.onNodeWithTag("study-page-scroll").performTouchInput {
+            val x = centerX
+            swipeUp(
+                start = Offset(x, size.height * 0.8f),
+                end = Offset(x, size.height * 0.55f),
+                durationMillis = 500,
+            )
+        }
         val inputA = composeRule.onNodeWithTag("expression-input-A")
         inputA.performScrollTo().assertIsOn()
         inputA.performTouchInput { click() }
