@@ -1,2 +1,4 @@
 build/
-out/
+out/*
+!out/final/
+!out/hair_wind.gif

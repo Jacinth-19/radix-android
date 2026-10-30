@@ -1,34 +1,58 @@
 # hair-vulkan — real-time hair mesh simulation in Vulkan + C++
 
 A from-scratch, dependency-free C++17/Vulkan 1.3 renderer that reproduces the hair
-model of **"Real-time Hair Mesh Simulation" (Kui Wu & Cem Yuksel, I3D 2016)**:
-a *hair mesh* (grid of 212 × 48 strands) driven by a Baraff–Witkin style cloth
-solver with tetrahedral volume preservation, collision correction against the head
+model of **"Real-time Hair Mesh Simulation" (Kui Wu & Cem Yuksel, I3D 2016)**: a
+*hair mesh* (grid of 212 × 48 strands, 20 nodes each) driven by a Baraff–Witkin
+style cloth solver with volume preservation, collision correction against the head
 and body, gravity and a coherent wind field, rendered as camera-facing ribbons with
 Kajiya–Kay anisotropic shading.
 
-No image proxies and no pre-baked frames: every pixel is rasterised by Vulkan on
-the Mesa `lavapipe` software device. PNG files are written only as the final
-readback of the rendered frame.
+No image proxies and no pre-baked frames: every pixel is rasterised by Vulkan on the
+Mesa `lavapipe` software device (`llvmpipe (LLVM 23.1.3, 256 bits)`, Vulkan 1.4).
+PNG files are only the final readback of the rendered frame.
+
+![All seven shots](out/final/contact_sheet.png)
+
+## Stills — 1280 × 720, 4× MSAA, wind 0.45
+
+| | |
+| --- | --- |
+| **hero** — three-quarter framing that shows the centre part and the fall of the hair | **front** — the reference pose: long straight centre-parted dark hair |
+| ![hero](out/final/hair_hero.png) | ![front](out/final/hair_front.png) |
+| **threequarter** | **profile** |
+| ![threequarter](out/final/hair_threequarter.png) | ![profile](out/final/hair_profile.png) |
+| **back** — closed hair mass, specular sheen along the strands | **detail** — ribbon strands, part line and root shading |
+| ![back](out/final/hair_back.png) | ![detail](out/final/hair_detail.png) |
+
+**wide** — sky, ground, the full bust and the cast shadow on the asphalt:
+
+![wide](out/final/hair_wide.png)
+
+## Animation — wind + collision + orbiting camera
+
+40 simulated frames (wind 0.7), hair driven only by the solver, the bust and the
+ground colliders — no keyframed geometry:
+
+![wind animation](out/hair_wind.gif)
 
 ## Features (map to the requirement list)
 
 | Requirement | Implementation |
 | --- | --- |
-| Hair as in the paper | `src/hair.cpp` — hair-mesh rest lengths from a scalp grid, strand-sheet stretching/shear springs, root stiffness ramp, implicit-ish integration (sub-stepped semi-implicit Euler with strong damping), volume/inertia terms, lock clumping, per-strand tangent jitter |
-| Collision | analytic head/neck/torso capsule-ish colliders + face guard (`src/scene.cpp`), position projection after each sub-step, plus a ground plane |
-| Wind | time-varying wind with gusts (`Wind` in `src/hair.cpp`), CL-coupled drag with height/along-strand exposure, mild flutter; `--wind` and `z`/`x` in the camera console |
-| Sky | fully procedural `shaders/sky.frag` — analytic sky gradient, sun disc + halo, fbm clouds, haze at the horizon, `skyAmbient()` for IBL-ish ambient |
-| Ground | `shaders/ground.frag` — procedural asphalt, distance fade, sun shadow sampling, same fog as the rest of the scene |
-| Antialiasing | 4× MSAA (explicit `vkCmdResolveImage`) **plus** FXAA on the tonemapped LDR image |
-| Post-processing | HDR scene → bright/soft-knee pass → 5-level bloom pyramid → composite with a 3-level weighted bloom blend (0.50 / 0.32 / 0.18), ACES filmic tonemap, exposure, vignette, then FXAA |
-| Shadows | 2048² D32 sun shadow map, rotated 4×4 PCF, normal-offset bias, radial + frustum-edge fade |
-| Camera controls | `--shot <name>` for framed stills, `--interactive` for a stdin camera console (orbit / pitch / dolly / wind / save frame), `--frames N` for an orbiting animation |
-| Etc. | face/torso shading in `shaders/body.frag`, anisotropy-correct hair ribbons, debug views, exportable PNG frames |
+| Hair as in the paper | `src/hair.cpp` — hair-mesh rest lengths from a scalp grid, strand-sheet stretching/shear springs, root stiffness ramp, sub-stepped semi-implicit integration with volume/inertia terms, lock clumping, per-strand tangent jitter |
+| Collision | analytic head/neck/torso colliders plus a face guard (`src/scene.cpp`), position projection after each sub-step, and a ground plane |
+| Wind | time-varying wind with gusts, CL-coupled drag with height/along-strand exposure and mild flutter; `--wind`, and `z`/`x` in the camera console |
+| Sky | procedural `shaders/sky.frag` — analytic gradient, sun disc and halo, fbm clouds, horizon haze, `skyAmbient()` used as IBL-ish ambient |
+| Ground | `shaders/ground.frag` — procedural asphalt, distance fade, sun shadow sampling, shared fog |
+| Antialiasing | 4× MSAA with an explicit `vkCmdResolveImage` **plus** FXAA on the tonemapped LDR image |
+| Post-processing | HDR → bright/soft-knee pass → 5-level bloom pyramid → composite (3-level bloom blend 0.50 / 0.32 / 0.18, ACES filmic tonemap, exposure, vignette) → FXAA |
+| Shadows | 2048² D32 sun shadow map, rotated 4×4 PCF, normal-offset bias, radial and frustum-edge fade |
+| Camera controls | `--shot <name>` framed stills, `--interactive` stdin camera console (orbit / pitch / dolly / wind / save frame), `--frames N` orbiting animation |
+| Etc. | painted facial features and torso shading (`shaders/body.frag`), anisotropy-aware ribbon expansion, debug views, PNG export |
 
 ## Build
 
-Requires a C++17 compiler, CMake ≥ 3.16, Vulkan-Headers + Vulkan-Loader, and
+Requires a C++17 compiler, CMake ≥ 3.16, Vulkan-Headers + Vulkan-Loader and
 `glslangValidator` for the shaders.
 
 ```bash
@@ -55,8 +79,8 @@ Device reported at startup on this machine:
 device: llvmpipe (LLVM 23.1.3, 256 bits) (MSAA 4x, bloom on, FXAA on)
 ```
 
-Timings (2 vCPU, no GPU): ~225 ms per simulation step, ~6–8 s per 1280×720 MSAA 4×
-frame, ~57 s for the complete seven-shot set, ~4 min for a 40-frame animation.
+Timings (2 vCPU, no GPU): ~240 ms per simulation step, ~6–12 s per 1280×720 MSAA 4×
+frame, ~76 s for the seven-shot set, ~5 min for the 40-frame animation.
 
 ## CLI
 
@@ -82,22 +106,24 @@ frame, ~57 s for the complete seven-shot set, ~4 min for a 40-frame animation.
 ## Layout
 
 ```
-src/math.hpp          small vector/matrix library (column-major, Vulkan clip depth 0..1)
-src/hair.{hpp,cpp}    hair mesh generation, solver, wind, ribbon vertex output
-src/scene.{hpp,cpp}   lathe-built bust, colliders, mesh normal generation
+src/math.hpp             small vector/matrix library (column-major, Vulkan clip depth 0..1)
+src/hair.{hpp,cpp}       hair mesh generation, solver, wind, ribbon vertex output
+src/scene.{hpp,cpp}      lathe-built bust, colliders, mesh normal generation
 src/vk_engine.{hpp,cpp}  instance/device, images, pipelines, shadow map, passes, readback
-src/main.cpp          CLI, shot table, frame uniforms, PNG output
-shaders/              GLSL: sky, ground, body, hair, shadows, bright, downsample, composite, fxaa
-tools/compile_shaders.sh   explicit glslang stage list
+src/main.cpp             CLI, shot table, frame uniforms, PNG output
+shaders/                 GLSL: sky, ground, body, hair, shadows, bright, downsample, composite, fxaa
+tools/compile_shaders.sh explicit glslang stage list
+out/final/               rendered stills, contact sheet
+out/hair_wind.gif        rendered wind animation
 ```
 
 ## Notes
 
 * The renderer is fully offscreen (dynamic rendering into its own images), because
-  the sandbox has no display and no Vulkan surface extension; the "window" is a
-  sequence of PNG readbacks plus the stdin camera console.
-* The composite output is guarded by `sanitizeHDR()`, so a single non-finite
-  fragment can never be smeared into a visible square by the bloom pyramid.
+  the sandbox has no display and no Vulkan surface extension; "camera controls" are
+  the shot list, the stdin console, and the animation path.
+* The HDR output is guarded by `sanitizeHDR()`, so a single non-finite fragment can
+  never be smeared into a visible square by the bloom pyramid.
 * The bloom chain deliberately has **no** additive upsampling pass: on llvmpipe that
   chain produced a large black rectangle with MSAA enabled. The mip levels are
   blended directly in the composite shader instead.
