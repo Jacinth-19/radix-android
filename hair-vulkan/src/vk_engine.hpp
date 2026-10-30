@@ -34,6 +34,8 @@ struct FrameUniforms {
   float skyParams[4];     // x = sun disk power, y = cloud cover, z = sky gain, w = horizon haze
   float shadowParams[4];  // x = 1/shadowSize, y = depth bias, z = shadow size, w = unused
   float hairColor[4];     // rgb = hair base colour, w = specular gain
+  float eye0[4];          // xyz = left eyeball centre, w = radius
+  float eye1[4];          // xyz = right eyeball centre, w = radius
 };
 
 struct RenderConfig {
@@ -53,12 +55,14 @@ class Renderer {
   void destroy();
 
   void setBodyMesh(const Mesh& mesh);
+  void setEyeMesh(const Mesh& mesh);
   void setHairGeometry(const std::vector<HairVertex>& verts, const std::vector<uint32_t>& indices);
   void updateHairVertices(const std::vector<HairVertex>& verts);
   bool render(const FrameUniforms& uniforms, std::string* error);
 
   const std::vector<uint8_t>& readback() const { return readbackPixels_; }
   bool drawBody = true;  // debug toggles
+  bool drawEyes = true;
   bool drawHair = true;
   float debugView = 0.0f;  // 0 normal, 1 bloom, 2 raw HDR, 3 luma
   const RenderConfig& config() const { return cfg_; }
@@ -134,9 +138,11 @@ class Renderer {
 
   Buffer ubo_{};
   Buffer bodyVB_{}, bodyIB_{};
+  Buffer eyeVB_{}, eyeIB_{};
   Buffer hairVB_{}, hairIB_{};
   Buffer readbackBuf_{};
   uint32_t bodyIndexCount_ = 0;
+  uint32_t eyeIndexCount_ = 0;
   uint32_t hairIndexCount_ = 0;
   uint32_t hairVertexCount_ = 0;
   VkDeviceSize hairVBCapacity_ = 0;
@@ -144,7 +150,7 @@ class Renderer {
   Image shadowMap_{}, msaaColor_{}, hdrColor_{}, msaaDepth_{}, ldrColor_{}, finalColor_{}, dummyTex_{};
   std::vector<Image> bloom_;
 
-  Pipeline skyPipe_{}, groundPipe_{}, bodyPipe_{}, hairPipe_{};
+  Pipeline skyPipe_{}, groundPipe_{}, bodyPipe_{}, eyePipe_{}, hairPipe_{};
   Pipeline shadowBodyPipe_{}, shadowHairPipe_{};
   Pipeline brightPipe_{}, downPipe_{}, compositePipe_{}, fxaaPipe_{};
 

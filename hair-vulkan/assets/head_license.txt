@@ -1,0 +1,14 @@
+head.obj, eyes.obj and head_sdf.bin are derived from the "Infinite-Level 02" head
+scan by Lee Perry-Smith (Infinite Studio / ir-ltd, <http://www.ir-ltd.net>), as
+distributed with three.js (examples/models/gltf/LeePerrySmith).
+
+    "3D Head Scan by Lee Perry-Smith"
+    License: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+    https://creativecommons.org/licenses/by/3.0/
+
+Modifications: welded + Loop-subdivided, re-sculpted towards a feminine bust,
+palpebral openings cut for the eyes, bust cut above the shoulders, and a signed
+distance field baked from the result (tools/build_head_asset.py).
+
+The derived files above are distributed under the same CC BY 3.0 licence; the
+attribution above must be kept with them.

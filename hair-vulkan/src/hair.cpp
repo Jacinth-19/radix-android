@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <cstring>
 
 namespace hv {
 namespace {
@@ -26,8 +28,82 @@ inline Vec3 windAt(float time, float freq, uint32_t seed) {
 
 }  // namespace
 
+bool SdfField::load(const std::string& path) {
+  std::FILE* f = std::fopen(path.c_str(), "rb");
+  if (!f) return false;
+  char magic[4] = {0, 0, 0, 0};
+  int32_t dims[3] = {0, 0, 0};
+  float lo[3] = {0, 0, 0};
+  bool ok = std::fread(magic, 1, 4, f) == 4 && std::memcmp(magic, "HSDF", 4) == 0 &&
+            std::fread(dims, sizeof(int32_t), 3, f) == 3 && std::fread(lo, sizeof(float), 3, f) == 3 &&
+            std::fread(&cell, sizeof(float), 1, f) == 1;
+  if (!ok || dims[0] <= 0 || dims[1] <= 0 || dims[2] <= 0) {
+    std::fclose(f);
+    return false;
+  }
+  nx = dims[0];
+  ny = dims[1];
+  nz = dims[2];
+  origin = Vec3(lo[0], lo[1], lo[2]);
+  data.resize((size_t)nx * (size_t)ny * (size_t)nz);
+  ok = std::fread(data.data(), 1, data.size(), f) == data.size();
+  std::fclose(f);
+  if (!ok) data.clear();
+  return ok;
+}
+
+float SdfField::sample(const Vec3& p) const {
+  if (!valid()) return 1.0f;
+  const float fx = (p.x - origin.x) / cell - 0.5f;
+  const float fy = (p.y - origin.y) / cell - 0.5f;
+  const float fz = (p.z - origin.z) / cell - 0.5f;
+  const int x0 = (int)std::floor(fx), y0 = (int)std::floor(fy), z0 = (int)std::floor(fz);
+  const float tx = fx - (float)x0, ty = fy - (float)y0, tz = fz - (float)z0;
+  auto at = [&](int x, int y, int z) -> float {
+    x = std::min(std::max(x, 0), nx - 1);
+    y = std::min(std::max(y, 0), ny - 1);
+    z = std::min(std::max(z, 0), nz - 1);
+    return (float)data[(size_t)((z * ny + y) * nx + x)] * 0.002f;
+  };
+  const float c00 = lerpf(at(x0, y0, z0), at(x0 + 1, y0, z0), tx);
+  const float c10 = lerpf(at(x0, y0 + 1, z0), at(x0 + 1, y0 + 1, z0), tx);
+  const float c01 = lerpf(at(x0, y0, z0 + 1), at(x0 + 1, y0, z0 + 1), tx);
+  const float c11 = lerpf(at(x0, y0 + 1, z0 + 1), at(x0 + 1, y0 + 1, z0 + 1), tx);
+  return lerpf(lerpf(c00, c10, ty), lerpf(c01, c11, ty), tz);
+}
+
+Vec3 SdfField::gradient(const Vec3& p) const {
+  const float h = cell;
+  Vec3 g(sample(Vec3(p.x + h, p.y, p.z)) - sample(Vec3(p.x - h, p.y, p.z)),
+         sample(Vec3(p.x, p.y + h, p.z)) - sample(Vec3(p.x, p.y - h, p.z)),
+         sample(Vec3(p.x, p.y, p.z + h)) - sample(Vec3(p.x, p.y, p.z - h)));
+  const float len = length(g);
+  return len > 1e-6f ? g / len : Vec3(0, 1, 0);
+}
+
 bool BodyShape::resolve(Vec3& p, float margin) const {
   bool moved = false;
+  // Exact surface collision against the scanned bust.
+  if (sdf.valid()) {
+    for (int pass = 0; pass < 3; ++pass) {
+      const float d = sdf.sample(p);
+      if (d >= margin) break;
+      const Vec3 g = sdf.gradient(p);
+      // Cap the correction so a particle that starts deep inside can never be
+      // teleported across the surface in a single step (that would inject energy).
+      const float push = std::min(margin - d, 0.008f);
+      p = p + g * push;
+      moved = true;
+    }
+  }
+  if (faceGuard && p.y > guardY0 && p.y < guardY1 && p.z > guardZ) {
+    const float limit = guardHalfWidth + margin;
+    if (std::fabs(p.x) < limit) {
+      const float side = (p.x >= 0.0f) ? 1.0f : -1.0f;
+      p.x = side * limit;
+      moved = true;
+    }
+  }
   for (int pass = 0; pass < 2; ++pass) {
     for (const Ellipsoid& e : solids) {
       Vec3 d = p - e.center;
@@ -50,6 +126,7 @@ bool BodyShape::resolve(Vec3& p, float margin) const {
 }
 
 bool BodyShape::inside(const Vec3& p, float margin) const {
+  if (sdf.valid() && sdf.sample(p) < margin) return true;
   for (const Ellipsoid& e : solids) {
     Vec3 d = p - e.center;
     Vec3 q(d.x / (e.radii.x + margin), d.y / (e.radii.y + margin), d.z / (e.radii.z + margin));
@@ -98,12 +175,22 @@ void HairMesh::build(const BodyShape& body, const HairStyle& style) {
 
       // Hairline: high over the forehead, low at the nape.
       const float frontness = smoothstepf(-0.35f, 0.95f, cosT);
-      float phiMax = lerpf(1.50f, 0.84f, frontness);
+      float phiMax = lerpf(1.52f, 0.62f, frontness);
       phiMax += 0.035f * randSigned(seed ^ 0x51u);  // natural hairline wobble
 
       const float phi = phiMax * std::pow(rowF, 0.80f);
 
       Vec3 root = ellipsoidPoint(hc, hr * 0.982f, phi, theta);
+      // Snap the root onto the real skull surface (SDF), so the hairline follows the
+      // scanned head instead of an idealised ellipsoid.
+      if (body_.sdf.valid()) {
+        for (int it = 0; it < 6; ++it) {
+          const float d = body_.sdf.sample(root);
+          if (std::fabs(d - 0.0020f) < 0.0008f) break;
+          const float step = clampf(0.0020f - d, -0.02f, 0.02f);
+          root = root + body_.sdf.gradient(root) * step;
+        }
+      }
       root += Vec3(randSigned(seed + 3u) * 0.0012f, 0.0f, randSigned(seed + 5u) * 0.0012f);
 
       // Frame at the root.
@@ -118,7 +205,7 @@ void HairMesh::build(const BodyShape& body, const HairStyle& style) {
       Vec3 partSweep = Vec3(side, 0.0f, 0.0f);
       partSweep = partSweep - n * dot(partSweep, n);
       partSweep = normalize(partSweep);
-      const float partness = frontness * std::exp(-(theta * theta) / (1.30f * 1.30f));
+      const float partness = frontness * std::exp(-(theta * theta) / (1.75f * 1.75f));
 
       // Coherent 'locks': neighbouring strands share a bulge so the hair reads as
       // clumped sheets instead of a perfectly smooth shell.
@@ -131,8 +218,8 @@ void HairMesh::build(const BodyShape& body, const HairStyle& style) {
       totalLen_[(size_t)strand] = totalLen;
 
       // Strong sideways comb away from the centre part so the face stays visible.
-      Vec3 dir = normalize(tangentialDown * (0.55f - 0.32f * partness) +
-                           partSweep * (partness * 1.75f) + n * 0.13f);
+      Vec3 dir = normalize(tangentialDown * (0.38f - 0.22f * partness) +
+                           partSweep * (partness * 1.15f) + n * 0.06f);
       Vec3 p = root;
 
       for (int node = 0; node < nodes_; ++node) {
@@ -153,9 +240,9 @@ void HairMesh::build(const BodyShape& body, const HairStyle& style) {
         const float flare = smoothstepf(0.02f, 0.40f, t) * (0.62f + 0.78f * lock) * (0.92f + 0.16f * rnd);
         const float inward = smoothstepf(0.68f, 1.0f, t) * 0.20f;  // tips curl back towards the body
         const float sweepFade = std::pow(1.0f - t, 1.5f);
-        Vec3 target = normalize(Vec3(0.0f, -1.0f, 0.0f) + radial * (0.15f * flare - inward) +
-                                partSweep * (partness * 1.10f * sweepFade) +
-                                tangentialDown * (0.22f * sweepFade));
+        Vec3 target = normalize(Vec3(0.0f, -1.0f, 0.0f) + radial * (0.02f * flare - inward) +
+                                partSweep * (partness * 0.55f * sweepFade) +
+                                tangentialDown * (0.30f * sweepFade));
         dir = normalize(lerp(dir, target, 0.20f + 0.55f * t));
         p = p + dir * segLen;
 

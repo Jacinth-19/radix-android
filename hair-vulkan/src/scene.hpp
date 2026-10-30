@@ -18,17 +18,25 @@ struct MeshVertex {
 struct Mesh {
   std::vector<MeshVertex> vertices;
   std::vector<uint32_t> indices;
-  void computeNormals();
+  void computeNormals(bool orientOutward = true);
 };
 
-// Builds the mannequin bust (head + neck + shoulders/chest) and the matching
-// collision proxy used by the hair simulation.
+// Builds the bust (scanned head + neck + shoulders, continued into a torso) and
+// the matching collision proxy used by the hair simulation.
 struct BodyScene {
-  Mesh mesh;
+  Mesh mesh;    // skin: scanned bust + torso continuation
+  Mesh eyes;    // the two eyeballs
   BodyShape shape;
+  Vec3 eyeCenters[2];
+  float eyeRadius = 0.012f;
+  bool loadedHeadAsset = false;
 };
 
-BodyScene buildBodyScene();
+// `assetsDir` holds head.obj, eyes.obj and head_sdf.bin (see tools/build_head_asset.py).
+BodyScene buildBodyScene(const std::string& assetsDir);
+
+// Minimal OBJ reader (v + f), welded and re-normalled.
+bool loadObjMesh(const std::string& path, Mesh& mesh, std::string* error);
 
 struct Camera {
   Vec3 target{0.0f, 1.56f, 0.0f};

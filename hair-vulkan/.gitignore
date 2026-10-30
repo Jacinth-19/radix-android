@@ -2,3 +2,4 @@ build/
 out/*
 !out/final/
 !out/hair_wind.gif
+__pycache__/

@@ -1,6 +1,12 @@
 #include "scene.hpp"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <map>
+#include <string>
 
 namespace hv {
 namespace {
@@ -168,7 +174,7 @@ void buildLathe(Mesh& mesh, const std::vector<ProfilePoint>& profile, int segmen
 
 }  // namespace
 
-void Mesh::computeNormals() {
+void Mesh::computeNormals(bool orientOutward) {
   for (MeshVertex& v : vertices) v.normal = Vec3(0, 0, 0);
   // Centre used to orient every face normal outwards (the bust is star-shaped).
   Vec3 centre(0, 0, 0);
@@ -179,8 +185,10 @@ void Mesh::computeNormals() {
     MeshVertex& b = vertices[indices[i + 1]];
     MeshVertex& c = vertices[indices[i + 2]];
     Vec3 fn = cross(b.pos - a.pos, c.pos - a.pos);
-    Vec3 triCentre = (a.pos + b.pos + c.pos) / 3.0f;
-    if (dot(fn, triCentre - centre) < 0.0f) fn = -fn;
+    if (orientOutward) {
+      Vec3 triCentre = (a.pos + b.pos + c.pos) / 3.0f;
+      if (dot(fn, triCentre - centre) < 0.0f) fn = -fn;
+    }
     a.normal += fn;
     b.normal += fn;
     c.normal += fn;
@@ -188,60 +196,133 @@ void Mesh::computeNormals() {
   for (MeshVertex& v : vertices) v.normal = normalize(v.normal);
 }
 
-BodyScene buildBodyScene() {
+bool loadObjMesh(const std::string& path, Mesh& mesh, std::string* error) {
+  std::FILE* f = std::fopen(path.c_str(), "rb");
+  if (!f) {
+    if (error) *error = "cannot open " + path;
+    return false;
+  }
+  std::vector<Vec3> positions;
+  std::vector<uint32_t> faces;
+  char line[512];
+  while (std::fgets(line, sizeof(line), f)) {
+    if (line[0] == 'v' && (line[1] == ' ' || line[1] == '\t')) {
+      float x = 0, y = 0, z = 0;
+      if (std::sscanf(line + 2, "%f %f %f", &x, &y, &z) == 3) positions.push_back(Vec3(x, y, z));
+    } else if (line[0] == 'f' && (line[1] == ' ' || line[1] == '\t')) {
+      // Faces may be "a b c", "a/b/c" or "a//c": only the vertex index matters.
+      long v[8] = {0};
+      int n = 0;
+      const char* q = line + 2;
+      while (*q && n < 8) {
+        while (*q == ' ' || *q == '\t') ++q;
+        if (!*q) break;
+        char* endp = nullptr;
+        const long idx = std::strtol(q, &endp, 10);
+        if (endp == q) break;
+        v[n++] = idx - 1;
+        q = endp;
+        while (*q && *q != ' ' && *q != '\t') ++q;  // skip /uv/normal
+      }
+      for (int k = 2; k < n; ++k) {  // triangulate the polygon
+        faces.push_back((uint32_t)v[0]);
+        faces.push_back((uint32_t)v[k - 1]);
+        faces.push_back((uint32_t)v[k]);
+      }
+    }
+  }
+  std::fclose(f);
+  if (positions.empty() || faces.empty()) {
+    if (error) *error = "no geometry in " + path;
+    return false;
+  }
+  mesh.vertices.clear();
+  mesh.indices = faces;
+  mesh.vertices.resize(positions.size());
+  for (size_t i = 0; i < positions.size(); ++i) {
+    mesh.vertices[i].pos = positions[i];
+    mesh.vertices[i].normal = Vec3(0, 1, 0);
+    mesh.vertices[i].uv = Vec2(0.0f, 0.0f);
+  }
+  mesh.computeNormals(true);   // orient by centroid: the scan has a few flipped triangles
+  return true;
+}
+
+namespace {
+
+// Torso continuation: keeps the cropped scan from ending in mid air so the long
+// hair has a chest and a waist to fall over. Top ring matches the scan's chest.
+void buildTorso(Mesh& mesh) {
+  const std::vector<ProfilePoint> profile = {
+      {1.400f, 0.100f, 0.055f, -0.055f},
+      {1.352f, 0.168f, 0.108f, -0.048f},
+      {1.320f, 0.184f, 0.118f, -0.044f},
+      {1.285f, 0.178f, 0.119f, -0.038f},
+      {1.280f, 0.172f, 0.120f, -0.038f},
+      {1.230f, 0.161f, 0.116f, -0.030f},
+      {1.170f, 0.148f, 0.110f, -0.020f},
+      {1.110f, 0.134f, 0.103f, -0.012f},
+      {1.050f, 0.121f, 0.096f, -0.006f},
+      {0.990f, 0.110f, 0.090f, -0.002f},
+      {0.920f, 0.101f, 0.085f, 0.000f},
+      {0.820f, 0.096f, 0.081f, 0.000f},
+      {0.640f, 0.092f, 0.078f, 0.000f},
+      {0.320f, 0.090f, 0.076f, 0.000f},
+      {0.040f, 0.094f, 0.080f, 0.000f},
+      {0.000f, 0.100f, 0.084f, 0.000f},
+  };
+  buildLathe(mesh, profile, 128, false, true);
+}
+
+// Screens the torso into the same mesh as the bust by appending it.
+void appendMesh(Mesh& dst, const Mesh& src) {
+  const uint32_t base = (uint32_t)dst.vertices.size();
+  dst.vertices.insert(dst.vertices.end(), src.vertices.begin(), src.vertices.end());
+  for (uint32_t i : src.indices) dst.indices.push_back(base + i);
+}
+
+}  // namespace
+
+BodyScene buildBodyScene(const std::string& assetsDir) {
   BodyScene scene;
-  const Vec3 headCenter(0.0f, 1.60f, 0.0f);
-  const Vec3 headRadii(0.081f, 0.110f, 0.095f);
-  buildHead(scene.mesh, headCenter, headRadii);
+  Mesh head;
+  std::string err;
+  scene.loadedHeadAsset = loadObjMesh(assetsDir + "/head.obj", head, &err);
+  if (!scene.loadedHeadAsset) {
+    std::fprintf(stderr, "warning: %s (run tools/build_head_asset.py)\n", err.c_str());
+    const Vec3 headCenter(0.0f, 1.545f, -0.005f);
+    const Vec3 headRadii(0.079f, 0.112f, 0.092f);
+    buildHead(scene.mesh, headCenter, headRadii);
+  } else {
+    scene.mesh = head;
+  }
 
-  // Neck: tapers from the trapezius into the skull.
-  const std::vector<ProfilePoint> neck = {
-      {1.300f, 0.066f, 0.062f, 0.004f},
-      {1.360f, 0.057f, 0.054f, 0.004f},
-      {1.420f, 0.050f, 0.049f, 0.006f},
-      {1.470f, 0.048f, 0.048f, 0.008f},
-      {1.520f, 0.050f, 0.052f, 0.010f},
-  };
-  buildLathe(scene.mesh, neck, 64, false, false);
+  Mesh eyes;
+  if (loadObjMesh(assetsDir + "/eyes.obj", eyes, &err)) {
+    scene.eyes = eyes;
+  } else {
+    std::fprintf(stderr, "warning: %s\n", err.c_str());
+  }
 
-  // Shoulders + chest (a bust that is cropped below the frame).
-  const std::vector<ProfilePoint> torso = {
-      {1.520f, 0.056f, 0.052f, 0.008f},
-      {1.485f, 0.070f, 0.058f, 0.007f},
-      {1.450f, 0.092f, 0.064f, 0.005f},
-      {1.415f, 0.126f, 0.072f, 0.003f},
-      {1.380f, 0.170f, 0.084f, 0.001f},
-      {1.352f, 0.203f, 0.093f, 0.000f},
-      {1.325f, 0.223f, 0.100f, 0.000f},
-      {1.295f, 0.228f, 0.105f, 0.000f},
-      {1.255f, 0.219f, 0.109f, 0.000f},
-      {1.200f, 0.208f, 0.112f, 0.000f},
-      {1.140f, 0.199f, 0.110f, 0.000f},
-      {1.070f, 0.193f, 0.106f, 0.000f},
-      {0.980f, 0.188f, 0.102f, 0.000f},
-      {0.860f, 0.183f, 0.099f, 0.000f},
-      {0.700f, 0.178f, 0.096f, 0.000f},
-      {0.520f, 0.174f, 0.094f, 0.000f},
-      {0.300f, 0.172f, 0.093f, 0.000f},
-      {0.040f, 0.176f, 0.096f, 0.000f},
-      {0.000f, 0.185f, 0.104f, 0.000f},
-  };
-  buildLathe(scene.mesh, torso, 96, true, true);
-
+  buildTorso(scene.mesh);
   scene.mesh.computeNormals();
 
-  // Collision proxy.
-  scene.shape.headCenter = headCenter;
-  scene.shape.headRadii = headRadii;
+  // Eyeball placement (matches tools/build_head_asset.py).
+  const float eyeX = 0.0315f, eyeY = 1.5558f, eyeZ = 0.0343f;
+  scene.eyeCenters[0] = Vec3(-eyeX, eyeY, eyeZ);
+  scene.eyeCenters[1] = Vec3(eyeX, eyeY, eyeZ);
+  scene.eyeRadius = 0.01172f;
+
+  // Collision: exact SDF against the scanned bust + soft volumes for the torso.
   scene.shape.groundY = 0.0f;
+  scene.shape.sdf.load(assetsDir + "/head_sdf.bin");
+  scene.shape.headCenter = Vec3(0.0f, 1.545f, -0.005f);
+  scene.shape.headRadii = Vec3(0.079f, 0.112f, 0.092f);
   scene.shape.solids = {
-      {headCenter, Vec3(headRadii.x * 0.99f, headRadii.y * 0.99f, headRadii.z * 0.99f)},
-      {Vec3(0.0f, 1.435f, 0.006f), Vec3(0.052f, 0.075f, 0.052f)},   // neck
-      {Vec3(0.0f, 1.330f, 0.0f), Vec3(0.222f, 0.060f, 0.100f)},     // shoulders
-      {Vec3(0.0f, 1.235f, 0.0f), Vec3(0.200f, 0.085f, 0.104f)},     // chest
-      {Vec3(0.0f, 1.100f, 0.0f), Vec3(0.190f, 0.120f, 0.102f)},     // lower chest
-      // Face guard: keeps combed hair off the face (nose/brow/cheek volume).
-      {Vec3(0.0f, 1.596f, 0.050f), Vec3(0.062f, 0.074f, 0.042f)},
+      {Vec3(0.0f, 1.240f, -0.030f), Vec3(0.172f, 0.120f, 0.118f)},  // chest
+      {Vec3(0.0f, 1.080f, -0.012f), Vec3(0.130f, 0.110f, 0.100f)},  // ribs
+      {Vec3(0.0f, 0.900f, 0.000f), Vec3(0.102f, 0.140f, 0.085f)},   // waist
+      {Vec3(0.0f, 0.600f, 0.000f), Vec3(0.094f, 0.200f, 0.080f)},   // lower torso
   };
   return scene;
 }

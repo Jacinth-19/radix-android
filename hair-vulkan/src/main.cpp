@@ -59,6 +59,7 @@ struct Options {
   int bloomLevels = 5;
   bool listShots = false;
   bool shotsExplicit = false;
+  std::string assetsDir = "assets";
   std::string outDir = "out";
   std::string spvDir = "spv";
   std::vector<std::string> shotNames;
@@ -82,6 +83,7 @@ void printUsage() {
       "  --settle N                  simulation warm-up steps (default 110)\n"
       "  --out DIR                   output directory for PNG frames\n"
       "  --spv DIR                   directory with the compiled SPIR-V shaders\n"
+      "  --assets <dir>              head/eye meshes + SDF (default: assets)\n"
       "  --interactive               camera console: a/d orbit, w/s pitch, q/e dolly, p=save frame\n"
       "  --list-shots                print the shot list and exit\n");
 }
@@ -110,6 +112,7 @@ bool parseArgs(int argc, char** argv, Options& opt) {
     else if (a == "--shot") { if (i + 1 < argc) { opt.shotNames.push_back(argv[++i]); opt.shotsExplicit = true; } }
     else if (a == "--all-shots") { opt.shotNames.clear(); opt.shotsExplicit = true; }
     else if (a == "--interactive") opt.interactive = true;
+    else if (a == "--assets") { if (i + 1 < argc) opt.assetsDir = argv[++i]; }
     else if (a == "--no-body") opt.noBody = true;
     else if (a == "--shadow-bias") next(opt.shadowBias);
     else if (a == "--no-hair") opt.noHair = true;
@@ -127,7 +130,8 @@ bool parseArgs(int argc, char** argv, Options& opt) {
 }
 
 FrameUniforms makeUniforms(const Camera& cam, float aspect, float time, const Options& opt,
-                           float windStrength, int shadowSize, float frameIndex) {
+                           float windStrength, int shadowSize, float frameIndex,
+                           const Vec3* eyeCenters = nullptr, float eyeRadius = 0.012f) {
   FrameUniforms u{};
   Mat4 view = cam.view();
   Mat4 proj = cam.proj(aspect);
@@ -175,6 +179,16 @@ FrameUniforms makeUniforms(const Camera& cam, float aspect, float time, const Op
   u.hairColor[1] = 0.032f;
   u.hairColor[2] = 0.017f;
   u.hairColor[3] = 0.55f;   // specular gain
+
+  if (eyeCenters) {
+    for (int i = 0; i < 2; ++i) {
+      float* e = (i == 0) ? u.eye0 : u.eye1;
+      e[0] = eyeCenters[i].x;
+      e[1] = eyeCenters[i].y;
+      e[2] = eyeCenters[i].z;
+      e[3] = eyeRadius;
+    }
+  }
   return u;
 }
 
@@ -202,13 +216,15 @@ int main(int argc, char** argv) {
   std::printf("hair-vulkan: real-time hair mesh simulation (Wu & Yuksel, I3D 2016)\n");
 
   // ------------------------------------------------------------------ scene --
-  BodyScene scene = buildBodyScene();
+  BodyScene scene = buildBodyScene(opt.assetsDir);
+  std::printf("bust: %zu verts, %zu tris%s\n", scene.mesh.vertices.size(), scene.mesh.indices.size() / 3,
+              scene.loadedHeadAsset ? " (scanned head asset)" : " (procedural fallback)");
 
   HairStyle style;
   style.cols = 212;
   style.rows = 48;
   style.nodes = 20;
-  style.length = 0.520f;
+  style.length = 0.430f;
   style.ribbonWidth = 0.0019f;
   style.waveAmp = 0.010f;
   style.waveFreq = 2.0f;
@@ -273,6 +289,8 @@ int main(int argc, char** argv) {
   renderer.drawHair = !opt.noHair;
   renderer.debugView = (float)opt.debugView;
   renderer.setBodyMesh(scene.mesh);
+  renderer.setEyeMesh(scene.eyes);
+  renderer.drawEyes = !opt.noBody;
   renderer.setHairGeometry(verts, indices);
 
   const float aspect = (float)opt.width / (float)opt.height;
@@ -289,7 +307,8 @@ int main(int argc, char** argv) {
     hair.writeRibbonVertices(verts);
     renderer.updateHairVertices(verts);
 
-    FrameUniforms u = makeUniforms(cam, aspect, wind.time, opt, wind.strength, shadowSize, frameIndex);
+    FrameUniforms u = makeUniforms(cam, aspect, wind.time, opt, wind.strength, shadowSize, frameIndex,
+                     scene.eyeCenters, scene.eyeRadius);
     std::string err;
     if (!renderer.render(u, &err)) {
       std::fprintf(stderr, "render failed: %s\n", err.c_str());
@@ -376,7 +395,8 @@ int main(int argc, char** argv) {
       wind.time += 1.0f / 60.0f;
       hair.writeRibbonVertices(verts);
       renderer.updateHairVertices(verts);
-      FrameUniforms u = makeUniforms(cam, aspect, wind.time, opt, wind.strength, shadowSize, 0.0f);
+      FrameUniforms u = makeUniforms(cam, aspect, wind.time, opt, wind.strength, shadowSize, 0.0f,
+                     scene.eyeCenters, scene.eyeRadius);
       std::string err;
       if (!renderer.render(u, &err)) {
         std::fprintf(stderr, "render failed: %s\n", err.c_str());

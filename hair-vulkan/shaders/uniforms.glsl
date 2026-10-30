@@ -14,6 +14,8 @@ layout(set = 0, binding = 0) uniform Frame {
   vec4 skyParams;    // x = sun disk power, y = cloud cover, z = sky gain, w = horizon haze
   vec4 shadowParams; // x = 1/shadowSize, y = depth bias, z = shadow size, w = unused
   vec4 hairColor;    // rgb = hair base colour, w = specular gain
+  vec4 eye0;         // xyz = left eyeball centre, w = radius
+  vec4 eye1;         // xyz = right eyeball centre, w = radius
 } F;
 
 const float PI = 3.14159265359;

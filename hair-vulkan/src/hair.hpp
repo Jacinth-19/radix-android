@@ -16,6 +16,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "math.hpp"
@@ -27,13 +28,38 @@ struct Ellipsoid {
   Vec3 radii;
 };
 
+// Signed-distance field of the scanned bust, quantised to 2 mm steps.
+//
+// Sampling it (instead of a handful of ellipsoids) makes the hair collide with the
+// real surface: the nose, brow, cheekbones, ears, jaw and neck all push the strands
+// the way they do on a real head.
+struct SdfField {
+  int nx = 0, ny = 0, nz = 0;
+  Vec3 origin{};
+  float cell = 0.0f;
+  std::vector<int8_t> data;
+
+  bool valid() const { return nx > 0 && !data.empty(); }
+  bool load(const std::string& path);
+  float sample(const Vec3& p) const;   // signed distance in metres (negative = inside)
+  Vec3 gradient(const Vec3& p) const;  // outward direction
+};
+
 // Collision proxy for the bust (head, neck, shoulders, chest) + the floor.
 struct BodyShape {
   std::vector<Ellipsoid> solids;
+  SdfField sdf;
   float groundY = 0.0f;
 
   Vec3 headCenter{0, 1.60f, 0};
   Vec3 headRadii{0.078f, 0.107f, 0.092f};
+
+  // Keep-out slab in front of the face: the hair parts around it instead of
+  // draping over the eyes (a lateral push, like combing the hair behind the ears).
+  bool faceGuard = true;
+  float guardY0 = 1.435f, guardY1 = 1.660f;
+  float guardHalfWidth = 0.064f;
+  float guardZ = 0.015f;
 
   // Projects `p` out of every solid (with `margin` skin thickness) and above the floor.
   // Returns true when the point had to be moved.

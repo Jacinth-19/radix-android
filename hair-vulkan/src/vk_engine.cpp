@@ -676,8 +676,13 @@ bool Renderer::createPipelines(std::string* error) {
 
   bodyPipe_ = createGraphicsPipeline("body", "body_frag", hdr, samples, VK_FORMAT_D32_SFLOAT, true, true,
                                      false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, true,
-                                     (int)sizeof(MeshVertex), VK_CULL_MODE_NONE, error);
+                                     (int)sizeof(MeshVertex), VK_CULL_MODE_BACK_BIT, error);
   if (!bodyPipe_.pipeline) return false;
+
+  eyePipe_ = createGraphicsPipeline("eye", "eye_frag", hdr, samples, VK_FORMAT_D32_SFLOAT, true, true,
+                                    false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, true,
+                                    (int)sizeof(MeshVertex), VK_CULL_MODE_BACK_BIT, error);
+  if (!eyePipe_.pipeline) return false;
 
   hairPipe_ = createGraphicsPipeline("hair", "hair_frag", hdr, samples, VK_FORMAT_D32_SFLOAT, true, true,
                                      false, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, true,
@@ -792,6 +797,8 @@ void Renderer::destroy() {
 
   destroyBuffer(ubo_);
   destroyBuffer(bodyVB_);
+  destroyBuffer(eyeVB_);
+  destroyBuffer(eyeIB_);
   destroyBuffer(bodyIB_);
   destroyBuffer(hairVB_);
   destroyBuffer(hairIB_);
@@ -820,6 +827,23 @@ void Renderer::setBodyMesh(const Mesh& mesh) {
                VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mesh.indices.data(), &err);
   bodyIndexCount_ = (uint32_t)mesh.indices.size();
+}
+
+void Renderer::setEyeMesh(const Mesh& mesh) {
+  destroyBuffer(eyeVB_);
+  destroyBuffer(eyeIB_);
+  if (mesh.vertices.empty() || mesh.indices.empty()) {
+    eyeIndexCount_ = 0;
+    return;
+  }
+  std::string err;
+  createBuffer(eyeVB_, (VkDeviceSize)(mesh.vertices.size() * sizeof(MeshVertex)),
+               VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mesh.vertices.data(), &err);
+  createBuffer(eyeIB_, (VkDeviceSize)(mesh.indices.size() * sizeof(uint32_t)),
+               VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mesh.indices.data(), &err);
+  eyeIndexCount_ = (uint32_t)mesh.indices.size();
 }
 
 void Renderer::setHairGeometry(const std::vector<HairVertex>& verts,
@@ -914,6 +938,17 @@ bool Renderer::render(const FrameUniforms& uniforms, std::string* error) {
     vkCmdBindIndexBuffer(cmd_, bodyIB_.buffer, 0, VK_INDEX_TYPE_UINT32);
     vkCmdDrawIndexed(cmd_, bodyIndexCount_, 1, 0, 0, 0);
   }
+  }
+
+  // Eyes.
+  if (drawEyes && eyeIndexCount_ > 0) {
+    vkCmdBindPipeline(cmd_, VK_PIPELINE_BIND_POINT_GRAPHICS, eyePipe_.pipeline);
+    vkCmdBindDescriptorSets(cmd_, VK_PIPELINE_BIND_POINT_GRAPHICS, eyePipe_.layout, 0, 1, &setScene_,
+                            0, nullptr);
+    VkDeviceSize offset = 0;
+    vkCmdBindVertexBuffers(cmd_, 0, 1, &eyeVB_.buffer, &offset);
+    vkCmdBindIndexBuffer(cmd_, eyeIB_.buffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdDrawIndexed(cmd_, eyeIndexCount_, 1, 0, 0, 0);
   }
 
   // Hair.
