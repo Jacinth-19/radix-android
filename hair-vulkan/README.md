@@ -11,8 +11,6 @@ No image proxies and no pre-baked frames: every pixel is rasterised by Vulkan on
 the Mesa `lavapipe` software device. PNG files are written only as the final
 readback of the rendered frame.
 
-![contact sheet](out/final/contact_sheet.png)
-
 ## Features (map to the requirement list)
 
 | Requirement | Implementation |
