@@ -22,7 +22,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertTrue
@@ -215,10 +215,9 @@ class NativeDeviceUiTest {
         // Scroll just enough to clear the bottom navigation inset; performScrollTo alone
         // can leave a bottom-aligned target under that bar on a compact phone.
         composeRule.onNodeWithTag("study-page-scroll").performTouchInput {
-            val x = centerX
-            swipeUp(
-                start = Offset(x, size.height * 0.8f),
-                end = Offset(x, size.height * 0.55f),
+            swipe(
+                start = Offset(centerX, 390f),
+                end = Offset(centerX, 240f),
                 durationMillis = 500,
             )
         }
