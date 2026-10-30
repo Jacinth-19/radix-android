@@ -292,7 +292,7 @@ class NativeDeviceUiTest {
 
     private fun verifyConverterSavedValuesAndHistoryWorkEndToEnd() {
         // Convert a known value, save it, reopen it, and confirm recent history is separate.
-        composeRule.onNodeWith(hasText(strings.tabConvert) and hasClickAction()).performClick()
+        composeRule.onNode(hasText(strings.tabConvert) and hasClickAction()).performClick()
         val number = composeRule.onNodeWithContentDescription(localized("Number to convert in base 10"))
         number.performScrollTo()
         number.performTextClearance()
@@ -339,7 +339,7 @@ class NativeDeviceUiTest {
         openMore()
         composeRule.onNodeWithText(localized("Boolean laws lab")).performScrollTo().performClick()
         composeRule.onNodeWithText(localized("THE BOOLEAN LAWS LAB")).performScrollTo().assertExists()
-        val verifyLaw = composeRule.onAllNodesWithText("Tap to verify live").onFirst()
+        val verifyLaw = composeRule.onAllNodesWithText("Tap to verify live")[0]
         verifyLaw.performScrollTo().performClick()
         composeRule.onNodeWithText("Holds in all", substring = true).performScrollTo().assertExists()
     }
