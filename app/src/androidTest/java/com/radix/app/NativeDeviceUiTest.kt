@@ -207,8 +207,15 @@ class NativeDeviceUiTest {
         composeRule.mainClock.advanceTimeBy(5_000)
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithContentDescription(localized("Expression input A 1. Tap to toggle."))
-            .performScrollTo().performClick()
+        val inputA = composeRule.onNodeWithContentDescription(
+            localized("Expression input A 1. Tap to toggle.")
+        )
+        inputA.performScrollTo().performTouchInput { click() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithContentDescription(
+            localized("Expression input A 0. Tap to toggle.")
+        ).assertExists()
+
         val kMapTab=composeRule.onNodeWithTag("expression-kmap-tab")
         kMapTab.assert(hasClickAction())
         kMapTab.performScrollTo().performClick()
